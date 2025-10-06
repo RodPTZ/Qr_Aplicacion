@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\SistemaDeBoleteria.API",
+    "\\SistemaDeBoleteria.API\\Controllers",
+    "\\SistemaDeBoleteria.API\\Properties",
+    "\\SistemaDeBoleteria.Core"
+  ],
+  "SelectedNode": "\\SistemaDeBoleteria.API\\Controllers\\EntradaController.cs",
+  "PreviewInSolutionExplorer": false
+}

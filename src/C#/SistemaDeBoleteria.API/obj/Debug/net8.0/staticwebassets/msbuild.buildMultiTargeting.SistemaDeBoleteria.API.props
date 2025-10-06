@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/SistemaDeBoleteria.API.props" />
+</Project>

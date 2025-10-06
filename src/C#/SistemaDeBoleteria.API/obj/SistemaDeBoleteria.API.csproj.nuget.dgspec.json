@@ -1,0 +1,219 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.API/SistemaDeBoleteria.API.csproj": {}
+  },
+  "projects": {
+    "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.API/SistemaDeBoleteria.API.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.API/SistemaDeBoleteria.API.csproj",
+        "projectName": "SistemaDeBoleteria.API",
+        "projectPath": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.API/SistemaDeBoleteria.API.csproj",
+        "packagesPath": "/home/alumno/.nuget/packages/",
+        "outputPath": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.API/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/alumno/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.AdoDapper/SistemaDeBoleteria.AdoDapper.csproj": {
+                "projectPath": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.AdoDapper/SistemaDeBoleteria.AdoDapper.csproj"
+              },
+              "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.Core/SistemaDeBoleteria.Core.csproj": {
+                "projectPath": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.Core/SistemaDeBoleteria.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.66, )"
+            },
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[12.0.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.20, )"
+            },
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[2.4.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.6.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.120/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.AdoDapper/SistemaDeBoleteria.AdoDapper.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.AdoDapper/SistemaDeBoleteria.AdoDapper.csproj",
+        "projectName": "SistemaDeBoleteria.AdoDapper",
+        "projectPath": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.AdoDapper/SistemaDeBoleteria.AdoDapper.csproj",
+        "packagesPath": "/home/alumno/.nuget/packages/",
+        "outputPath": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.AdoDapper/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/alumno/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.Core/SistemaDeBoleteria.Core.csproj": {
+                "projectPath": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.Core/SistemaDeBoleteria.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.66, )"
+            },
+            "MySqlConnector": {
+              "target": "Package",
+              "version": "[2.4.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.120/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.Core/SistemaDeBoleteria.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.Core/SistemaDeBoleteria.Core.csproj",
+        "projectName": "SistemaDeBoleteria.Core",
+        "projectPath": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.Core/SistemaDeBoleteria.Core.csproj",
+        "packagesPath": "/home/alumno/.nuget/packages/",
+        "outputPath": "/home/alumno/Descargas/Qr_Aplicacion/src/C#/SistemaDeBoleteria.Core/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/alumno/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "QRCoder": {
+              "target": "Package",
+              "version": "[1.6.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.120/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
