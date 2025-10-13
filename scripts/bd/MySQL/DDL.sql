@@ -18,7 +18,7 @@ CREATE TABLE Cliente (
 CREATE TABLE Local (
     IdLocal INT UNSIGNED AUTO_INCREMENT NOT NULL,
     Ubicacion VARCHAR(30) NOT NULL,
-    CONSTRAINT PK_Local PRIMARY KEY (IDLocal)
+    CONSTRAINT PK_Local PRIMARY KEY (ID)
 );
 
 CREATE TABLE Sector (
@@ -26,7 +26,7 @@ CREATE TABLE Sector (
     IdLocal INT UNSIGNED NOT NULL,
     TipoSector VARCHAR(30) NOT NULL,
     CONSTRAINT PK_Sector PRIMARY KEY (IdSector),
-    CONSTRAINT FK_Sector_Local FOREIGN KEY (IdLocal) REFERENCES Local (IdSector)
+    CONSTRAINT FK_Sector_Local FOREIGN KEY (IdLocal) REFERENCES Local (ID)
 );
 
 CREATE TABLE Evento (
@@ -121,58 +121,3 @@ CREATE TABLE QR (
     CONSTRAINT PK_Qr PRIMARY KEY (IdQr),
     CONSTRAINT FK_Qr_Entrada FOREIGN KEY (IdEntrada) REFERENCES Entrada (IdEntrada)
 );
-
-CREATE PROCEDURE ValidarQR( unIdEntrada INT)
-BEGIN
-    DECLARE Ahora TIME DEFAULT CAST(NOW());
-    DECLARE esHoy BOOL DEFAULT FALSE;
-    DECLARE dentroDelHorario BOOL DEFAULT FALSE;
-
-    SET @Apertura = (SELECT Apertura FROM Sesion WHERE IdSesion = (SELECT O.IdSesion FROM Orden O JOIN Entrada USING (IdOrden)
-    WHERE IdEntrada = unIdEntrada));
-    
-    SET @Cierre = (SELECT Cierre FROM Sesion WHERE IdSesion = (SELECT O.IdSesion FROM Orden O JOIN Entrada USING (IdOrden)
-    WHERE IdEntrada = unIdEntrada));
-
-    IF((SELECT Liquidez FROM Entrada WHERE IdEntrada = unIdEntrada) = NOW())
-    THEN 
-        SET esHoy = TRUE;
-    END IF;
-
-    IF((SELECT Anulada FROM Entrada WHERE IdEntrada = unIdEntrada) IS TRUE)
-    THEN
-        UPDATE QR
-        SET TipoEstado = 'FirmaInvalida'
-        WHERE IdEntrada = unIdEntrada;
-    END IF;
-
-    IF(Ahora >= @Apertura AND Ahora <= @Cierre)
-    THEN
-        SET dentroDelHorario = TRUE
-    END IF;
-
-    IF(esHoy)
-    THEN
-        IF(dentroDelHorario)
-        THEN
-            IF((SELECT TipoEstado FROM QR WHERE IdEntrada = unIdEntrada) = 'Ok')
-            THEN
-                UPDATE QR
-                SET TipoEstado = 'YaUsada'
-                WHERE IdEntrada = unIdEntrada;
-            ELSE IF((SELECT TipoEstado FROM QR WHERE IdEntrada = unIdEntrada) != 'YaUsada')
-                UPDATE QR
-                SET TipoEstado = 'Ok'
-                WHERE IdEntrada = unIdEntrada;
-            END IF;
-        ELSE
-            UPDATE QR
-            SET TipoEstado = 'FirmaInvalida'
-            WHERE IdEntrada= unIdEntrada;
-        END IF;
-    ELSE IF((SELECT Liquidez FROM Entrada WHERE IdEntrada = unIdEntrada)< DATE.NOW())
-        UPDATE QR
-        SET TipoEstado = 'Expirada'
-        WHERE IdEntrada = unIdEntrada;
-    END IF;
-END;
