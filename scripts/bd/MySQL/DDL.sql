@@ -106,7 +106,7 @@ CREATE TABLE Entrada (
     TipoEntrada ENUM('General', 'VIP', 'PLUS'),
     Emision DATETIME NOT NULL,
     Liquidez DATETIME NOT NULL,
-    Anulada BOOLEAN DEFAULT FALSE,
+    Estado ENUM('Anulado', 'Pagado', 'Pendiente'),
     CONSTRAINT PK_Entrada PRIMARY KEY (IdEntrada),
     CONSTRAINT FK_Entrada_Orden FOREIGN KEY (IdOrden) REFERENCES Orden (IdOrden)
 );
