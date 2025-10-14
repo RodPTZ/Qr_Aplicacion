@@ -1,5 +1,4 @@
 CREATE DATABASE 5to_SistemaDeBoleteria;
-
 USE 5to_SistemaDeBoleteria;
 
 CREATE TABLE Cliente (
@@ -8,15 +7,17 @@ CREATE TABLE Cliente (
     Apellido VARCHAR(30) NOT NULL,
     DNI INT UNSIGNED NOT NULL,
     Email VARCHAR(60) NOT NULL,
-    Telefono INT NOT NULL,
+    Telefono VARCHAR(20) NOT NULL,
     Localidad VARCHAR(30) NOT NULL,
     Edad TINYINT NOT NULL,
+    Contraseña VARCHAR(255) NOT NULL,
     CONSTRAINT PK_Cliente PRIMARY KEY (IdCliente),
-    CONSTRAINT UK_Cliente UNIQUE KEY (DNI)
+    CONSTRAINT UK_Cliente UNIQUE (DNI)
 );
 
 CREATE TABLE Local (
     IdLocal INT UNSIGNED AUTO_INCREMENT NOT NULL,
+    Nombre VARCHAR(255) NOT NULL,
     Ubicacion VARCHAR(30) NOT NULL,
     CONSTRAINT PK_Local PRIMARY KEY (IdLocal)
 );
@@ -24,7 +25,7 @@ CREATE TABLE Local (
 CREATE TABLE Sector (
     IdSector INT UNSIGNED NOT NULL AUTO_INCREMENT,
     IdLocal INT UNSIGNED NOT NULL,
-    TipoSector VARCHAR(30) NOT NULL,
+    Capacidad SMALLINT UNSIGNED NOT NULL,
     CONSTRAINT PK_Sector PRIMARY KEY (IdSector),
     CONSTRAINT FK_Sector_Local FOREIGN KEY (IdLocal) REFERENCES Local (IdLocal)
 );
@@ -32,7 +33,7 @@ CREATE TABLE Sector (
 CREATE TABLE Evento (
     IdEvento INT UNSIGNED NOT NULL AUTO_INCREMENT,
     IdLocal INT UNSIGNED NOT NULL,
-    Nombre VARCHAR(30) NOT NULL,
+    Nombre VARCHAR(60) NOT NULL,
     Tipo ENUM(
         'Concierto',
         'Convencion',
@@ -42,21 +43,22 @@ CREATE TABLE Evento (
         'Boliches',
         'Música'
     ) NOT NULL,
-    publicado BOOLEAN DEFAULT FALSE NOT NULL,
+    Publicado BOOLEAN DEFAULT FALSE NOT NULL,
     CONSTRAINT PK_Evento PRIMARY KEY (IdEvento),
-    constraint FK_Evento_Local FOREIGN KEY (IdLocal) REFERENCES Local (IdLocal)
+    CONSTRAINT FK_Evento_Local FOREIGN KEY (IdLocal) REFERENCES Local (IdLocal)
 );
 
 CREATE TABLE Sesion (
     IdSesion INT UNSIGNED AUTO_INCREMENT NOT NULL,
     IdEvento INT UNSIGNED NOT NULL,
-    cupos SMALLINT UNSIGNED NOT NULL,
+    Cupos SMALLINT UNSIGNED NOT NULL,
     Fecha DATE NOT NULL,
     Apertura TIME NOT NULL,
     Cierre TIME NOT NULL,
     CONSTRAINT PK_Sesion PRIMARY KEY (IdSesion),
     CONSTRAINT FK_Sesion_Evento FOREIGN KEY (IdEvento) REFERENCES Evento (IdEvento)
 );
+
 
 CREATE TABLE Funcion (
     IdFuncion INT UNSIGNED AUTO_INCREMENT NOT NULL,
@@ -68,8 +70,10 @@ CREATE TABLE Funcion (
     Cancelado BOOLEAN DEFAULT FALSE,
     CONSTRAINT PK_Funcion PRIMARY KEY (IdFuncion),
     CONSTRAINT FK_Funcion_Evento FOREIGN KEY (IdEvento) REFERENCES Evento (IdEvento),
-    CONSTRAINT FK_Funcion_Sector FOREIGN KEY (IdSector) REFERENCES Sector (IdSector)
+    CONSTRAINT FK_Funcion_Sector FOREIGN KEY (IdSector) REFERENCES Sector (IdSector),
+    CONSTRAINT FK_Funcion_Sesion FOREIGN KEY (IdSesion) REFERENCES Sesion (IdSesion)
 );
+
 
 CREATE TABLE Tarifa (
     IdTarifa INT UNSIGNED AUTO_INCREMENT NOT NULL,
@@ -83,17 +87,17 @@ CREATE TABLE Tarifa (
 
 CREATE TABLE Orden (
     IdOrden INT UNSIGNED AUTO_INCREMENT NOT NULL,
-    idSesion INT UNSIGNED NOT NULL,
+    IdTarifa INT UNSIGNED NOT NULL,
+    IdSesion INT UNSIGNED NOT NULL,
     IdCliente INT UNSIGNED NOT NULL,
-    TipoEntrada ENUM('General', 'VIP', 'Plus'),
-    Abonado BOOLEAN DEFAULT FALSE,
-    Cancelado BOOLEAN DEFAULT FALSE,
+    Estado ENUM('Abonado','Cancelado') DEFAULT 'Abonado',
     Emision DATETIME NOT NULL,
     Cierre DATETIME NOT NULL,
-    MedioDePago VARCHAR(30),
+    MedioDePago ENUM('Efectivo','Transferencia','Debito','Credito'),
     CONSTRAINT PK_Orden PRIMARY KEY (IdOrden),
     CONSTRAINT FK_Orden_Sesion FOREIGN KEY (IdSesion) REFERENCES Sesion (IdSesion),
-    CONSTRAINT FK_Orden_Cliente FOREIGN KEY (IdCliente) REFERENCES Cliente (IdCliente)
+    CONSTRAINT FK_Orden_Cliente FOREIGN KEY (IdCliente) REFERENCES Cliente (IdCliente),
+    CONSTRAINT FK_Orden_Tarifa FOREIGN KEY (IdTarifa) REFERENCES Tarifa (IdTarifa)
 );
 
 CREATE TABLE Entrada (
@@ -103,8 +107,8 @@ CREATE TABLE Entrada (
     Emision DATETIME NOT NULL,
     Liquidez DATETIME NOT NULL,
     Anulada BOOLEAN DEFAULT FALSE,
-    CONSTRAINT FK_Entrada_Orden FOREIGN KEY (IdOrden) REFERENCES Orden (IdOrden),
-    CONSTRAINT PK_Entrada PRIMARY KEY (IdEntrada)
+    CONSTRAINT PK_Entrada PRIMARY KEY (IdEntrada),
+    CONSTRAINT FK_Entrada_Orden FOREIGN KEY (IdOrden) REFERENCES Orden (IdOrden)
 );
 
 CREATE TABLE QR (
@@ -117,7 +121,7 @@ CREATE TABLE QR (
         'FirmaInvalida',
         'NoExiste'
     ) NOT NULL,
-    Código VARCHAR(60) NOT NULL,
-    CONSTRAINT PK_Qr PRIMARY KEY (IdQr),
+    Codigo VARCHAR(255) NOT NULL,
+    CONSTRAINT PK_Qr PRIMARY KEY (IdQR),
     CONSTRAINT FK_Qr_Entrada FOREIGN KEY (IdEntrada) REFERENCES Entrada (IdEntrada)
 );
