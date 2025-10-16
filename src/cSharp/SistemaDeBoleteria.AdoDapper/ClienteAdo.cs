@@ -15,7 +15,6 @@ public class ClienteAdo : IClienteService
     {
         db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
     }
-
     
     public IEnumerable<Cliente> GetClientes()
     {

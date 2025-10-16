@@ -9,12 +9,12 @@ namespace SistemaDeBoleteria.AdoDapper;
 public class SectorAdo : ISectorService
 {
     private readonly IDbConnection db;
-        public SectorAdo(string connectionString) => db = new MySqlConnection(connectionString);
-        public SectorAdo(IDbConnection dbConnection) => db = dbConnection;
-        public SectorAdo()
-        {
-            db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
-        }
+    public SectorAdo(string connectionString) => db = new MySqlConnection(connectionString);
+    public SectorAdo(IDbConnection dbConnection) => db = dbConnection;
+    public SectorAdo()
+    {
+        db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
+    }
     
     public void InsertSector(Sector sector, int idLocal)
     {
@@ -33,10 +33,10 @@ public class SectorAdo : ISectorService
         var sql = "SELECT * FROM Sector WHERE IdLocal = @ID";
         return db.Query<Sector>(sql, new { ID = idLocal });
     }
-    public Sector? GetSectorById(int id)
+    public Sector? GetSectorByLocalId(int idLocal)
     {
         var sql = "SELECT * FROM Sector WHERE IdSector = @ID";
-        return db.QueryFirstOrDefault<Sector>(sql, new { ID = id });
+        return db.QueryFirstOrDefault<Sector>(sql, new { ID = idLocal });
     }
     public bool UpdateSector(Sector sector, int id)
     {
@@ -59,5 +59,10 @@ public class SectorAdo : ISectorService
             return true;
         }
         return false;
+    }
+    public Sector GetSectorById(int idSector)
+    {
+        var sql = "SELECT * FROM Sector WHERE IdSector = @ID";
+        return db.QueryFirstOrDefault<Sector>(sql, new { ID = idSector })!;
     }
 }

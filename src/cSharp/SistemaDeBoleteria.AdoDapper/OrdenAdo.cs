@@ -6,15 +6,15 @@ using System.Data;
 
 namespace SistemaDeBoleteria.AdoDapper;
 
-public class OrdenAdo
+public class OrdenAdo : IOrdenService
 {
     private readonly IDbConnection db;
-        public OrdenAdo(string connectionString) => db = new MySqlConnection(connectionString);
-        public OrdenAdo(IDbConnection dbConnection) => db = dbConnection;
-        public OrdenAdo()
-        {
-            db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
-        }
+    public OrdenAdo(string connectionString) => db = new MySqlConnection(connectionString);
+    public OrdenAdo(IDbConnection dbConnection) => db = dbConnection;
+    public OrdenAdo()
+    {
+        db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
+    }
 
     public IEnumerable<Orden> GetOrdenes()
     {
@@ -52,4 +52,5 @@ public class OrdenAdo
         var sql = "UPDATE Orden SET Cancelado = true WHERE IdOrden = @ID";
         db.Execute(sql, new { ID = id });
     }
+    
 }
