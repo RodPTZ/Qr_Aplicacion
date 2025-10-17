@@ -67,12 +67,12 @@ END$$
 CREATE PROCEDURE PublicarEvento(IN unIdEvento INT)
 BEGIN
     IF EXISTS (SELECT 1 FROM Funcion WHERE IdEvento = unIdEvento)
-       AND EXISTS (
-           SELECT 1
-           FROM Tarifa T
-           JOIN Funcion F ON F.IdFuncion = T.IdFuncion
-           WHERE F.IdEvento = unIdEvento AND T.Estado = TRUE
-       )
+    AND EXISTS (
+            SELECT 1
+            FROM Tarifa T
+            JOIN Funcion F ON F.IdFuncion = T.IdFuncion
+            WHERE F.IdEvento = unIdEvento AND T.Estado = TRUE
+        )
     THEN
         UPDATE Evento
         SET Publicado = TRUE
