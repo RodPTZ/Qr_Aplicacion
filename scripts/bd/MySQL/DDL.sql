@@ -1,18 +1,26 @@
 CREATE DATABASE 5to_SistemaDeBoleteria;
 USE 5to_SistemaDeBoleteria;
 
+CREATE TABLE Usuario(
+    IdUsuario INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    NombreUsuario VARCHAR(60),
+    Email VARCHAR(60) NOT NULL,
+    Contraseña VARCHAR(255)
+    CONSTRAINT PK_Usuario PRIMARY KEY (IdUsuario),
+)
+
 CREATE TABLE Cliente (
     IdCliente INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    IdUsuario INT UNSIGNED NOT NULL,
     Nombre VARCHAR(30) NOT NULL,
     Apellido VARCHAR(30) NOT NULL,
     DNI INT UNSIGNED NOT NULL,
-    Email VARCHAR(60) NOT NULL,
     Telefono VARCHAR(20) NOT NULL,
     Localidad VARCHAR(30) NOT NULL,
     Edad TINYINT NOT NULL,
-    Contraseña VARCHAR(255) NOT NULL,
     CONSTRAINT PK_Cliente PRIMARY KEY (IdCliente),
     CONSTRAINT UK_Cliente UNIQUE (DNI)
+    CONSTRAINT FK_Usuario FOREIGN KEY (IdUsuario) REFERENCES Local (IdUsuario)
 );
 
 CREATE TABLE Local (
