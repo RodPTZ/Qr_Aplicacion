@@ -5,9 +5,9 @@ CREATE TABLE Usuario(
     IdUsuario INT UNSIGNED NOT NULL AUTO_INCREMENT,
     NombreUsuario VARCHAR(60),
     Email VARCHAR(60) NOT NULL,
-    Contraseña VARCHAR(255)
-    CONSTRAINT PK_Usuario PRIMARY KEY (IdUsuario),
-)
+    Contraseña VARCHAR(255),
+    CONSTRAINT PK_Usuario PRIMARY KEY (IdUsuario)
+);
 
 CREATE TABLE Cliente (
     IdCliente INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -19,8 +19,8 @@ CREATE TABLE Cliente (
     Localidad VARCHAR(30) NOT NULL,
     Edad TINYINT NOT NULL,
     CONSTRAINT PK_Cliente PRIMARY KEY (IdCliente),
-    CONSTRAINT UK_Cliente UNIQUE (DNI)
-    CONSTRAINT FK_Usuario FOREIGN KEY (IdUsuario) REFERENCES Local (IdUsuario)
+    CONSTRAINT UK_Cliente UNIQUE (DNI),
+    CONSTRAINT FK_Usuario FOREIGN KEY (IdUsuario) REFERENCES Usuario (IdUsuario)
 );
 
 CREATE TABLE Local (
@@ -51,7 +51,7 @@ CREATE TABLE Evento (
         'Boliches',
         'Música'
     ) NOT NULL,
-    Publicado BOOLEAN DEFAULT FALSE NOT NULL,
+    Estado ENUM('Publicado','Cancelado','Creado') NOT NULL DEFAULT 'Creado',
     CONSTRAINT PK_Evento PRIMARY KEY (IdEvento),
     CONSTRAINT FK_Evento_Local FOREIGN KEY (IdLocal) REFERENCES Local (IdLocal)
 );
@@ -88,7 +88,7 @@ CREATE TABLE Tarifa (
     IdFuncion INT UNSIGNED NOT NULL,
     Precio DECIMAL(10, 2) NOT NULL,
     Stock INT UNSIGNED NOT NULL,
-    Estado BOOL DEFAULT FALSE,
+    Estado ENUM('Activa', 'Inactiva', 'Agotada', 'Suspendida') DEFAULT 'Inactiva',
     CONSTRAINT PK_Tarifa PRIMARY KEY (IdTarifa),
     CONSTRAINT FK_Tarifa_Funcion FOREIGN KEY (IdFuncion) REFERENCES Funcion (IdFuncion)
 );
@@ -114,7 +114,7 @@ CREATE TABLE Entrada (
     TipoEntrada ENUM('General', 'VIP', 'PLUS'),
     Emision DATETIME NOT NULL,
     Liquidez DATETIME NOT NULL,
-    Estado ENUM('Anulado', 'Pagado', 'Pendiente'),
+    Estado ENUM('Anulado', 'Pagado', 'Pendiente') DEFAULT 'Pendiente',
     CONSTRAINT PK_Entrada PRIMARY KEY (IdEntrada),
     CONSTRAINT FK_Entrada_Orden FOREIGN KEY (IdOrden) REFERENCES Orden (IdOrden)
 );

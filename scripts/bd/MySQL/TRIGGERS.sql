@@ -1,19 +1,5 @@
-CREATE TRIGGER RestarStockDespuesCompra
-AFTER INSERT ON Entrada
-FOR EACH ROW
-BEGIN
-    UPDATE Tarifa
-    SET Stock = Stock - 1
-    WHERE IdFuncion = (
-        SELECT F.IdFuncion
-        FROM Funcion F
-        JOIN Orden O ON O.IdSesion = F.IdSesion
-        WHERE O.IdOrden = NEW.IdOrden
-        LIMIT 1
-    );
-END;
 DELIMITER $$
-
+DROP TRIGGER IF EXISTS VerificarCompraEntrada $$
 CREATE TRIGGER VerificarCompraEntrada
 BEFORE INSERT ON Entrada
 FOR EACH ROW
@@ -22,67 +8,49 @@ BEGIN
     DECLARE vIdFuncion INT;
     DECLARE vIdEvento INT;
     DECLARE vStock INT;
-    DECLARE vPublicado BOOLEAN;
+    DECLARE vEstadoEvento ENUM('Creado','Publicado','Cancelado');
     DECLARE vCancelado BOOLEAN;
     DECLARE vFechaFuncion DATETIME;
+    DECLARE vEstadoTarifa ENUM('Activa','Inactiva','Agotada','Suspendida');
 
-    SELECT O.IdTarifa, F.IdFuncion, F.IdEvento, F.Fecha, F.Cancelado
-    INTO vIdTarifa, vIdFuncion, vIdEvento, vFechaFuncion, vCancelado
+
+    SELECT 
+        O.IdTarifa, F.IdFuncion, F.IdEvento, F.Fecha, F.Cancelado,
+        E.Estado, T.Stock, T.Estado
+    INTO 
+        vIdTarifa, vIdFuncion, vIdEvento, vFechaFuncion, vCancelado,
+        vEstadoEvento, vStock, vEstadoTarifa
     FROM Orden O
     JOIN Tarifa T ON O.IdTarifa = T.IdTarifa
     JOIN Funcion F ON T.IdFuncion = F.IdFuncion
+    JOIN Evento E ON F.IdEvento = E.IdEvento
     WHERE O.IdOrden = NEW.IdOrden
     LIMIT 1;
 
+   
     IF vCancelado = TRUE THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La función fue cancelada. No se puede comprar la entrada.';
+        SET MESSAGE_TEXT = ' La función fue cancelada. No se puede comprar la entrada.';
     END IF;
 
-   
+
     IF vFechaFuncion < NOW() THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La función ya finalizó. No se puede comprar la entrada.';
+        SET MESSAGE_TEXT = ' La función ya finalizó. No se puede comprar la entrada.';
     END IF;
-
-    
-    SELECT Stock INTO vStock
-    FROM Tarifa
-    WHERE IdTarifa = vIdTarifa;
 
     IF vStock <= 0 THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'No hay más stock disponible para esta tarifa.';
+        SET MESSAGE_TEXT = ' No hay más stock disponible para esta tarifa.';
     END IF;
 
-    SELECT Publicado INTO vPublicado
-    FROM Evento
-    WHERE IdEvento = vIdEvento;
-
-    IF vPublicado = FALSE THEN
+    IF vEstadoTarifa <> 'Activa' THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El evento aún no está publicado. No se puede comprar la entrada.';
+        SET MESSAGE_TEXT = ' La tarifa no está activa. No se puede comprar la entrada.';
     END IF;
 
-END$$
-
-DELIMITER ;
-CREATE TRIGGER VerificarStockAntesCompra
-BEFORE INSERT ON Entrada
-FOR EACH ROW
-BEGIN
-    DECLARE stockActual INT;
-
-    SELECT T.Stock INTO stockActual
-    FROM Tarifa T
-    JOIN Funcion F ON T.IdFuncion = F.IdFuncion
-    JOIN Orden O ON O.IdSesion = F.IdSesion
-    WHERE O.IdOrden = NEW.IdOrden
-    LIMIT 1;
-
-    IF stockActual <= 0 THEN
+    IF vEstadoEvento <> 'Publicado' THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'No hay stock disponible para esta función.';
-    END IF;
-
-END;
+        SET MESSAGE_TEXT = ' El evento aún no está publicado. No se puede comprar';
+        END IF;
+    END $$
