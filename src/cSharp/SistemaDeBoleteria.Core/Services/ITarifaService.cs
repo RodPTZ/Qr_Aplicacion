@@ -1,3 +1,4 @@
+using SistemaDeBoleteria.Core.Models;
 namespace SistemaDeBoleteria.Core.Services;
 
 public interface ITarifaService

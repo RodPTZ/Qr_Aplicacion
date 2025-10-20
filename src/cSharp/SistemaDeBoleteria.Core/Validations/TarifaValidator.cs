@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using SistemaDeBoleteria.Core.Models;
 using FluentValidation;
 
 namespace SistemaDeBoleteria.Core.Validations

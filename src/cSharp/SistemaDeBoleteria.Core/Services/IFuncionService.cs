@@ -1,10 +1,12 @@
+using SistemaDeBoleteria.Core.DTOs;
+using SistemaDeBoleteria.Core.Models;
 namespace SistemaDeBoleteria.Core.Services;
 
 public interface IFuncionService
 {
-    void InsertFuncion(Funcion funcion);
-    IEnumerable<Funcion> GetFunciones();
-    Funcion? GetFuncionById(int id);
-    void UpdateFuncion(Funcion funcion, int IdFuncion);
-    void CancelarFuncion(int id);
+    MostrarFuncionDTO InsertFuncion(CrearFuncionDTO funcion);
+    IEnumerable<MostrarFuncionDTO> GetFunciones();
+    MostrarFuncionDTO? GetFuncionById(int IdFuncion);
+    MostrarFuncionDTO UpdateFuncion(ActualizarFuncionDTO funcion, int IdFuncion);
+    void CancelarFuncion(int IdFuncion);
 }

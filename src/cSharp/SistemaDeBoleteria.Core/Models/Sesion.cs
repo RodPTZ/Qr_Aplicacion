@@ -1,4 +1,4 @@
-namespace SistemaDeBoleteria.Core
+namespace SistemaDeBoleteria.Core.Models
 {
     public class Sesion
     {

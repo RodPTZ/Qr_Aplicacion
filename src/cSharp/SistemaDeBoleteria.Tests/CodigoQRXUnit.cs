@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using SistemaDeBoleteria.Core;
+using SistemaDeBoleteria.Core.Models;
 
 namespace SistemaDeBoleteria.Tests
 {
@@ -11,7 +11,7 @@ namespace SistemaDeBoleteria.Tests
     {
         public Evento evento = new Evento("Concierto de Rock", Evento.TipoEvento.Musica);
 
-        public Cliente cliente = new Cliente("Nicolas", "Gonzalez", "CABA", 12345678, "nicolas.gonzalez@gmail.com", 123456789, 4);
+        public Cliente cliente = new Cliente("Nicolas", "Gonzalez", "CABA", 12345678, "nicolas.gonzalez@gmail.com", 123456789, 4,"asd");
 
 
 

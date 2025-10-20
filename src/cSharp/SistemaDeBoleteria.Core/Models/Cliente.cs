@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaDeBoleteria.Core
+namespace SistemaDeBoleteria.Core.Models
 {
     public class Cliente
     {
@@ -15,7 +15,8 @@ namespace SistemaDeBoleteria.Core
         public string Email { get; set; }
         public int Telefono { get; set; }
         public int Edad { get; set; }
-        public Cliente(string nombre, string apellido, string localidad, int dni, string email, int telefono, int edad)
+        public string Contraseña { get; set; }
+        public Cliente(string nombre, string apellido, string localidad, int dni, string email, int telefono, int edad, string contraseña)
         {
             Nombre = nombre;
             Apellido = apellido;
@@ -24,6 +25,7 @@ namespace SistemaDeBoleteria.Core
             Email = email;
             Telefono = telefono;
             Edad = edad;
+            Contraseña = contraseña;
         }
         public Cliente()
         {

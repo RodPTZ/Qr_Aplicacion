@@ -1,7 +1,8 @@
+using SistemaDeBoleteria.Core.Models;
 namespace SistemaDeBoleteria.Core.Services;
 
 public interface ICodigoQRService
 {
-    CodigoQR? GetQRByEntradaId(int idEntrada);
-    void ValidarQR(int IdEntrada);
+    byte[] GetQRByEntradaId(int idEntrada);
+    string ValidarQR(int IdEntrada);
 }

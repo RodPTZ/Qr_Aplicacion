@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using QRCoder;
 
-namespace SistemaDeBoleteria.Core
+namespace SistemaDeBoleteria.Core.Models
 {
     public class CodigoQR
     {

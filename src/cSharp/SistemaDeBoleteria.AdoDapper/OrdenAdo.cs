@@ -1,8 +1,10 @@
-using SistemaDeBoleteria.Core;
+using SistemaDeBoleteria.Core.Models;
 using Dapper;
 using MySqlConnector;
 using SistemaDeBoleteria.Core.Services;
 using System.Data;
+using SistemaDeBoleteria.Core.DTOs;
+using Mapster;
 
 namespace SistemaDeBoleteria.AdoDapper;
 
@@ -16,29 +18,31 @@ public class OrdenAdo : IOrdenService
         db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
     }
 
-    public IEnumerable<Orden> GetOrdenes()
+    public IEnumerable<MostrarOrdenDTO> GetOrdenes()
     {
         var sql = "SELECT * FROM Orden";
-        return db.Query<Orden>(sql);
+        return db.Query<MostrarOrdenDTO>(sql);
     }
-    public Orden? GetOrdenById(int id)
+    public MostrarOrdenDTO? GetOrdenById(int id)
     {
         var sql = "SELECT * FROM Orden WHERE IdOrden = @ID";
-        return db.QueryFirstOrDefault<Orden>(sql, new { ID = id });
+        return db.QueryFirstOrDefault<MostrarOrdenDTO>(sql, new { ID = id });
     }
-    public void InsertOrden(Orden orden)
+    public MostrarOrdenDTO InsertOrden(CrearOrdenDTO orden)
     {
         var sql = "INSERT INTO Orden (IdCliente, IdSesion, TipoEntrada, MedioDePago, Emision, Cierre, Abonado, Cancelado) VALUES (@IdCliente, @IdSesion, @TipoEntrada, @MedioDePago, NOW(),  DATE_ADD(NOW(), INTERVAL 15 MINUTE));";
         var id = db.ExecuteScalar<int>(sql, new
         {
-            orden.cliente?.IdCliente,
+            orden.IdCliente,
             orden.IdSesion,
             TipoEntrada = orden.tipoEntrada.ToString(),
             orden.MedioDePago
         });
-        orden.IdOrden = id;
+        var ordenCreada = orden.Adapt<MostrarOrdenDTO>();
+        ordenCreada.IdOrden = id;
+        return ordenCreada;
     }
-    public void PagarOrden(int id)
+    public bool PagarOrden(int id)
     {
         var sql = "UPDATE Orden SET Abonado = true WHERE IdOrden = @ID";
         db.Execute(sql, new { ID = id });
@@ -46,11 +50,13 @@ public class OrdenAdo : IOrdenService
         db.Execute(insEntrada, new { ID = id });
         var insQR = "INSERT INTO CodigoQR (IdEntrada, Codigo) VALUES (@ID,(SELECT CONCAT_WS('-', Nombre, IdOrden, Emision, TipoEntrada, DNI) FROM Entrada WHERE IdEntrada = @ID));";
         db.Execute(insQR, new { ID = id });
+        return true;
     }
-    public void CancelarOrden(int id)
+    public bool CancelarOrden(int id)
     {
         var sql = "UPDATE Orden SET Cancelado = true WHERE IdOrden = @ID";
         db.Execute(sql, new { ID = id });
+        return true;
     }
     
 }

@@ -1,10 +1,12 @@
+using SistemaDeBoleteria.Core.Models;
+using SistemaDeBoleteria.Core.DTOs;
 namespace SistemaDeBoleteria.Core.Services;
 
 public interface IOrdenService
 {
-    IEnumerable<Orden> GetOrdenes();
-    Orden? GetOrdenById(int idOrden);
-    void InsertOrden(Orden orden);
-    void PagarOrden(int idOrden);
-    void CancelarOrden(int idOrden);
+    IEnumerable<MostrarOrdenDTO> GetOrdenes();
+    MostrarOrdenDTO? GetOrdenById(int idOrden);
+    MostrarOrdenDTO InsertOrden(CrearOrdenDTO orden);
+    bool PagarOrden(int idOrden);
+    bool CancelarOrden(int idOrden);
 }

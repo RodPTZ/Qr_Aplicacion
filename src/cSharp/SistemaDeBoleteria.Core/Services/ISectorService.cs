@@ -1,11 +1,12 @@
+using SistemaDeBoleteria.Core.Models;
+using SistemaDeBoleteria.Core.DTOs;
 namespace SistemaDeBoleteria.Core.Services;
 
 public interface ISectorService
 {
-    void InsertSector(Sector sector, int idLocal);
-    IEnumerable<Sector> GetSectoresByLocalId(int idLocal);
-    Sector? GetSectorByLocalId(int idLocal);
-    bool UpdateSector(Sector sector, int id);
-    bool DeleteSector(int id);
-    Sector? GetSectorById(int idSector);
+    IEnumerable<MostrarSectorDTO> GetSectoresByLocalId(int idLocal);
+    MostrarSectorDTO InsertSector(CrearActualizarSectorDTO sector, int idLocal);
+    MostrarSectorDTO UpdateSector(CrearActualizarSectorDTO sector, int idSector);
+    bool DeleteSector(int idSector);
+    
 }

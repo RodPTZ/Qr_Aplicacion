@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using SistemaDeBoleteria.AdoDapper;
-using SistemaDeBoleteria.Core;
+using SistemaDeBoleteria.Core.Models;
 using SistemaDeBoleteria.Core.Services;
 using SistemaDeBoleteria.Core.Validations;
+using SistemaDeBoleteria.Core.DTOs;
 using FluentValidation;
+using Mapster;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -32,10 +34,10 @@ app.UseHttpsRedirection();
 
 #region Cliente
 
-app.MapPost("/clientes", ([FromBody] Cliente cliente, IClienteService clienteService) =>
+app.MapPost("/clientes", ([FromBody] CrearClienteDTO clienteDto, IClienteService clienteService) =>
 {
     var validator = new ClienteValidator();
-    var result = validator.Validate(cliente);
+    var result = validator.Validate(clienteDto);
     if (!result.IsValid)
     {
         var listaErrores = result.Errors
@@ -47,8 +49,9 @@ app.MapPost("/clientes", ([FromBody] Cliente cliente, IClienteService clienteSer
             );
         return Results.ValidationProblem(listaErrores);
     }
-    clienteService.InsertCliente(cliente);
-    return clienteService.GetClienteById(cliente.IdCliente) is null ? Results.NotFound() : Results.Created($"/clientes/{cliente.IdCliente}", cliente);
+
+    var mostrarClienteDTO = clienteService.InsertCliente(clienteDto);
+    return mostrarClienteDTO is null ? Results.BadRequest() : Results.Created($"/clientes/{mostrarClienteDTO.IdCliente}", mostrarClienteDTO);
 }).WithTags("Clientes");
 
 app.MapGet("/clientes", (IClienteService clienteService) =>
@@ -67,13 +70,13 @@ app.MapGet("/clientes/{clienteID}", ([FromRoute] int clienteID, IClienteService 
     return Results.Ok(_cliente);
 }).WithTags("Clientes");
 
-app.MapPut("/clientes/{clienteID}", ([FromRoute] int clienteID, [FromBody] Cliente cliente, IClienteService clienteService) =>
+app.MapPut("/clientes/{clienteID}", ([FromRoute] int clienteID, [FromBody] ActualizarClienteDTO cliente, IClienteService clienteService) =>
 {
     var _cliente = clienteService.GetClienteById(clienteID);
     if (_cliente is null)
         return Results.NotFound();
 
-    var validators = new ClienteValidator();
+    var validators = new ActualizarClienteDTOValidator();
     var result = validators.Validate(cliente);
     if (!result.IsValid)
     {
@@ -86,14 +89,12 @@ app.MapPut("/clientes/{clienteID}", ([FromRoute] int clienteID, [FromBody] Clien
         );
         return Results.ValidationProblem(listaErrores);
     }
-    clienteService.UpdateCliente(cliente);
-    return Results.Ok(_cliente);
+    var clienteActualizado = clienteService.UpdateCliente(cliente, clienteID);
+    return Results.Ok(clienteActualizado);
 }).WithTags("Clientes");
 #endregion
 
 #region CodigoQR
-
-
 
 app.MapGet("/entradas/{entradaID}/qr", ([FromRoute] int entradaID, [FromServices] ICodigoQRService codigoQRService, [FromServices] IEntradaService entradaService) =>
 {
@@ -101,7 +102,7 @@ app.MapGet("/entradas/{entradaID}/qr", ([FromRoute] int entradaID, [FromServices
     if (entrada is null)
         return Results.NotFound();
     var Qr = codigoQRService.GetQRByEntradaId(entradaID);
-    return Results.Ok(Qr);
+    return Results.File(Qr, "image/svg+xml");
 }).WithTags("CodigoQR");
 
 app.MapPost("/qr/validar", ([FromBody] int IdEntrada, [FromServices] IEntradaService entradaService, [FromServices] ICodigoQRService codigoQRService) =>
@@ -110,9 +111,10 @@ app.MapPost("/qr/validar", ([FromBody] int IdEntrada, [FromServices] IEntradaSer
     if (entrada is null)
         return Results.NotFound();
 
-    codigoQRService.ValidarQR(IdEntrada);
-    return Results.Ok(entrada.QR.Estado);
+    var estado = codigoQRService.ValidarQR(IdEntrada);
+    return Results.Ok(estado);
 }).WithTags("CodigoQR");
+
 #endregion
 
 #region  Entrada
@@ -136,15 +138,16 @@ app.MapPost("/entradas/{entradaID}/anular", ([FromRoute] int entradaID, [FromSer
     var entrada = entradaService.GetEntradaById(entradaID);
     if (entrada is null)
         return Results.NotFound();
-    entradaService.AnularEntrada(entradaID);
+    entradaService.AnularEntrada(entradaID); // falta verificar la salida.
     return Results.Ok(entrada);
 }).WithTags("Entradas");
 #endregion
-
+// 1
 #region  Evento
 
-app.MapPost("/eventos", ([FromBody] Evento evento, [FromServices] IEventoService eventoService) =>
+app.MapPost("/eventos", ([FromBody] CrearActualizarEventoDTO evento, [FromServices] IEventoService eventoService) =>
 {
+    // Validaciones
     var validators = new EventoValidator();
     var result = validators.Validate(evento);
     if (!result.IsValid)
@@ -157,30 +160,37 @@ app.MapPost("/eventos", ([FromBody] Evento evento, [FromServices] IEventoService
         );
         return Results.ValidationProblem(listaErrores);
     }
-    eventoService.InsertEvento(evento);
-    return eventoService.GetEventoById(evento.IdEvento) is null ? Results.BadRequest() : Results.Created($"/eventos/{evento.IdEvento}", evento);
+    // Insertar
+    var eventoCreado = eventoService.InsertEvento(evento);
+    // Retornar
+    return eventoService.GetEventoById(eventoCreado.IdEvento) is null ? Results.BadRequest() : Results.Created($"/eventos/{eventoCreado.IdEvento}", eventoCreado);
 }).WithTags("Eventos");
 
 app.MapGet("/eventos", ([FromServices] IEventoService eventoService) =>
 {
+    // Obtener eventos
     var eventos = eventoService.GetEventos();
     if (!eventos.Any())
         return Results.NoContent();
+    // Retornar eventos
     return Results.Ok(eventos);
 }).WithTags("Eventos");
 
 app.MapGet("/eventos/{eventoID}", ([FromRoute] int eventoID, [FromServices] IEventoService eventoService) =>
 {
+    // Obtener evento por ID
     var evento = eventoService.GetEventoById(eventoID);
+    // Retornar evento
     return evento is not null ? Results.Ok(evento) : Results.NotFound();
 }).WithTags("Eventos");
 
-app.MapPut("/eventos/{eventoID}", ([FromRoute] int eventoID, [FromBody] Evento evento, [FromServices] IEventoService eventoService) =>
+app.MapPut("/eventos/{eventoID}", ([FromRoute] int eventoID, [FromBody] CrearActualizarEventoDTO evento, [FromServices] IEventoService eventoService) =>
 {
+    // Verificar existencia
     var _evento = eventoService.GetEventoById(eventoID);
     if (_evento is null)
         return Results.NotFound();
-
+    // Validaciones
     var validators = new EventoValidator();
     var result = validators.Validate(evento);
     if (!result.IsValid)
@@ -193,39 +203,46 @@ app.MapPut("/eventos/{eventoID}", ([FromRoute] int eventoID, [FromBody] Evento e
         );
         return Results.ValidationProblem(listaErrores);
     }
-    eventoService.UpdateEvento(evento);
-    return Results.Ok(_evento);
+    // Actualizar
+    var eventoActualizado = eventoService.UpdateEvento(evento, eventoID);
+    return Results.Ok(eventoActualizado);
 }).WithTags("Eventos");
 
 app.MapPost("/eventos/{eventoID}/publicar", ([FromRoute] int eventoID, [FromServices] IEventoService eventoService) =>
 {
+    // Verificar existencia
     var evento = eventoService.GetEventoById(eventoID);
     if (evento is null)
         return Results.NotFound();
 
-    if (eventoService.PublicarEvento(eventoID))
+    // Publicar
+    if (eventoService.PublicarEvento(eventoID)) // falta verificar la salida.
         return Results.Ok(evento);
 
+    // Retornar. No se pudo publicar
     return Results.BadRequest();
 }).WithTags("Eventos");
 
 app.MapPost("/eventos/{eventoID}/cancelar", ([FromRoute] int eventoID, [FromServices] IEventoService eventoService) =>
 {
+    // Verificar existencia
     var evento = eventoService.GetEventoById(eventoID);
     if (evento is null)
         return Results.NotFound();
-
-    if (eventoService.CancelarEvento(eventoID))
+    // Cancelar
+    if (eventoService.CancelarEvento(eventoID)) // falta verificar la salida.
         return Results.Ok(evento);
 
+    // Retornar. No se pudo cancelar
     return Results.BadRequest();
 }).WithTags("Eventos");
 #endregion
 
 #region Funcion
 
-app.MapPost("/funciones", ([FromBody] Funcion funcion, [FromServices] IFuncionService funcionService) =>
+app.MapPost("/funciones", ([FromBody] CrearFuncionDTO funcion, [FromServices] IFuncionService funcionService) =>
 {
+    // Validaciones
     var validators = new FuncionValidator();
     var result = validators.Validate(funcion);
     if (!result.IsValid)
@@ -238,31 +255,42 @@ app.MapPost("/funciones", ([FromBody] Funcion funcion, [FromServices] IFuncionSe
         );
         return Results.ValidationProblem(listaErrores);
     }
-    funcionService.InsertFuncion(funcion);
-    return funcionService.GetFuncionById(funcion.IdFuncion) is null ? Results.BadRequest() : Results.Created($"/funciones/{funcion.IdFuncion}", funcion);
+
+    // Insertar
+    var funcionCreada = funcionService.InsertFuncion(funcion);
+
+    // Retornar 
+    return funcionService.GetFuncionById(funcionCreada.IdFuncion) is null ? Results.BadRequest() : Results.Created($"/funciones/{funcionCreada.IdFuncion}", funcion);
 }).WithTags("Funciones");
 
 app.MapGet("/funciones", ([FromServices] IFuncionService funcionService) =>
 {
+    // Obtener funciones
     var funciones = funcionService.GetFunciones();
     if (!funciones.Any())
         return Results.NoContent();
+
+    // Retornar funciones
     return Results.Ok(funciones);
 }).WithTags("Funciones");
 
 app.MapGet("/funciones/{funcionID}", ([FromRoute] int funcionID, [FromServices] IFuncionService funcionService) =>
 {
+    // Verificar existencia
     var funcion = funcionService.GetFuncionById(funcionID);
+    // Retornar funcion
     return funcion is not null ? Results.Ok(funcion) : Results.NotFound();
 }).WithTags("Funciones");
 
-app.MapPut("/funciones/{funcionID}", ([FromRoute] int funcionID, [FromBody] Funcion funcion, [FromServices] IFuncionService funcionService) =>
+app.MapPut("/funciones/{funcionID}", ([FromRoute] int funcionID, [FromBody] ActualizarFuncionDTO funcion, [FromServices] IFuncionService funcionService) =>
 {
+    // Verificar existencia
     var _funcion = funcionService.GetFuncionById(funcionID);
     if (_funcion is null)
         return Results.NotFound();
 
-    var validators = new FuncionValidator();
+    // Validaciones
+    var validators = new ActualizarFuncionValidator();
     var result = validators.Validate(funcion);
     if (!result.IsValid)
     {
@@ -274,25 +302,32 @@ app.MapPut("/funciones/{funcionID}", ([FromRoute] int funcionID, [FromBody] Func
         );
         return Results.ValidationProblem(listaErrores);
     }
-    funcionService.UpdateFuncion(funcion, funcionID);
-    return Results.Ok(_funcion);
+    // Actualizar
+    var funcionActualizada = funcionService.UpdateFuncion(funcion, funcionID);
+    // Retornar
+    return Results.Ok(funcionActualizada);
 }).WithTags("Funciones");
 
 app.MapPost("/funciones/{funcionID}/cancelar", ([FromRoute] int funcionID, [FromServices] IFuncionService funcionService) =>
 {
+    // Verificar existencia
     var funcion = funcionService.GetFuncionById(funcionID);
     if (funcion is null)
         return Results.NotFound();
 
+    // Cancelar
     funcionService.CancelarFuncion(funcionID);
+
+    // Retornar
     return Results.Ok(funcion);
 }).WithTags("Funciones");
 #endregion
 
 #region Local
 
-app.MapPost("/locales", ([FromBody] Local local, [FromServices] ILocalService localeService) =>
+app.MapPost("/locales", ([FromBody] CrearActualizarLocalDTO local, [FromServices] ILocalService localeService) =>
 {
+    //Validaciones
     var validators = new LocalValidator();
     var result = validators.Validate(local);
     if (!result.IsValid)
@@ -305,29 +340,41 @@ app.MapPost("/locales", ([FromBody] Local local, [FromServices] ILocalService lo
         );
         return Results.ValidationProblem(listaErrores);
     }
-    localeService.InsertLocal(local);
-    return localeService.GetLocalById(local.IdLocal) is null ? Results.BadRequest() : Results.Created($"/locales/{local.IdLocal}", local);
+
+    //Insertar
+    var localCreado = localeService.InsertLocal(local);
+
+    //Retornar
+    return localeService.GetLocalById(localCreado.IdLocal) is null ? Results.BadRequest() : Results.Created($"/locales/{localCreado.IdLocal}", local);
 }).WithTags("Locales");
 
-app.MapGet("/locales", ([FromServices] ILocalService localeService) =>
+app.MapGet("/locales", ([FromServices] ILocalService localService) =>
 {
-    var locales = localeService.GetLocales();
+    // Obtener locales
+    var locales = localService.GetLocales();
     if (!locales.Any())
         return Results.NoContent();
+
+    // Retornar locales
     return Results.Ok(locales);
 }).WithTags("Locales");
+
 app.MapGet("/locales/{localID}", ([FromRoute] int localID, [FromServices] ILocalService localeService) =>
 {
+    // Obtener local por ID
     var local = localeService.GetLocalById(localID);
+    // Retornar local
     return local is not null ? Results.Ok(local) : Results.NotFound();
 }).WithTags("Locales");
 
-app.MapPut("/locales/{localID}", ([FromRoute] int localID, [FromBody] Local local, [FromServices] ILocalService localeService) =>
+app.MapPut("/locales/{localID}", ([FromRoute] int localID, [FromBody] CrearActualizarLocalDTO local, [FromServices] ILocalService localeService) =>
 {
+    // Verificar existencia
     var _local = localeService.GetLocalById(localID);
     if (_local is null)
         return Results.NotFound();
 
+    // Validaciones
     var validators = new LocalValidator();
     var result = validators.Validate(local);
     if (!result.IsValid)
@@ -340,19 +387,24 @@ app.MapPut("/locales/{localID}", ([FromRoute] int localID, [FromBody] Local loca
         );
         return Results.ValidationProblem(listaErrores);
     }
-    localeService.UpdateLocal(local);
-    return Results.Ok(_local);
+    // Actualizar
+    var localActualizado =localeService.UpdateLocal(local, localID);
+    // Retornar
+    return Results.Ok(localActualizado);
 }).WithTags("Locales");
 
 app.MapDelete("/locales/{localID}", ([FromRoute] int localID, [FromServices] ILocalService localeService) =>
 {
+    // Verificar existencia
     var local = localeService.GetLocalById(localID);
     if (local is null)
         return Results.NotFound();
+    // Eliminar
+    bool fueEliminado = localeService.DeleteLocal(localID);
+    if (fueEliminado)
+        return Results.Ok(new { mensaje = "Local eliminado correctamente." });
 
-    if (localeService.DeleteLocal(localID))
-        return Results.Ok(local);
-
+    // Retorno de error
     return Results.BadRequest();
 }).WithTags("Locales");
 #endregion
@@ -403,8 +455,9 @@ app.MapPost("/usuarios/{usuarioID}/roles", ([FromRoute] int usuarioID, [FromServ
 
 #region Orden
 
-app.MapPost("/ordenes", ([FromBody] Orden orden, [FromServices] IOrdenService ordenService) =>
+app.MapPost("/ordenes", ([FromBody] CrearOrdenDTO orden, [FromServices] IOrdenService ordenService) =>
 {
+    // Validaciones
     var validators = new OrdenValidator();
     var result = validators.Validate(orden);
     if (!result.IsValid)
@@ -417,23 +470,33 @@ app.MapPost("/ordenes", ([FromBody] Orden orden, [FromServices] IOrdenService or
         );
         return Results.ValidationProblem(listaErrores);
     }
-    ordenService.InsertOrden(orden);
-    return ordenService.GetOrdenById(orden.IdOrden) is null ? Results.BadRequest() : Results.Created($"/ordenes/{orden.IdOrden}", orden);
-});
+
+    // Insertar
+    var ordenCreada = ordenService.InsertOrden(orden);
+
+    // Retornar 
+    return ordenService.GetOrdenById(ordenCreada.IdOrden) is null ? Results.BadRequest() : Results.Created($"/ordenes/{ordenCreada.IdOrden}", ordenCreada);
+}).WithTags("Orden");
 
 app.MapGet("/ordenes", ([FromServices] IOrdenService ordenService) =>
 {
+    // Validaciones
     var ordenes = ordenService.GetOrdenes();
     if (!ordenes.Any())
         return Results.NoContent();
+
+    // Retornar
     return Results.Ok(ordenes);
-});
+}).WithTags("Orden");
 
 app.MapGet("/ordenes/{ordenID}", ([FromRoute] int ordenID, [FromServices] IOrdenService ordenService) =>
 {
+    // Obtener
     var orden = ordenService.GetOrdenById(ordenID);
+
+    // Retornar
     return orden is not null ? Results.Ok(orden) : Results.NotFound();
-});
+}).WithTags("Orden");
 
 app.MapPost("/ordenes/{ordenID}/pagar", ([FromRoute] int ordenID, [FromServices] IOrdenService ordenService) =>
 {
@@ -443,24 +506,29 @@ app.MapPost("/ordenes/{ordenID}/pagar", ([FromRoute] int ordenID, [FromServices]
 
     ordenService.PagarOrden(ordenID);
     return Results.Ok(orden);
-});
+}).WithTags("Orden");
 
 app.MapPost("/ordenes/{ordenID}/cancelar", ([FromRoute] int ordenID, [FromServices] IOrdenService ordenService) =>
 {
+    // Validaciones
     var orden = ordenService.GetOrdenById(ordenID);
     if (orden is null)
         return Results.NotFound();
 
-    ordenService.CancelarOrden(ordenID);
-    return Results.Ok(orden);
-});
+    // Cancelar
+    bool fueCancelado = ordenService.CancelarOrden(ordenID);
+    // Retornar
+    return fueCancelado is true ? Results.Ok(new { message="Cancelado Exitosamente." }) : Results.BadRequest();
+}).WithTags("Orden");
 
 #endregion
 
 #region Sector
 
-app.MapPost("/locales/{localID}/sectores", ([FromRoute] int localID, [FromBody] Sector sector, [FromServices] ISectorService sectorService) =>
+// 1. Crear un sector de un local
+app.MapPost("/locales/{localID}/sectores", ([FromRoute] int localID, [FromBody] CrearActualizarSectorDTO sector, [FromServices] ISectorService sectorService) =>
 {
+    // Valdiaciones
     var validators = new SectorValidator();
     var result = validators.Validate(sector);
     if (!result.IsValid)
@@ -473,10 +541,15 @@ app.MapPost("/locales/{localID}/sectores", ([FromRoute] int localID, [FromBody] 
         );
         return Results.ValidationProblem(listaErrores);
     }
-    sectorService.InsertSector(sector, localID);
-    return sectorService.GetSectorByLocalId(sector.IdSector) is null ? Results.BadRequest() : Results.Created($"/locales/{localID}/sectores/{sector.IdSector}", sector);
+
+    // Insertar
+    var mostrarSector = sectorService.InsertSector(sector, localID);
+    
+    // Retornar
+    return mostrarSector is null ? Results.BadRequest() : Results.Created($"/locales/{localID}/sectores/{mostrarSector.IdSector}", mostrarSector);
 });
 
+// 2. Traer sectores de un local
 app.MapGet("/locales/{localID}/sectores", ([FromRoute] int localID, [FromServices] ISectorService sectorService) =>
 {
     var sectores = sectorService.GetSectoresByLocalId(localID);
@@ -485,8 +558,10 @@ app.MapGet("/locales/{localID}/sectores", ([FromRoute] int localID, [FromService
     return Results.Ok(sectores);
 });
 
-app.MapPut("/sectores/{sectorID}", ([FromRoute] int sectorID, [FromBody] Sector sector, [FromServices] ISectorService sectorService) =>
+// 3.  Actualizar Sector
+app.MapPut("/sectores/{sectorID}", ([FromRoute] int sectorID, [FromBody] CrearActualizarSectorDTO sector, [FromServices] ISectorService sectorService) =>
 {
+    // Validaciones
     var validators = new SectorValidator();
     var result = validators.Validate(sector);
     if (!result.IsValid)
@@ -499,20 +574,24 @@ app.MapPut("/sectores/{sectorID}", ([FromRoute] int sectorID, [FromBody] Sector 
         );
         return Results.ValidationProblem(listaErrores);
     }
-    sectorService.UpdateSector(sector, sectorID);
-    return Results.Ok(sector);
+
+
+    var mostrarSector = sectorService.UpdateSector(sector, sectorID);
+    return Results.Ok(mostrarSector);
 });
 
+// 4. Eliminar sector
 app.MapDelete("/sectores/{sectorID}", ([FromRoute] int sectorID, [FromServices] ISectorService sectorService) =>
 {
-    var sector = sectorService.GetSectorById(sectorID);
-    if (sector is null)
-        return Results.NotFound();
+    // Eliminando sector
+    bool fueEliminado = sectorService.DeleteSector(sectorID);
 
-    if (sectorService.DeleteSector(sectorID))
-        return Results.Ok(sector);
+    // Verificación
+    if (!fueEliminado)
+        return Results.BadRequest();
 
-    return Results.BadRequest();
+    // Retornar error
+    return Results.Ok(new { message = "Sector eliminado exitosamente." });
 });
 #endregion
 

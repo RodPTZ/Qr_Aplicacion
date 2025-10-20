@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
-namespace SistemaDeBoleteria.Core
+namespace SistemaDeBoleteria.Core.Models
 {
     public class Sector
     {

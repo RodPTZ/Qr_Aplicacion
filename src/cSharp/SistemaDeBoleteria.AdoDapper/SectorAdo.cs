@@ -1,8 +1,10 @@
 using SistemaDeBoleteria.Core.Services;
 using Dapper;
 using MySqlConnector;
-using SistemaDeBoleteria.Core;
+using SistemaDeBoleteria.Core.Models;
+using SistemaDeBoleteria.Core.DTOs;
 using System.Data;
+using Mapster;
 
 namespace SistemaDeBoleteria.AdoDapper;
 
@@ -16,37 +18,35 @@ public class SectorAdo : ISectorService
         db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
     }
     
-    public void InsertSector(Sector sector, int idLocal)
+    public IEnumerable<MostrarSectorDTO> GetSectoresByLocalId(int idLocal)
+    {
+        var sql = "SELECT * FROM Sector WHERE IdLocal = @ID";
+        return db.Query<MostrarSectorDTO>(sql, new { ID = idLocal });
+    }
+    public MostrarSectorDTO InsertSector(CrearActualizarSectorDTO sector, int idLocal)
     {
 
-        var sql = "INSERT INTO Sector (IdLocal, TipoSector) VALUES (@IdLocal, @TipoSector);";
+        var sql = "INSERT INTO Sector (IdLocal, Capacidad) VALUES (@IdLocal, @TipoSector); SELECT LAST_INSERT_ID()";
         var id = db.ExecuteScalar<int>(sql, new
         {
             idLocal,
-            sector.TipoSector
+            sector.Capacidad
         });
-        sector.IdSector = id;
+        var mostrarSector = sector.Adapt<MostrarSectorDTO>();
+        mostrarSector.IdSector = id;
+        return mostrarSector;
+        
     }
-
-    public IEnumerable<Sector> GetSectoresByLocalId(int idLocal)
+    public MostrarSectorDTO UpdateSector(CrearActualizarSectorDTO sector, int idSector)
     {
-        var sql = "SELECT * FROM Sector WHERE IdLocal = @ID";
-        return db.Query<Sector>(sql, new { ID = idLocal });
-    }
-    public Sector? GetSectorByLocalId(int idLocal)
-    {
-        var sql = "SELECT * FROM Sector WHERE IdSector = @ID";
-        return db.QueryFirstOrDefault<Sector>(sql, new { ID = idLocal });
-    }
-    public bool UpdateSector(Sector sector, int id)
-    {
-        var sql = "UPDATE Sector SET TipoSector = @TipoSector WHERE IdSector = @ID";
+        var sql = "UPDATE Sector SET Capacidad = @Capacidad WHERE IdSector = @ID";
         db.Execute(sql, new
         {
-            sector.TipoSector,
-            ID = id
+            sector.Capacidad,
+            ID = idSector
         });
-        return true;
+        var mostrarSector = sector.Adapt<MostrarSectorDTO>();
+        return mostrarSector;
     }
     public bool DeleteSector(int id)
     {
@@ -56,13 +56,8 @@ public class SectorAdo : ISectorService
         {
             var sql = "DELETE FROM Sector WHERE IdSector = @ID";
             db.Execute(sql, new { ID = id });
-            return true;
+            return true;        // Se espera retornar una salida de la bd
         }
         return false;
-    }
-    public Sector GetSectorById(int idSector)
-    {
-        var sql = "SELECT * FROM Sector WHERE IdSector = @ID";
-        return db.QueryFirstOrDefault<Sector>(sql, new { ID = idSector })!;
     }
 }

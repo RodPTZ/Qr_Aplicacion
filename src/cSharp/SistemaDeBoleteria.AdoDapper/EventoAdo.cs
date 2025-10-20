@@ -1,8 +1,10 @@
 using SistemaDeBoleteria.Core.Services;
-using SistemaDeBoleteria.Core;
+using SistemaDeBoleteria.Core.Models;
 using MySqlConnector;
 using Dapper;
 using System.Data;
+using SistemaDeBoleteria.Core.DTOs;
+using Mapster;
 namespace SistemaDeBoleteria.AdoDapper;
 
 public class EventoAdo : IEventoService
@@ -14,41 +16,39 @@ public class EventoAdo : IEventoService
     {
         db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
     }
-    public IEnumerable<Evento> GetEventos()
+    public IEnumerable<MostrarEventoDTO> GetEventos()
     {
         var sql = "SELECT * FROM Evento";
-        return db.Query<Evento>(sql);
+        return db.Query<MostrarEventoDTO>(sql);
     }
 
-    public Evento? GetEventoById(int id)
+    public MostrarEventoDTO? GetEventoById(int id)
     {
         var sql = "SELECT * FROM Evento WHERE IdEvento = @ID";
-        return db.QueryFirstOrDefault<Evento>(sql, new { ID = id });
+        return db.QueryFirstOrDefault<MostrarEventoDTO>(sql, new { ID = id });
     }
 
-    public void InsertEvento(Evento evento)
+    public MostrarEventoDTO InsertEvento(CrearActualizarEventoDTO evento)
     {
-        var sql = "INSERT INTO Evento (IdLocal, Nombre, Tipo, publicado) VALUES (@IdLocal, @Nombre, @Tipo, @Publicado);";
-        var id = db.ExecuteScalar<int>(sql, new
-        {
-            evento.IdLocal,
-            evento.Nombre,
-            Tipo = evento.Tipo.ToString(),
-            evento.publicado
-        });
-        evento.IdEvento = id;
+        var sql = "INSERT INTO Evento (IdLocal, Nombre, Tipo, publicado) VALUES (@IdLocal, @Nombre, @Tipo, @Publicado); SELECT LAST_INSERT_ID();";
+        var id = db.ExecuteScalar<int>(sql, evento);
+        var mostrarEvento = evento.Adapt<MostrarEventoDTO>();
+        mostrarEvento.IdEvento = id;
+        return mostrarEvento;
     }
-    public void UpdateEvento(Evento evento)
+    public MostrarEventoDTO UpdateEvento(CrearActualizarEventoDTO evento, int IdEvento)
     {
-        var sql = "UPDATE Evento SET IdLocal = @IdLocal, Nombre = @Nombre, Tipo = @Tipo, publicado = @Publicado WHERE IdEvento = @ID";
+        var sql = "UPDATE Evento SET IdLocal = @IdLocal, Nombre = @Nombre, Tipo = @Tipo WHERE IdEvento = @ID";
         db.Execute(sql, new
         {
             evento.IdLocal,
             evento.Nombre,
             Tipo = evento.Tipo.ToString(),
-            evento.publicado,
-            ID = evento.IdEvento
+            ID = IdEvento
         });
+        var eventoActualizado = evento.Adapt<MostrarEventoDTO>();
+        eventoActualizado.IdEvento = IdEvento;
+        return eventoActualizado;
     }
     public bool PublicarEvento(int id)
     {

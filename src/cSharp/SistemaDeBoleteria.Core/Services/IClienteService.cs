@@ -1,9 +1,11 @@
+using SistemaDeBoleteria.Core.Models;
+using SistemaDeBoleteria.Core.DTOs;
 namespace SistemaDeBoleteria.Core.Services;
 
 public interface IClienteService
 {
-    IEnumerable<Cliente> GetClientes();
-    Cliente? GetClienteById(int id);
-    void InsertCliente(Cliente cliente);
-    void UpdateCliente(Cliente cliente);
+    IEnumerable<MostrarClienteDTO> GetClientes();
+    MostrarClienteDTO? GetClienteById(int id);
+    MostrarClienteDTO? InsertCliente(CrearClienteDTO cliente);
+    MostrarClienteDTO? UpdateCliente(ActualizarClienteDTO cliente, int idCliente);
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SistemaDeBoleteria.Core.Services;
-using SistemaDeBoleteria.Core;
+using SistemaDeBoleteria.Core.Models;
 using MySqlConnector;
 using Dapper;
 using System.Data;

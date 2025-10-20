@@ -1,8 +1,10 @@
 using SistemaDeBoleteria.Core.Services;
-using SistemaDeBoleteria.Core;
+using SistemaDeBoleteria.Core.Models;
 using MySqlConnector;
 using Dapper;
 using System.Data;
+using Mapster;
+using SistemaDeBoleteria.Core.DTOs;
 namespace SistemaDeBoleteria.AdoDapper;
 
 public class FuncionAdo : IFuncionService
@@ -15,49 +17,46 @@ public class FuncionAdo : IFuncionService
         db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
     }
 
-    public void InsertFuncion(Funcion funcion)
-        {
-            var sql = "INSERT INTO Funcion (IdEvento, IdSector, IdSesion,  Fecha, Duracion, cancelado) VALUES (@IdEvento, @IdSector, @IdSesion, @Duracion, @Fecha, @Cancelado);";
-            var id = db.ExecuteScalar<int>(sql, new
-            {
-                funcion.IdEvento,
-                funcion.IdSector,
-                funcion.IdSesion,
-                funcion.Fecha,
-                funcion.Duración,
-                funcion.cancelado
-            });
-            funcion.IdFuncion = id;
-        }
+    public MostrarFuncionDTO InsertFuncion(CrearFuncionDTO funcion)
+    {
+        var sql = "INSERT INTO Funcion (IdEvento, IdSector, IdSesion,  Fecha, Duracion) VALUES (@IdEvento, @IdSector, @IdSesion, @Duracion, @Fecha);";
+        var id = db.ExecuteScalar<int>(sql, funcion);
+        var mostrarFuncion = funcion.Adapt<MostrarFuncionDTO>();
+        mostrarFuncion.IdFuncion = id;
+        return mostrarFuncion;
+    }
 
-        public IEnumerable<Funcion> GetFunciones()
-        {
-            var sql = "SELECT * FROM Funcion";
-            return db.Query<Funcion>(sql);
-        }
+    public IEnumerable<MostrarFuncionDTO> GetFunciones()
+    {
+        var sql = "SELECT * FROM Funcion";
+        return db.Query<MostrarFuncionDTO>(sql);
+    }
 
-        public Funcion? GetFuncionById(int IdFuncion)
-        {
-            var sql = "SELECT * FROM Funcion WHERE IdFuncion = @ID";
-            return db.QueryFirstOrDefault<Funcion>(sql, new { ID = IdFuncion });
-        }
+    public MostrarFuncionDTO? GetFuncionById(int IdFuncion)
+    {
+        var sql = "SELECT * FROM Funcion WHERE IdFuncion = @ID";
+        return db.QueryFirstOrDefault<MostrarFuncionDTO>(sql, new { ID = IdFuncion });
+    }
 
-        public void UpdateFuncion(Funcion funcion, int IdFuncion)
+    public MostrarFuncionDTO UpdateFuncion(ActualizarFuncionDTO funcion, int IdFuncion)
+    {
+        var sql = "UPDATE Funcion SET IdSector = @IdSector, IdSesion = @IdSesion, Fecha = @Fecha, Duracion = @Duracion WHERE IdFuncion = @ID";
+        db.Execute(sql, new
         {
-            var sql = "UPDATE Funcion SET IdSector = @IdSector, IdSesion = @IdSesion, Fecha = @Fecha, Duracion = @Duracion WHERE IdFuncion = @ID";
-            db.Execute(sql, new
-            {
-                funcion.IdSector,
-                funcion.IdSesion,
-                funcion.Fecha,
-                funcion.Duración,
-                ID = IdFuncion
-            });
-        }
-        public void CancelarFuncion(int IdFuncion)
-        {
-            var sql = "UPDATE Funcion SET cancelado = true WHERE IdFuncion = @ID";
-            db.Execute(sql, new { ID = IdFuncion });
-        }
+            funcion.IdSector,
+            funcion.IdSesion,
+            funcion.Fecha,
+            funcion.Duracion,
+            ID = IdFuncion
+        });
+        var funcionActualizada = funcion.Adapt<MostrarFuncionDTO>();
+        funcionActualizada.IdFuncion = IdFuncion;
+        return funcionActualizada;
+    }
+    public void CancelarFuncion(int IdFuncion)
+    {
+        var sql = "UPDATE Funcion SET cancelado = true WHERE IdFuncion = @ID";
+        db.Execute(sql, new { ID = IdFuncion });
+    }
 
 }

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SistemaDeBoleteria.Core
+namespace SistemaDeBoleteria.Core.Models
 {
     public class Local
     {
         public int IdLocal { get; set; }
-        public List<Sector> sectores;
+        public string Nombre { get; set; }
         public string Ubicacion { get; set; }
-
+        public List<Sector> sectores;
         public Local(string ubicacion)
         {
             Ubicacion = ubicacion;
