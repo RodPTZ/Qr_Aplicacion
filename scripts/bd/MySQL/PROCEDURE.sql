@@ -1,6 +1,7 @@
 DELIMITER $$
 CREATE PROCEDURE ReporteVentas()
 BEGIN
+    START TRANSACTION
     SELECT 
         E.Nombre AS NombreEvento,
         COUNT(EN.IdEntrada) AS EntradasVendidas,
@@ -13,6 +14,8 @@ BEGIN
     JOIN Tarifa T ON T.IdFuncion = F.IdFuncion
     WHERE EN.Anulada = FALSE
     GROUP BY E.IdEvento, E.Nombre;
+    COMMIT;
+
 END$$
 
 CREATE PROCEDURE ComprarEntrada(
@@ -22,52 +25,56 @@ CREATE PROCEDURE ComprarEntrada(
     IN medioPago ENUM('Efectivo','Transferencia','Debito','Credito')
 )
 BEGIN
-    DECLARE unIdSesion INT;
-    DECLARE unIdOrden INT;
-    DECLARE unIdEntrada INT;
-    DECLARE precio DECIMAL(10,2);
+    START TRANSACTION
+        DECLARE unIdSesion INT;
+        DECLARE unIdOrden INT;
+        DECLARE unIdEntrada INT;
+        DECLARE precio DECIMAL(10,2);
+        
+        SELECT IdSesion INTO unIdSesion
+        FROM Funcion
+        WHERE IdFuncion = unIdFuncion;
+
     
-    SELECT IdSesion INTO unIdSesion
-    FROM Funcion
-    WHERE IdFuncion = unIdFuncion;
+        SELECT Precio INTO precio
+        FROM Tarifa
+        WHERE IdFuncion = unIdFuncion AND Estado = 'Activa'
+        LIMIT 1;
 
-  
-    SELECT Precio INTO precio
-    FROM Tarifa
-    WHERE IdFuncion = unIdFuncion AND Estado = 'Activa'
-    LIMIT 1;
+        INSERT INTO Orden (IdTarifa, IdSesion, IdCliente, Estado, Emision, Cierre, MedioDePago)
+        VALUES (
+            (SELECT IdTarifa FROM Tarifa WHERE IdFuncion = unIdFuncion AND Estado = 'Activa' LIMIT 1),
+            unIdSesion,
+            unIdCliente,
+            'Abonado',
+            NOW(),
+            DATE_ADD(NOW(), INTERVAL 1 DAY),
+            medioPago
+        );
 
-    INSERT INTO Orden (IdTarifa, IdSesion, IdCliente, Estado, Emision, Cierre, MedioDePago)
-    VALUES (
-        (SELECT IdTarifa FROM Tarifa WHERE IdFuncion = unIdFuncion AND Estado = 'Activa' LIMIT 1),
-        unIdSesion,
-        unIdCliente,
-        'Abonado',
-        NOW(),
-        DATE_ADD(NOW(), INTERVAL 1 DAY),
-        medioPago
-    );
+        SET unIdOrden = LAST_INSERT_ID();
 
-    SET unIdOrden = LAST_INSERT_ID();
+        INSERT INTO Entrada (IdOrden, TipoEntrada, Emision, Liquidez)
+        VALUES (unIdOrden, tipoEntrada, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY));
 
-    INSERT INTO Entrada (IdOrden, TipoEntrada, Emision, Liquidez)
-    VALUES (unIdOrden, tipoEntrada, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY));
+        SET unIdEntrada = LAST_INSERT_ID();
 
-    SET unIdEntrada = LAST_INSERT_ID();
+    
+        INSERT INTO QR (IdEntrada, TipoEstado, Codigo)
+        VALUES (unIdEntrada, 'Ok', CONCAT('QR-', UUID()));
 
- 
-    INSERT INTO QR (IdEntrada, TipoEstado, Codigo)
-    VALUES (unIdEntrada, 'Ok', CONCAT('QR-', UUID()));
+    
+        UPDATE Tarifa
+        SET Stock = Stock - 1
+        WHERE IdFuncion = unIdFuncion AND Estado = 'Activa';
+    COMMIT;
 
-   
-    UPDATE Tarifa
-    SET Stock = Stock - 1
-    WHERE IdFuncion = unIdFuncion AND Estado = 'Activa';
 END$$
 
 
 CREATE PROCEDURE PublicarEvento(IN unIdEvento INT)
 BEGIN
+START TRANSACTION
     IF EXISTS (SELECT 1 FROM Funcion WHERE IdEvento = unIdEvento)
        AND EXISTS (
             SELECT 1
@@ -79,7 +86,9 @@ BEGIN
         UPDATE Evento
         SET Estado = 'Publicado'
         WHERE IdEvento = unIdEvento;
+         COMMIT;
     ELSE
+    ROLLBACK
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'El evento no puede publicarse: no tiene funciones o tarifas activas.';
     END IF;
@@ -99,6 +108,7 @@ BEGIN
         SET Estado = 'Suspendida'
         WHERE IdFuncion IN (SELECT IdFuncion FROM Funcion WHERE IdEvento = NEW.IdEvento);
     END IF;
+    COMMIT;,
 END$$
 
 
@@ -131,6 +141,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'La entrada no existe o ya fue anulada.';
     END IF;
+    COMMIT;
 END$$
 
 DELIMITER ;
