@@ -5,10 +5,10 @@ namespace SistemaDeBoleteria.Core.Interfaces.IServices;
 
 public interface IEventoService
 {
-    IEnumerable<MostrarEventoDTO> GetEventos();
-    MostrarEventoDTO? GetEventoById(int IdEvento);
-    MostrarEventoDTO InsertEvento(CrearActualizarEventoDTO evento);
-    MostrarEventoDTO UpdateEvento(CrearActualizarEventoDTO evento, int IdEvento);
+    IEnumerable<MostrarEventoDTO> GetAll();
+    MostrarEventoDTO? GetById(int IdEvento);
+    MostrarEventoDTO Post(CrearActualizarEventoDTO evento);
+    MostrarEventoDTO Put(CrearActualizarEventoDTO evento, int IdEvento);
     bool PublicarEvento(int IdEvento);
     bool CancelarEvento(int IdEvento);
 }

@@ -12,11 +12,12 @@ namespace SistemaDeBoleteria.Services
     {
         private readonly CodigoQRRepository codigoQRRepository = new CodigoQRRepository();
 
-        public byte[] GetQRByEntradaId(int idEntrada)
+        public byte[]? GetQRByEntradaId(int idEntrada)
         {
             var codigoQR = codigoQRRepository.SelectById(idEntrada);
 
-            //Validación por si es nulo
+            if (codigoQR is null)
+                return null;
 
             var qrGenerator = new QRCodeGenerator();
             var qrCodeData = qrGenerator.CreateQrCode(codigoQR!.Codigo, QRCodeGenerator.ECCLevel.Q);

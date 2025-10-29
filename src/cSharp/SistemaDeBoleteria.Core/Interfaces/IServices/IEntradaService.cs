@@ -6,5 +6,5 @@ public interface IEntradaService
 {
     IEnumerable<MostrarEntradaDTO> GetAll();
     MostrarEntradaDTO? GetById(int id);
-    void AnularEntrada(int id);
+    bool AnularEntrada(int id);
 }

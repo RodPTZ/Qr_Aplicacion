@@ -108,11 +108,8 @@ app.MapPut("/clientes/{clienteID}", ([FromRoute] int clienteID, [FromBody] Actua
 
 app.MapGet("/entradas/{entradaID}/qr", ([FromRoute] int entradaID, [FromServices] ICodigoQRService codigoQRService, [FromServices] IEntradaService entradaService) =>
 {
-    var entrada = entradaService.GetEntradaById(entradaID);
-    if (entrada is null)
-        return Results.NotFound();
     var Qr = codigoQRService.GetQRByEntradaId(entradaID);
-    return Results.File(Qr, "image/svg+xml");
+    return Qr is null ? Results.NotFound() : Results.File(Qr, "image");
 }).WithTags("CodigoQR");
 
 app.MapPost("/qr/validar", ([FromBody] int IdEntrada, [FromServices] IEntradaService entradaService, [FromServices] ICodigoQRService codigoQRService) =>
@@ -128,28 +125,24 @@ app.MapPost("/qr/validar", ([FromBody] int IdEntrada, [FromServices] IEntradaSer
 
 app.MapGet("/entradas", ([FromServices] IEntradaService entradaService) =>
 {
-    var entradas = entradaService.GetEntradas();
-    if (!entradas.Any())
-        return Results.NoContent();
-    return Results.Ok(entradas);
+    var entradas = entradaService.GetAll();
+    return !entradas.Any() ?  Results.NoContent() : Results.Ok(entradas);
 }).WithTags("Entradas");
 
 app.MapGet("/entradas/{entradaID}", ([FromRoute] int entradaID, [FromServices] IEntradaService entradaService) =>
 {
-    var entrada = entradaService.GetEntradaById(entradaID);
-    return entrada is not null ? Results.Ok(entrada) : Results.NotFound();
+    var entrada = entradaService.GetById(entradaID);
+    return entrada is null ? Results.NotFound() : Results.Ok(entrada);
 }).WithTags("Entradas");
 
 app.MapPost("/entradas/{entradaID}/anular", ([FromRoute] int entradaID, [FromServices] IEntradaService entradaService) =>
 {
-    var entrada = entradaService.GetEntradaById(entradaID);
-    if (entrada is null)
-        return Results.NotFound();
-    entradaService.AnularEntrada(entradaID); // falta verificar la salida.
-    return Results.Ok(entrada);
+    bool funciono = entradaService.AnularEntrada(entradaID);
+    return funciono is false ? Results.NotFound(new { message = "No funciona" }) : Results.Ok(new { message = "Si funciona" });
 }).WithTags("Entradas");
+
 #endregion
-// 1
+
 #region  Evento
 
 app.MapPost("/eventos", ([FromBody] CrearActualizarEventoDTO evento, [FromServices] IEventoService eventoService) =>

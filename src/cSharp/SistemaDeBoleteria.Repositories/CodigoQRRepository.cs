@@ -16,7 +16,7 @@ namespace SistemaDeBoleteria.Repositories
     {
         private readonly string UpdEstado =@"UPDATE QR SET TipoEstado = @Estado WHERE IdEntrada = @ID;";
         public CodigoQR? SelectById(int idEntrada) => db.QueryFirstOrDefault<CodigoQR>("SELECT * FROM QR WHERE IdEntrada = @ID", new { ID = idEntrada });
-        public string UpdateEstado(int IdEntrada, string estado)
+        public string? UpdateEstado(int IdEntrada, string estado)
         {
             // var parameters = new DynamicParameters();
             // parameters.Add("@unIdEntrada", IdEntrada);
@@ -24,8 +24,8 @@ namespace SistemaDeBoleteria.Repositories
             // var sql = "SELECT TipoEstado FROM QR WHERE IdEntrada = @ID";
             // var estado = db.QueryFirstOrDefault<string>(sql, new { ID = IdEntrada });
             // return estado!;
-            var codigo = db.ExecuteScalar<string>(UpdEstado, new { estado, ID = IdEntrada} );
-            return codigo!;
+            var codigoQR = db.ExecuteScalar<CodigoQR>(UpdEstado, new { estado, ID = IdEntrada });
+            return codigoQR!.Codigo;
         }
 
     }

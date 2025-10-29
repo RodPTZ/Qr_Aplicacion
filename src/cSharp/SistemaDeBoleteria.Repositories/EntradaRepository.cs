@@ -15,11 +15,14 @@ public class EntradaRepository :  DbRepositoryBase, IEntradaRepository
     
     public bool UpdateEstado(int idEntrada)
     {
-        // var sql = "UPDATE Entrada SET Anulada = true WHERE IdEntrada = @ID";
-        // db.Execute(sql, new { ID = idEntrada });
-        var parameters = new DynamicParameters();
-        parameters.Add("@unIdEntrada", idEntrada);
-        db.Execute("CancelarEntrada", parameters);
-        return true;
+        // // var sql = "UPDATE Entrada SET Anulada = true WHERE IdEntrada = @ID";
+        // // db.Execute(sql, new { ID = idEntrada });
+        // var parameters = new DynamicParameters();
+        // parameters.Add("@unIdEntrada", idEntrada);
+        // db.Execute("CancelarEntrada", parameters);
+
+        // Completar con código de verificación 15:09 
+
+        return true; // validar después la salida
     }
 }

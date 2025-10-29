@@ -11,33 +11,34 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class EventoRepository :  DbRepositoryBase, IEventoRepository
 {
-    public MostrarEventoDTO? GetEventoById(int id)
+    const string InsSql = @"INSERT INTO Evento (IdLocal, Nombre, Tipo, publicado) 
+                            VALUES (@IdLocal, @Nombre, @Tipo, @Publicado); 
+                            
+                            SELECT LAST_INSERT_ID();";
+    const string UpdSql = @"UPDATE Evento 
+                            SET IdLocal = @IdLocal, 
+                                Nombre = @Nombre, 
+                                Tipo = @Tipo 
+                            WHERE IdEvento = @ID";
+    public IEnumerable<Evento> SelectAll() => db.Query<Evento>("SELECT * FROM Evento");
+    public Evento? Select(int IdEvento) => db.QueryFirstOrDefault<Evento>("SELECT * FROM Evento WHERE IdEvento = @ID", new { ID = IdEvento });
+    
+    public Evento Insert(Evento evento)
     {
-        var sql = "SELECT * FROM Evento WHERE IdEvento = @ID";
-        return db.QueryFirstOrDefault<MostrarEventoDTO>(sql, new { ID = id });
+        evento.IdEvento = db.ExecuteScalar<int>(InsSql, evento);
+        return evento;
     }
-
-    public MostrarEventoDTO InsertEvento(CrearActualizarEventoDTO evento)
+    public Evento UpdateEvento(Evento evento, int IdEvento)
     {
-        var sql = "INSERT INTO Evento (IdLocal, Nombre, Tipo, publicado) VALUES (@IdLocal, @Nombre, @Tipo, @Publicado); SELECT LAST_INSERT_ID();";
-        var id = db.ExecuteScalar<int>(sql, evento);
-        var mostrarEvento = evento.Adapt<MostrarEventoDTO>();
-        mostrarEvento.IdEvento = id;
-        return mostrarEvento;
-    }
-    public MostrarEventoDTO UpdateEvento(CrearActualizarEventoDTO evento, int IdEvento)
-    {
-        var sql = "UPDATE Evento SET IdLocal = @IdLocal, Nombre = @Nombre, Tipo = @Tipo WHERE IdEvento = @ID";
-        db.Execute(sql, new
+        db.Execute(UpdSql, new
         {
             evento.IdLocal,
             evento.Nombre,
             Tipo = evento.Tipo.ToString(),
             ID = IdEvento
         });
-        var eventoActualizado = evento.Adapt<MostrarEventoDTO>();
-        eventoActualizado.IdEvento = IdEvento;
-        return eventoActualizado;
+        evento.IdEvento = IdEvento;
+        return evento;
     }
     public bool PublicarEvento(int id)
     {
