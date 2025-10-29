@@ -8,13 +8,15 @@ namespace SistemaDeBoleteria.Core.Models
     public class Usuario
     {
         public int IdUsuario { get; set; }
+        public string NombreUsuario { get; set; }
         public string Email { get; set; }
-        public string Clave { get; set; }
+        public string Contraseña { get; set; }
 
-        public Usuario(string email, string clave)
+        public Usuario(string nombreUsuario, string email, string contraseña)
         {
+            NombreUsuario = nombreUsuario;
             Email = email;
-            Clave = clave;
+            Contraseña = contraseña;
         }
         public Usuario()
         {

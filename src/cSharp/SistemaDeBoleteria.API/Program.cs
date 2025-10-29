@@ -1,25 +1,35 @@
 using Microsoft.AspNetCore.Mvc;
-using SistemaDeBoleteria.AdoDapper;
 using SistemaDeBoleteria.Core.Models;
-using SistemaDeBoleteria.Core.Services;
+using SistemaDeBoleteria.Core.Interfaces.IServices;
 using SistemaDeBoleteria.Core.Validations;
 using SistemaDeBoleteria.Core.DTOs;
+using SistemaDeBoleteria.Services;
 using FluentValidation;
 using Mapster;
-
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IClienteService, ClienteAdo>();
-builder.Services.AddScoped<ICodigoQRService, CodigoQRAdo>();
-builder.Services.AddScoped<IEventoService, EventoAdo>();
-builder.Services.AddScoped<ILocalService, LocalAdo>();
-builder.Services.AddScoped<IOrdenService, OrdenAdo>();
-builder.Services.AddScoped<ISectorService, SectorAdo>();
-builder.Services.AddScoped<ITarifaService, TarifaAdo>();
+#region Servicios
+
+builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<ICodigoQRService, CodigoQRService>();
+builder.Services.AddScoped<IEventoService, EventoService>();
+builder.Services.AddScoped<ILocalService, LocalService>();
+builder.Services.AddScoped<IOrdenService, OrdenService>();
+builder.Services.AddScoped<ISectorService, SectorService>();
+builder.Services.AddScoped<ITarifaService, TarifaService>();
+
+#endregion
+
+#region Validaciones
+
+builder.Services.AddTransient<IValidator<CrearClienteDTO>, ClienteValidator>();
+builder.Services.AddTransient<IValidator<ActualizarClienteDTO>, ActualizarClienteDTOValidator>();
+
+#endregion
 
 var app = builder.Build();
 
@@ -34,10 +44,10 @@ app.UseHttpsRedirection();
 
 #region Cliente
 
-app.MapPost("/clientes", ([FromBody] CrearClienteDTO clienteDto, IClienteService clienteService) =>
+app.MapPost("/clientes", ([FromBody] CrearClienteDTO cliente, [FromServices] IClienteService clienteService, [FromServices] IValidator<CrearClienteDTO> validator) =>
 {
-    var validator = new ClienteValidator();
-    var result = validator.Validate(clienteDto);
+    // var validator = new ClienteValidator();
+    var result = validator.Validate(cliente);
     if (!result.IsValid)
     {
         var listaErrores = result.Errors
@@ -50,34 +60,33 @@ app.MapPost("/clientes", ([FromBody] CrearClienteDTO clienteDto, IClienteService
         return Results.ValidationProblem(listaErrores);
     }
 
-    var mostrarClienteDTO = clienteService.InsertCliente(clienteDto);
-    return mostrarClienteDTO is null ? Results.BadRequest() : Results.Created($"/clientes/{mostrarClienteDTO.IdCliente}", mostrarClienteDTO);
+    var mostrarClienteDTO = clienteService.Post(cliente);
+    return Results.Created($"/clientes/{mostrarClienteDTO.IdCliente}", mostrarClienteDTO);
 }).WithTags("Clientes");
 
 app.MapGet("/clientes", (IClienteService clienteService) =>
 {
-    var _clientes = clienteService.GetClientes();
+    var _clientes = clienteService.GetAll();
     if (!_clientes.Any())
         return Results.NoContent();
+
     return Results.Ok(_clientes);
 }).WithTags("Clientes");
 
 app.MapGet("/clientes/{clienteID}", ([FromRoute] int clienteID, IClienteService clienteService) =>
 {
-    var _cliente = clienteService.GetClienteById(clienteID);
-    if (_cliente is null)
+    var cliente = clienteService.GetById(clienteID);
+    if (cliente is null)
         return Results.NotFound();
-    return Results.Ok(_cliente);
+        
+    return Results.Ok(cliente);
+    // return clienteService.GetById(clienteID) is null ? Results.NotFound() : Results.Ok(clienteService.GetById(clienteID)); 
+
 }).WithTags("Clientes");
 
-app.MapPut("/clientes/{clienteID}", ([FromRoute] int clienteID, [FromBody] ActualizarClienteDTO cliente, IClienteService clienteService) =>
+app.MapPut("/clientes/{clienteID}", ([FromRoute] int clienteID, [FromBody] ActualizarClienteDTO cliente, [FromServices]IClienteService clienteService, [FromServices]IValidator<ActualizarClienteDTO> validator) =>
 {
-    var _cliente = clienteService.GetClienteById(clienteID);
-    if (_cliente is null)
-        return Results.NotFound();
-
-    var validators = new ActualizarClienteDTOValidator();
-    var result = validators.Validate(cliente);
+    var result = validator.Validate(cliente);
     if (!result.IsValid)
     {
         var listaErrores = result.Errors
@@ -89,8 +98,9 @@ app.MapPut("/clientes/{clienteID}", ([FromRoute] int clienteID, [FromBody] Actua
         );
         return Results.ValidationProblem(listaErrores);
     }
-    var clienteActualizado = clienteService.UpdateCliente(cliente, clienteID);
-    return Results.Ok(clienteActualizado);
+
+    var clienteActualizado = clienteService.Put(cliente, clienteID);
+    return clienteActualizado is null ? Results.NotFound() : Results.Ok(clienteActualizado);
 }).WithTags("Clientes");
 #endregion
 
@@ -107,12 +117,9 @@ app.MapGet("/entradas/{entradaID}/qr", ([FromRoute] int entradaID, [FromServices
 
 app.MapPost("/qr/validar", ([FromBody] int IdEntrada, [FromServices] IEntradaService entradaService, [FromServices] ICodigoQRService codigoQRService) =>
 {
-    var entrada = entradaService.GetEntradaById(IdEntrada);
-    if (entrada is null)
-        return Results.NotFound();
-
-    var estado = codigoQRService.ValidarQR(IdEntrada);
+    var estado = codigoQRService.ValidateQR(IdEntrada);
     return Results.Ok(estado);
+
 }).WithTags("CodigoQR");
 
 #endregion
@@ -413,14 +420,13 @@ app.MapDelete("/locales/{localID}", ([FromRoute] int localID, [FromServices] ILo
 
 app.MapPost("/register", ([FromBody] Usuario usuario, [FromServices] ILoginService loginService) =>
 {
-    loginService.AuthRegistrar(usuario);
+    loginService.Register(usuario);
     return Results.Created($"/register/{usuario.Email}", usuario);
 }).WithTags("Login");
 app.MapPost("/login", () =>
 {
 
 }).WithTags("Login");
-
 app.MapPost("/refresh", () =>
 {
 
@@ -443,13 +449,9 @@ app.MapGet("/roles", () =>
     };
     return Results.Ok(roles);
 }).WithTags("Login");
-
 app.MapPost("/usuarios/{usuarioID}/roles", ([FromRoute] int usuarioID, [FromServices] ILoginService loginService) =>
 {
-    var roles = loginService.GetRolesByUserId(usuarioID);
-    if (!roles.Any())
-        return Results.NoContent();
-    return Results.Ok(roles);
+    return Results.Ok();
 }).WithTags("Login");
 #endregion
 
@@ -597,7 +599,7 @@ app.MapDelete("/sectores/{sectorID}", ([FromRoute] int sectorID, [FromServices] 
 
 #region Tarifa
 
-app.MapPost("/tarifas", ([FromBody] Tarifa tarifa, [FromServices] ITarifaService tarifaService) =>
+app.MapPost("/tarifas", ([FromBody] CrearTarifaDTO tarifa, [FromServices] ITarifaService tarifaService) =>
 {
     var validators = new TarifaValidator();
     var result = validators.Validate(tarifa);
@@ -611,8 +613,8 @@ app.MapPost("/tarifas", ([FromBody] Tarifa tarifa, [FromServices] ITarifaService
         );
         return Results.ValidationProblem(listaErrores);
     }
-    tarifaService.InsertTarifa(tarifa);
-    return tarifaService.GetTarifaById(tarifa.IdTarifa) is null ? Results.BadRequest() : Results.Created($"/tarifas/{tarifa.IdTarifa}", tarifa);
+    var mostrarTarifa =tarifaService.InsertTarifa(tarifa);
+    return tarifaService.GetTarifaById(mostrarTarifa.IdTarifa) is null ? Results.BadRequest() : Results.Created($"/tarifas/{mostrarTarifa.IdTarifa}", tarifa);
 });
 
 app.MapGet("/funciones/{funcionID}/tarifas", ([FromRoute] int funcionID, [FromServices] ITarifaService tarifaService) =>
@@ -623,13 +625,15 @@ app.MapGet("/funciones/{funcionID}/tarifas", ([FromRoute] int funcionID, [FromSe
     return Results.Ok(tarifas);
 });
 
-app.MapPut("/tarifas/{tarifaID}", ([FromRoute] int tarifaID, [FromBody] Tarifa tarifa, [FromServices] ITarifaService tarifaService) =>
+app.MapPut("/tarifas/{tarifaID}", ([FromRoute] int tarifaID, [FromBody] ActualizarTarifaDTO tarifa, [FromServices] ITarifaService tarifaService) =>
 {
+    // Confirmar existencia
     var _tarifa = tarifaService.GetTarifaById(tarifaID);
     if (_tarifa is null)
         return Results.NotFound();
 
-    var validators = new TarifaValidator();
+    // Validaciones
+    var validators = new ActualizarTarifaDTOValidator();
     var result = validators.Validate(tarifa);
     if (!result.IsValid)
     {
@@ -641,8 +645,10 @@ app.MapPut("/tarifas/{tarifaID}", ([FromRoute] int tarifaID, [FromBody] Tarifa t
         );
         return Results.ValidationProblem(listaErrores);
     }
-    tarifaService.UpdateTarifa(tarifa, tarifaID);
-    return Results.Ok(_tarifa);
+
+    // Actualizar
+    var mostrarTarifa = tarifaService.UpdateTarifa(tarifa, tarifaID);
+    return Results.Ok(mostrarTarifa);
 });
 
 app.MapGet("/tarifas/{tarifaID}", ([FromRoute] int tarifaID, [FromServices] ITarifaService tarifaService) =>
@@ -654,26 +660,5 @@ app.MapGet("/tarifas/{tarifaID}", ([FromRoute] int tarifaID, [FromServices] ITar
 });
 
 #endregion
-// var summaries = new[]
-// {
-//     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-// };
-// app.MapGet("/weatherforecast", () =>
-// {
-//     var forecast =  Enumerable.Range(1, 5).Select(index =>
-//         new WeatherForecast
-//         (
-//             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-//             Random.Shared.Next(-20, 55),
-//             summaries[Random.Shared.Next(summaries.Length)]
-//         ))
-//         .ToArray();
-//     return forecast;
-// })
-// .WithName("GetWeatherForecast")
-// .WithOpenApi();
+
 app.Run();
-// record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-// {
-//     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-// }

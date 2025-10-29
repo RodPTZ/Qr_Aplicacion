@@ -15,7 +15,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SistemaDeBoleteria.Core\SistemaDeBoleteria.Core.csproj" />
-    <ProjectReference Include="..\SistemaDeBoleteria.AdoDapper\SistemaDeBoleteria.AdoDapper.csproj" />
+    <ProjectReference Include="..\SistemaDeBoleteria.Services\SistemaDeBoleteria.Services.csproj" />
+    <ProjectReference Include="..\SistemaDeBoleteria.Repositories\SistemaDeBoleteria.Repositories.csproj" />
   </ItemGroup>
 
 </Project>

@@ -54,3 +54,17 @@ BEGIN
         SET MESSAGE_TEXT = ' El evento aún no está publicado. No se puede comprar';
         END IF;
     END $$
+
+CREATE TRIGGER Aft_Upd_Pagado_Orden AFTER UPDATE ON Orden FOR EACH ROW
+BEGIN
+    IF(old.Estado != 'Cancelado' AND new.Estado = 'Abonado')
+    THEN
+        INSERT INTO Entrada (IdOrden, Emision, Liquidez)
+        VALUES (old.IdOrden, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY));
+
+        SET @IdEntrada = LAST_INSERT_ID();
+
+        INSERT INTO QR (IdEntrada, Codigo)
+        VALUES (@IdEntrada, CONCAT_WS('-', old.IdOrden, old.IdCliente, old.IdTarifa));
+    END IF;
+END;

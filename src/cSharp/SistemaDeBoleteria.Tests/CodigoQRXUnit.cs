@@ -11,7 +11,7 @@ namespace SistemaDeBoleteria.Tests
     {
         public Evento evento = new Evento("Concierto de Rock", Evento.TipoEvento.Musica);
 
-        public Cliente cliente = new Cliente("Nicolas", "Gonzalez", "CABA", 12345678, "nicolas.gonzalez@gmail.com", 123456789, 4,"asd");
+        // public Cliente cliente = new Cliente(2,"Nicolas", "Gonzalez", "CABA", 12345678, "nicolas.gonzalez@gmail.com", 123456789, 4,"asd");
 
 
 
@@ -30,9 +30,9 @@ namespace SistemaDeBoleteria.Tests
                 evento
             );
 
-            Orden orden = new Orden(Orden.TipoEntrada.General,cliente, "Tarjeta de crédito", sesion);
+            // Orden orden = new Orden(Orden.TipoEntrada.General,cliente, "Tarjeta de crédito", sesion);
 
-            orden.Abonar();
+            // orden.Abonar();
 
             Entrada entrada = sesion.entradasVendidas[0];
 
