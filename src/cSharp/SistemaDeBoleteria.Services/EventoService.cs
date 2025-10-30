@@ -26,6 +26,7 @@ namespace SistemaDeBoleteria.Services
             var eventoExiste = eventoRepository.Select(IdEvento);
             if (eventoExiste is null)
                 return (3, "Evento no encontrado");
+                
             return eventoRepository.UpdEstadoPublic(IdEvento); 
         }
         public bool CancelarEvento(int IdEvento) => eventoRepository.UpdEstadoCancel(IdEvento);

@@ -9,7 +9,7 @@ namespace SistemaDeBoleteria.Core.DTOs
     public class CrearOrdenDTO
     {
         public int IdCliente { get; set; }
-        public int IdSesion { get; set; }
+        public int IdFunción { get; set; }
         public Orden.TipoEntrada tipoEntrada { get; set; }
         public Orden.TipoDePago MedioDePago { get; set; }
     }

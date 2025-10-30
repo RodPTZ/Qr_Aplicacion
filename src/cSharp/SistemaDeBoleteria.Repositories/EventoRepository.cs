@@ -55,6 +55,7 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
     }
     public bool UpdEstadoCancel(int IdEvento)
     {
+        // Falta procedure para cancelar evento
         var sql = "UPDATE Evento SET publicado = false WHERE IdEvento = @ID";
         db.Execute(sql, new { ID = IdEvento });
         return true;

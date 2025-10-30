@@ -35,7 +35,6 @@ BEGIN
         FROM Funcion
         WHERE IdFuncion = unIdFuncion;
 
-    
         SELECT Precio INTO precio
         FROM Tarifa
         WHERE IdFuncion = unIdFuncion AND Estado = 'Activa'
@@ -68,7 +67,23 @@ BEGIN
         SET Stock = Stock - 1
         WHERE IdFuncion = unIdFuncion AND Estado = 'Activa';
     COMMIT;
+END$$
 
+CREATE PROCEDURE ComprarEntradaDos(IN unIdOrden INT UNSIGNED, IN unTipoEntrada)
+BEGIN
+        INSERT INTO Entrada (IdOrden, TipoEntrada, Emision, Liquidez)
+        VALUES (unIdOrden, unTipoEntrada, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY));
+
+        SET unIdEntrada = LAST_INSERT_ID();
+    
+        INSERT INTO QR (IdEntrada, TipoEstado, Codigo)
+        VALUES (unIdEntrada, 'Ok', CONCAT('QR-', UUID()));
+
+        -- Esto va para la creacion de la orden
+        UPDATE Tarifa
+        SET Stock = Stock - 1
+        WHERE IdFuncion = unIdFuncion AND Estado = 'Activa';
+        --
 END$$
 
 

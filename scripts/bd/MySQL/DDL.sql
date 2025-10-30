@@ -82,11 +82,9 @@ CREATE TABLE Funcion (
     CONSTRAINT FK_Funcion_Sesion FOREIGN KEY (IdSesion) REFERENCES Sesion (IdSesion)
 );
 
-
 CREATE TABLE Tarifa (
     IdTarifa INT UNSIGNED AUTO_INCREMENT NOT NULL,
     IdFuncion INT UNSIGNED NOT NULL,
-    TipoEntrada ENUM('General', 'VIP', 'PLUS'),
     Precio DECIMAL(10, 2) NOT NULL,
     Stock INT UNSIGNED NOT NULL,
     Estado ENUM('Activa', 'Inactiva', 'Agotada', 'Suspendida') DEFAULT 'Inactiva',
@@ -99,7 +97,7 @@ CREATE TABLE Orden (
     IdTarifa INT UNSIGNED NOT NULL,
     IdSesion INT UNSIGNED NOT NULL,
     IdCliente INT UNSIGNED NOT NULL,
-    Estado ENUM('Abonado','Cancelado', 'En curso') DEFAULT 'En curso',
+    Estado ENUM('Abonado','Cancelado') DEFAULT 'Abonado',
     Emision DATETIME NOT NULL,
     Cierre DATETIME NOT NULL,
     MedioDePago ENUM('Efectivo','Transferencia','Debito','Credito'),
@@ -112,7 +110,8 @@ CREATE TABLE Orden (
 CREATE TABLE Entrada (
     IdEntrada INT UNSIGNED AUTO_INCREMENT NOT NULL,
     IdOrden INT UNSIGNED NOT NULL,
-    Emision DATETIME NOT NULL,
+    TipoEntrada ENUM('General', 'VIP', 'PLUS'),
+    Emision DATETIME NOT NULL,  
     Liquidez DATETIME NOT NULL,
     Estado ENUM('Anulado', 'Pagado', 'Pendiente') DEFAULT 'Pendiente',
     CONSTRAINT PK_Entrada PRIMARY KEY (IdEntrada),
