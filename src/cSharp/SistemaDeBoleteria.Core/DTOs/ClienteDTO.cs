@@ -33,6 +33,5 @@ namespace SistemaDeBoleteria.Core.DTOs
         public int Edad { get; set; }
         public string Usuario { get; set; }
         public string Email { get; set; }
-        public string Contraseña { get; set; }
     }
 }

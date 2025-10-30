@@ -78,13 +78,13 @@ app.MapGet("/clientes/{clienteID}", ([FromRoute] int clienteID, IClienteService 
     var cliente = clienteService.GetById(clienteID);
     if (cliente is null)
         return Results.NotFound();
-        
+
     return Results.Ok(cliente);
     // return clienteService.GetById(clienteID) is null ? Results.NotFound() : Results.Ok(clienteService.GetById(clienteID)); 
 
 }).WithTags("Clientes");
 
-app.MapPut("/clientes/{clienteID}", ([FromRoute] int clienteID, [FromBody] ActualizarClienteDTO cliente, [FromServices]IClienteService clienteService, [FromServices]IValidator<ActualizarClienteDTO> validator) =>
+app.MapPut("/clientes/{clienteID}", ([FromRoute] int clienteID, [FromBody] ActualizarClienteDTO cliente, [FromServices] IClienteService clienteService, [FromServices] IValidator<ActualizarClienteDTO> validator) =>
 {
     var result = validator.Validate(cliente);
     if (!result.IsValid)
@@ -126,7 +126,7 @@ app.MapPost("/qr/validar", ([FromBody] int IdEntrada, [FromServices] IEntradaSer
 app.MapGet("/entradas", ([FromServices] IEntradaService entradaService) =>
 {
     var entradas = entradaService.GetAll();
-    return !entradas.Any() ?  Results.NoContent() : Results.Ok(entradas);
+    return !entradas.Any() ? Results.NoContent() : Results.Ok(entradas);
 }).WithTags("Entradas");
 
 app.MapGet("/entradas/{entradaID}", ([FromRoute] int entradaID, [FromServices] IEntradaService entradaService) =>
@@ -161,35 +161,27 @@ app.MapPost("/eventos", ([FromBody] CrearActualizarEventoDTO evento, [FromServic
         return Results.ValidationProblem(listaErrores);
     }
     // Insertar
-    var eventoCreado = eventoService.InsertEvento(evento);
+    var eventoCreado = eventoService.Post(evento);
     // Retornar
-    return eventoService.GetEventoById(eventoCreado.IdEvento) is null ? Results.BadRequest() : Results.Created($"/eventos/{eventoCreado.IdEvento}", eventoCreado);
+    return Results.Created($"/eventos/{eventoCreado.IdEvento}", eventoCreado);
 }).WithTags("Eventos");
 
 app.MapGet("/eventos", ([FromServices] IEventoService eventoService) =>
 {
-    // Obtener eventos
-    var eventos = eventoService.GetEventos();
-    if (!eventos.Any())
-        return Results.NoContent();
-    // Retornar eventos
-    return Results.Ok(eventos);
+    var eventos = eventoService.GetAll();
+    return !eventos.Any() ? Results.NoContent() : Results.Ok(eventos);
 }).WithTags("Eventos");
 
 app.MapGet("/eventos/{eventoID}", ([FromRoute] int eventoID, [FromServices] IEventoService eventoService) =>
 {
     // Obtener evento por ID
-    var evento = eventoService.GetEventoById(eventoID);
+    var evento = eventoService.GetById(eventoID);
     // Retornar evento
-    return evento is not null ? Results.Ok(evento) : Results.NotFound();
+    return evento is null ? Results.NotFound() : Results.Ok(evento);
 }).WithTags("Eventos");
 
 app.MapPut("/eventos/{eventoID}", ([FromRoute] int eventoID, [FromBody] CrearActualizarEventoDTO evento, [FromServices] IEventoService eventoService) =>
 {
-    // Verificar existencia
-    var _evento = eventoService.GetEventoById(eventoID);
-    if (_evento is null)
-        return Results.NotFound();
     // Validaciones
     var validators = new EventoValidator();
     var result = validators.Validate(evento);
@@ -204,37 +196,27 @@ app.MapPut("/eventos/{eventoID}", ([FromRoute] int eventoID, [FromBody] CrearAct
         return Results.ValidationProblem(listaErrores);
     }
     // Actualizar
-    var eventoActualizado = eventoService.UpdateEvento(evento, eventoID);
-    return Results.Ok(eventoActualizado);
+    var eventoActualizado = eventoService.Put(evento, eventoID);
+    return eventoActualizado is null ? Results.NotFound() : Results.Ok(eventoActualizado);
 }).WithTags("Eventos");
 
 app.MapPost("/eventos/{eventoID}/publicar", ([FromRoute] int eventoID, [FromServices] IEventoService eventoService) =>
 {
-    // Verificar existencia
-    var evento = eventoService.GetEventoById(eventoID);
-    if (evento is null)
-        return Results.NotFound();
-
     // Publicar
-    if (eventoService.PublicarEvento(eventoID)) // falta verificar la salida.
-        return Results.Ok(evento);
+    var operacion = eventoService.PublicarEvento(eventoID);
 
-    // Retornar. No se pudo publicar
-    return Results.BadRequest();
+    return operacion.secuencia switch
+    {
+        1 => Results.Ok(new { message = operacion.ErrorMessage }),
+        2 => Results.BadRequest(new { message = operacion.ErrorMessage }),
+        3 => Results.NotFound()
+    };
 }).WithTags("Eventos");
 
 app.MapPost("/eventos/{eventoID}/cancelar", ([FromRoute] int eventoID, [FromServices] IEventoService eventoService) =>
 {
-    // Verificar existencia
-    var evento = eventoService.GetEventoById(eventoID);
-    if (evento is null)
-        return Results.NotFound();
-    // Cancelar
-    if (eventoService.CancelarEvento(eventoID)) // falta verificar la salida.
-        return Results.Ok(evento);
+    eventoService.CancelarEvento(eventoID); // falta verificar la salida.
 
-    // Retornar. No se pudo cancelar
-    return Results.BadRequest();
 }).WithTags("Eventos");
 #endregion
 
@@ -388,7 +370,7 @@ app.MapPut("/locales/{localID}", ([FromRoute] int localID, [FromBody] CrearActua
         return Results.ValidationProblem(listaErrores);
     }
     // Actualizar
-    var localActualizado =localeService.UpdateLocal(local, localID);
+    var localActualizado = localeService.UpdateLocal(local, localID);
     // Retornar
     return Results.Ok(localActualizado);
 }).WithTags("Locales");
@@ -513,7 +495,7 @@ app.MapPost("/ordenes/{ordenID}/cancelar", ([FromRoute] int ordenID, [FromServic
     // Cancelar
     bool fueCancelado = ordenService.CancelarOrden(ordenID);
     // Retornar
-    return fueCancelado is true ? Results.Ok(new { message="Cancelado Exitosamente." }) : Results.BadRequest();
+    return fueCancelado is true ? Results.Ok(new { message = "Cancelado Exitosamente." }) : Results.BadRequest();
 }).WithTags("Orden");
 
 #endregion
@@ -539,7 +521,7 @@ app.MapPost("/locales/{localID}/sectores", ([FromRoute] int localID, [FromBody] 
 
     // Insertar
     var mostrarSector = sectorService.InsertSector(sector, localID);
-    
+
     // Retornar
     return mostrarSector is null ? Results.BadRequest() : Results.Created($"/locales/{localID}/sectores/{mostrarSector.IdSector}", mostrarSector);
 });
@@ -606,7 +588,7 @@ app.MapPost("/tarifas", ([FromBody] CrearTarifaDTO tarifa, [FromServices] ITarif
         );
         return Results.ValidationProblem(listaErrores);
     }
-    var mostrarTarifa =tarifaService.InsertTarifa(tarifa);
+    var mostrarTarifa = tarifaService.InsertTarifa(tarifa);
     return tarifaService.GetTarifaById(mostrarTarifa.IdTarifa) is null ? Results.BadRequest() : Results.Created($"/tarifas/{mostrarTarifa.IdTarifa}", tarifa);
 });
 

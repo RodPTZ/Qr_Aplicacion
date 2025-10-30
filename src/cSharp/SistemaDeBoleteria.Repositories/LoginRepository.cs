@@ -14,23 +14,23 @@ namespace SistemaDeBoleteria.Repositories
     public class LoginRepository : DbRepositoryBase, ILoginRepository
     {
         const string InsSql = @"INSERT INTO Usuario (NombreUsuario, Email, Contraseña) 
-                                    VALUES (@NombreUsuario, @Email, @Contraseña);
+                                VALUES (@NombreUsuario, @Email, @Contraseña);
 
-                                    SELECT LAST_INSERT_ID();";
+                                SELECT LAST_INSERT_ID();";
         public Usuario Insert(Usuario usuario)
         {
             usuario.IdUsuario = db.ExecuteScalar<int>(InsSql, usuario);
             return usuario;
         }
 
-        public Usuario? Get(string nombreUsuario, string password)
+        public Usuario? Select(int idUsuario)
         {
-            var sql = "SELECT * FROM Usuario WHERE Email = @Email AND Clave = @Clave";
-            var usuario = db.QueryFirstOrDefault<Usuario>(sql, new { Email = nombreUsuario, Clave = password });
+            var sql = "SELECT * FROM Usuario WHERE IdUsuario = @ID;";
+            var usuario = db.QueryFirstOrDefault<Usuario>(sql, new { ID = idUsuario});
             return usuario;
         }
 
-        public Usuario? GetMe(string token)
+        public Usuario? SelectMe(string token)
         {
             // lógica para obtener el usuario actual
             // var sql = "SELECT * FROM Usuario WHERE Email = @email AND Clave = @clave";

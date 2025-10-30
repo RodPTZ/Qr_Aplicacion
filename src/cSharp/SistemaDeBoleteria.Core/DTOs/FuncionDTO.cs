@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 
 namespace SistemaDeBoleteria.Core.DTOs
 {
-    public class CrearFuncionDTO
+    public class CrearFuncionDTO : ActualizarFuncionDTO
     {
         public int IdEvento { get; set; }
+    }
+    public class ActualizarFuncionDTO
+    {
         public int IdSector { get; set; }
         public int IdSesion { get; set; }
         public TimeOnly Duracion { get; set; }
@@ -23,11 +26,5 @@ namespace SistemaDeBoleteria.Core.DTOs
         public DateTime Fecha { get; set; }
         public bool Cancelado { get; set; }
     }
-    public class ActualizarFuncionDTO
-    {
-        public int IdSector { get; set; }
-        public int IdSesion { get; set; }
-        public TimeOnly Duracion { get; set; }
-        public DateTime Fecha { get; set; }
-    }
+    
 }

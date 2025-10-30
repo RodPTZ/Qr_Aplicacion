@@ -22,13 +22,12 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
                             WHERE IdEvento = @ID";
     public IEnumerable<Evento> SelectAll() => db.Query<Evento>("SELECT * FROM Evento");
     public Evento? Select(int IdEvento) => db.QueryFirstOrDefault<Evento>("SELECT * FROM Evento WHERE IdEvento = @ID", new { ID = IdEvento });
-    
     public Evento Insert(Evento evento)
     {
         evento.IdEvento = db.ExecuteScalar<int>(InsSql, evento);
-        return evento;
+        return Select(evento.IdEvento)!;
     }
-    public Evento UpdateEvento(Evento evento, int IdEvento)
+    public Evento Update(Evento evento, int IdEvento)
     {
         db.Execute(UpdSql, new
         {
@@ -40,20 +39,24 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
         evento.IdEvento = IdEvento;
         return evento;
     }
-    public bool PublicarEvento(int id)
+    public (byte secuencia, string? ErrorMessage) UpdEstadoPublic(int IdEvento)
     {
-        var consulta = "SELECT COUNT(*) FROM Funcion WHERE IdEvento = @ID";
-        var cantidadFunciones = db.ExecuteScalar<int>(consulta, new { ID = id });
-        if (cantidadFunciones == 0)
-            return false;
-        var sql = "UPDATE Evento SET publicado = true WHERE IdEvento = @ID";
-        db.Execute(sql, new { ID = id });
-        return true;
+        var parameters = new DynamicParameters();
+        parameters.Add("@ID", IdEvento);
+        try
+        {
+            db.Execute("PublicarEvento", parameters);
+            return (1, "Evento publicado exitosamente.");
+        }
+        catch (MySqlException ex)
+        {
+            return (2, ex.Message);
+        }
     }
-    public bool CancelarEvento(int id)
+    public bool UpdEstadoCancel(int IdEvento)
     {
         var sql = "UPDATE Evento SET publicado = false WHERE IdEvento = @ID";
-        db.Execute(sql, new { ID = id });
+        db.Execute(sql, new { ID = IdEvento });
         return true;
     }
 }

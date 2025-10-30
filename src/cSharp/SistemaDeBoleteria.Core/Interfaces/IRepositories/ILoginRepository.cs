@@ -9,8 +9,8 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
     public interface ILoginRepository
     {
         Usuario Insert(Usuario usuario);
-        Usuario? Get(string nombreUsuario, string password);
-        Usuario? GetMe(string token);
+        Usuario? Select(int idUsuario);
+        Usuario? SelectMe(string token);
         bool UpdateRol(int idUsuario, string rol);
     }
 }

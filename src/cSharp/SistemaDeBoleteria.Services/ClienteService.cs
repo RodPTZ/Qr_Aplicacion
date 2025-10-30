@@ -10,22 +10,36 @@ using SistemaDeBoleteria.Core.Validations;
 using System.Security.Cryptography.X509Certificates;
 using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 using SistemaDeBoleteria.Core.Models;
+using System.Reflection.Metadata;
 
 namespace SistemaDeBoleteria.Services
 {
     public class ClienteService : IClienteService
     {
+        private readonly LoginRepository loginRepository = new LoginRepository();
         private readonly ClienteRepository clienteRepository = new ClienteRepository();
         public IEnumerable<MostrarClienteDTO> GetAll() => clienteRepository.SelectAll().Adapt<IEnumerable<MostrarClienteDTO>>();
         public MostrarClienteDTO? GetById(int id) => clienteRepository.Select(id).Adapt<MostrarClienteDTO>();
-        public MostrarClienteDTO Post(CrearClienteDTO cliente) => clienteRepository.Insert(cliente.Adapt<Cliente>(), cliente.Adapt<Usuario>()).Adapt<MostrarClienteDTO>(); 
+        public MostrarClienteDTO Post(CrearClienteDTO cliente) 
+        {
+            var clienteCreated = clienteRepository
+                                        .Insert(cliente.Adapt<Cliente>(), cliente.Adapt<Usuario>())
+                                        .Adapt<MostrarClienteDTO>();
+            loginRepository.Select(clienteCreated.IdUsuario).Adapt(clienteCreated);
+            return clienteCreated; 
+        }
         public MostrarClienteDTO? Put(ActualizarClienteDTO cliente, int IdCliente)
         {
             var clienteExiste = clienteRepository.Select(IdCliente);
             if (clienteExiste is null)
                 return null;
 
-            return clienteRepository.Update(cliente.Adapt<Cliente>(), IdCliente).Adapt<MostrarClienteDTO>();
+            var clienteActualizado = clienteRepository
+                                        .Update(cliente.Adapt<Cliente>(), IdCliente)
+                                        .Adapt<MostrarClienteDTO>();
+            loginRepository.Select(clienteActualizado.IdUsuario).Adapt(clienteActualizado);
+            
+            return clienteActualizado;
         }
     }
 }

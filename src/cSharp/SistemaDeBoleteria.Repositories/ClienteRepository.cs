@@ -5,6 +5,7 @@ using SistemaDeBoleteria.Core.Models;
 using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 using SistemaDeBoleteria.Core.Inheritance;
 using Mapster;
+using SistemaDeBoleteria.Core.DTOs;
 
 namespace SistemaDeBoleteria.Repositories;
 
@@ -26,9 +27,12 @@ public class ClienteRepository : DbRepositoryBase, IClienteRepository
     public Cliente? Select(int id) => db.QueryFirstOrDefault<Cliente>("SELECT * FROM Cliente WHERE IdCliente = @ID", new { ID = id });
     public Cliente Insert(Cliente cliente, Usuario usuario)
     {
-        cliente.IdUsuario = loginRepository.Insert(usuario).IdUsuario;
+        var usuarioCreado = loginRepository.Insert(usuario);
+
+        cliente.IdUsuario = usuarioCreado.IdUsuario;
         cliente.IdCliente = db.ExecuteScalar<int>(InsSql, cliente);
-        return cliente;
+
+        return Select(cliente.IdCliente)!;
     }
     public Cliente Update(Cliente cliente, int idCliente)
     {
