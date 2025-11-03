@@ -10,45 +10,64 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class OrdenRepository :  DbRepositoryBase, IOrdenRepository
 {
-    public IEnumerable<MostrarOrdenDTO> GetOrdenes()
+    public IEnumerable<Orden> SelectAll() => db.Query<Orden>("SELECT * FROM Orden");
+    public Orden? Select(int idOrden) => db.QueryFirstOrDefault<Orden>("SELECT * FROM Orden WHERE IdOrden = @ID", new { ID = idOrden });
+    
+    public Orden Insert(Orden orden)
     {
-        var sql = "SELECT * FROM Orden";
-        return db.Query<MostrarOrdenDTO>(sql);
-    }
-    public MostrarOrdenDTO? GetOrdenById(int id)
-    {
-        var sql = "SELECT * FROM Orden WHERE IdOrden = @ID";
-        return db.QueryFirstOrDefault<MostrarOrdenDTO>(sql, new { ID = id });
-    }
-    public MostrarOrdenDTO InsertOrden(CrearOrdenDTO orden)
-    {
-        var sql = "INSERT INTO Orden (IdCliente, IdSesion, TipoEntrada, MedioDePago, Emision, Cierre, Abonado, Cancelado) VALUES (@IdCliente, @IdSesion, @TipoEntrada, @MedioDePago, NOW(),  DATE_ADD(NOW(), INTERVAL 15 MINUTE));";
-        var id = db.ExecuteScalar<int>(sql, new
+        var parameters = new DynamicParameters();
+        parameters.Add("@unIdOrden", direction: ParameterDirection.Output);
+        parameters.Add("@unIdTarifa", orden.IdTarifa);
+        parameters.Add("@unIdCliente", orden.IdCliente);
+        parameters.Add("@unIdFuncion", orden.IdFuncion);
+        parameters.Add("@unMedioDePago", orden.MedioDePago);
+        try
         {
-            orden.IdCliente,
-            orden.IdSesion,
-            TipoEntrada = orden.tipoEntrada.ToString(),
-            orden.MedioDePago
-        });
-        var ordenCreada = orden.Adapt<MostrarOrdenDTO>();
-        ordenCreada.IdOrden = id;
-        return ordenCreada;
+            db.Execute("AltaOrden", parameters);
+            orden.IdOrden = parameters.Get<int>("@unIdOrden");
+            return Select(orden.IdOrden)!;
+        }   
+        catch( MySqlException ex)
+        {
+            throw new ConstraintException(ex.Message);
+        }
+        // orden.IdOrden = db.ExecuteScalar<int>(InsSql, new
+        // {
+        //     orden.IdCliente,
+        //     orden.IdFuncion,
+        //     TipoEntrada = orden.tipoEntrada.ToString(),
+        //     orden.MedioDePago
+        // }); 
+        // return Select(orden.IdOrden)!;
     }
-    public bool PagarOrden(int id)
+    public bool UpdEstadoPagado(int idOrden)
     {
-        var sql = "UPDATE Orden SET Abonado = true WHERE IdOrden = @ID";
-        db.Execute(sql, new { ID = id });
-        var insEntrada = "INSERT INTO Entrada (IdOrden, TipoEntrada, Emision, Liquidez) VALUES (@ID,(SELECT TipoEntrada FROM Orden WHERE IdOrden = @ID),NOW(),(SELECT Cierre FROM Sesion WHERE IdSesion = (SELECT IdSesion FROM Orden WHERE IdOrden = @ID)));";
-        db.Execute(insEntrada, new { ID = id });
-        var insQR = "INSERT INTO CodigoQR (IdEntrada, Codigo) VALUES (@ID,(SELECT CONCAT_WS('-', Nombre, IdOrden, Emision, TipoEntrada, DNI) FROM Entrada WHERE IdEntrada = @ID));";
-        db.Execute(insQR, new { ID = id });
-        return true;
+        var parameters = new DynamicParameters();
+        parameters.Add("@unIdOrden", idOrden);
+        try
+        {
+            db.Execute("PagarOrden", parameters);
+            return true;
+        }
+        catch(MySqlException ex)
+        {
+            throw new ConstraintException(ex.Message);
+        }
     }
-    public bool CancelarOrden(int id)
+    public bool UpdEstadoCancelado(int idOrden)
     {
-        var sql = "UPDATE Orden SET Cancelado = true WHERE IdOrden = @ID";
-        db.Execute(sql, new { ID = id });
-        return true;
+        var parameters = new DynamicParameters();
+        parameters.Add("@unIdOrden", idOrden);
+        try
+        {
+            db.Execute("CancelarOrden", parameters);
+            return true;
+        }
+        catch (MySqlException ex)
+        {
+            throw new ConstraintException(ex.Message);
+        }
+        
     }
     
 }

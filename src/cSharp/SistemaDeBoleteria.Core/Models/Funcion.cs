@@ -11,21 +11,18 @@ namespace SistemaDeBoleteria.Core.Models
         public int IdFuncion { get; set; }
         public int IdEvento { get; set; }
         public int IdSector { get; set; }
-        public int IdSesion { get; set; }
-        public List<Tarifa> tarifas;
-        public TimeOnly Duración { get; set; }
-        public DateTime Fecha { get; set; }
-        public Evento evento;
-        public bool cancelado { get; set; }
+        public DateTime Apertura { get; set; }
+        public DateTime Cierre { get; set; }
+        public bool Cancelado { get; set; }
         public Sector sector;
-        public Funcion(TimeOnly duracion, DateTime fecha, Evento evento, Sector sector)
+        public Evento evento;
+        public List<Tarifa> tarifas;
+        public Funcion( Evento evento, Sector sector)
         {
-            Duración = duracion;
-            Fecha = fecha;
             this.evento = evento;
             tarifas = new List<Tarifa>();
             evento.funciones.Add(this);
-            cancelado = false;
+            Cancelado = false;
             this.sector = sector;
         }
         public Funcion()

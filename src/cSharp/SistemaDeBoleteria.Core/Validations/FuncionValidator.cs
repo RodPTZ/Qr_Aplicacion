@@ -12,14 +12,16 @@ namespace SistemaDeBoleteria.Core.Validations
     {
         public FuncionValidator()
         {
+            RuleFor(f => f.IdEvento)
+                .GreaterThan(0).WithMessage("El IdSesion debe ser mayor que 0");
             RuleFor(f => f.IdSector)
                 .GreaterThan(0).WithMessage("El IdSector debe ser mayor que 0");
-            RuleFor(f => f.IdSesion)
-                .GreaterThan(0).WithMessage("El IdSesion debe ser mayor que 0");
-            RuleFor(f => f.Duracion)
-                .NotEmpty().WithMessage("La duración no puede estar vacía");
-            RuleFor(f => f.Fecha)
-                .GreaterThan(DateTime.Now).WithMessage("La fecha debe ser futura");
+            RuleFor(f => f.Apertura)
+                .NotEmpty().WithMessage("La apertura no puede estar vacía")
+                .GreaterThanOrEqualTo(DateTime.Now).WithMessage("La fecha no puede ser anterior a hoy");
+            RuleFor(f => f.Cierre)
+                .NotEmpty().WithMessage("El cierre no puede estar vacío")
+                .GreaterThan(f => f.Apertura).WithMessage("El cierre no puede ser antes de la apertura");
         }
     }
     public class ActualizarFuncionValidator : AbstractValidator<ActualizarFuncionDTO>
@@ -28,12 +30,12 @@ namespace SistemaDeBoleteria.Core.Validations
         {
             RuleFor(f => f.IdSector)
                 .GreaterThan(0).WithMessage("El IdSector debe ser mayor que 0");
-            RuleFor(f => f.IdSesion)
-                .GreaterThan(0).WithMessage("El IdSesion debe ser mayor que 0");
-            RuleFor(f => f.Duracion)
-                .NotEmpty().WithMessage("La duración no puede estar vacía");
-            RuleFor(f => f.Fecha)
-                .GreaterThan(DateTime.Now).WithMessage("La fecha debe ser futura");
+            RuleFor(f => f.Apertura)
+                .NotEmpty().WithMessage("La apertura no puede estar vacía")
+                .GreaterThanOrEqualTo(DateTime.Now).WithMessage("La apertura debe ser posterior o igual a la fecha actual");
+            RuleFor(f => f.Cierre)
+                .NotEmpty().WithMessage("El cierre no puede estar vacío")
+                .GreaterThan(f => f.Apertura).WithMessage("El cierre no puede ser antes de la apertura");
         }
     }
 }

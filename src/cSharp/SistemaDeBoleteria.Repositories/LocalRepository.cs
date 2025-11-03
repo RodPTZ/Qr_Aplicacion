@@ -11,42 +11,44 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class LocalRepository :  DbRepositoryBase, ILocalRepository
 {
-    public IEnumerable<MostrarLocalDTO> GetLocales()
+    const string InsSql = @"INSERT INTO Local (Nombre, Ubicacion) 
+                            VALUES (@Nombre, @Ubicacion);
+                            
+                            SELECT LAST_INSERT_ID()";
+    const string UpdSql = @"UPDATE Local 
+                            SET Nombre = @Nombre,
+                                Ubicacion = @Ubicacion 
+                            WHERE IdLocal = @ID";
+    const string DelSql = @"SELECT COUNT(*) 
+                            FROM Funcion 
+                            JOIN Sector USING (IdSector) 
+                            WHERE IdLocal = @ID";
+    public IEnumerable<Local> SelectAll() => db.Query<Local>("SELECT * FROM Local");
+    
+    public Local? Select(int id) => db.QueryFirstOrDefault<Local>("SELECT * FROM Local WHERE IdLocal = @ID", new { ID = id });
+
+    public Local Insert(Local local)
     {
-        var sql = "SELECT * FROM Local";
-        return db.Query<MostrarLocalDTO>(sql);
+        local.IdLocal = db.ExecuteScalar<int>(InsSql, local);
+        return local;
     }
-    public MostrarLocalDTO? GetLocalById(int id)
+    public Local Update(Local local, int IdLocal)
     {
-        var sql = "SELECT * FROM Local WHERE IdLocal = @ID";
-        return db.QueryFirstOrDefault<MostrarLocalDTO>(sql, new { ID = id });
-    }
-    public MostrarLocalDTO InsertLocal(CrearActualizarLocalDTO local)
-    {
-        var sql = "INSERT INTO Local (Nombre, Ubicacion) VALUES (@Nombre, @Ubicacion);";
-        var id = db.ExecuteScalar<int>(sql, local);
-        var localCreado = local.Adapt<MostrarLocalDTO>();
-        localCreado.IdLocal = id;
-        return localCreado;
-    }
-    public MostrarLocalDTO UpdateLocal(CrearActualizarLocalDTO local, int IdLocal)
-    {
-        var sql = "UPDATE Local SET Nombre = @Nombre, Ubicacion = @Ubicacion WHERE IdLocal = @ID";
-        db.Execute(sql, local);
-        var localActualizado = local.Adapt<MostrarLocalDTO>();
-        localActualizado.IdLocal = IdLocal;
-        return localActualizado;
-    }
-    public bool DeleteLocal(int IdLocal)
-    {
-        var consulta = "SELECT COUNT(*) FROM Funcion WHERE IdLocal = @ID";
-        var cantidadFunciones = db.ExecuteScalar<int>(consulta, new { ID = IdLocal });
-        if (cantidadFunciones == 0)
+        db.Execute(UpdSql, new
         {
-            var sql = "DELETE FROM Local WHERE IdLocal = @ID";
-            db.Execute(sql, new { ID = IdLocal });
-            return true;
-        }
-        return false;
+            local.Nombre,
+            local.Ubicacion,
+            ID = IdLocal
+        });
+        return Select(IdLocal)!;
+    }
+    public bool Delete(int IdLocal)
+    {
+        var CantFunciones = db.ExecuteScalar<int>(DelSql, new { ID = IdLocal });
+        if (CantFunciones != 0)
+            return false;
+        // falta verificar también que no haya un evento asociado al Local.
+        db.Execute("DELETE FROM Local WHERE IdLocal = @ID", new { ID = IdLocal });
+        return true;
     }
 }

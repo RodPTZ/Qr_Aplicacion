@@ -12,14 +12,14 @@ namespace SistemaDeBoleteria.Core.Validations
     {
         public OrdenValidator()
         {
-            RuleFor(o => o.IdCliente)
+            RuleFor(o => o.IdTarifa)
                 .GreaterThan(0).WithMessage("El IdCliente debe ser mayor a 0");
-            RuleFor(o => o.IdSesion)
+            RuleFor(o => o.IdFuncion)
+                .GreaterThan(0).WithMessage("El IdCliente debe ser mayor a 0");
+            RuleFor(o => o.IdCliente)
                 .GreaterThan(0).WithMessage("El IdSesion debe ser mayor a 0");
-            RuleFor(o => o.tipoEntrada)
-                .IsInEnum().WithMessage("a");
             RuleFor(o => o.MedioDePago)
-                .IsInEnum().WithMessage("a");
+                .IsInEnum().WithMessage("Medio de pago fuera del rango");
         }
     }
 }

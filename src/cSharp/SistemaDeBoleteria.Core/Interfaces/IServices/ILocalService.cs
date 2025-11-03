@@ -4,9 +4,9 @@ namespace SistemaDeBoleteria.Core.Interfaces.IServices;
 
 public interface ILocalService
 {
-    IEnumerable<MostrarLocalDTO> GetLocales();
-    MostrarLocalDTO? GetLocalById(int id);
-    MostrarLocalDTO InsertLocal(CrearActualizarLocalDTO local);
-    MostrarLocalDTO UpdateLocal(CrearActualizarLocalDTO local, int IdLocal);
-    bool DeleteLocal(int id);
+    IEnumerable<MostrarLocalDTO> GetAll();
+    MostrarLocalDTO? Get(int id);
+    MostrarLocalDTO Post(CrearActualizarLocalDTO local);
+    MostrarLocalDTO Put(CrearActualizarLocalDTO local, int IdLocal);
+    bool Delete(int id);
 }

@@ -12,13 +12,13 @@ namespace SistemaDeBoleteria.Core.Models
         public int IdEntrada { get; set; }
         public enum estadoQR { Ok, YaUsada, Expirada, FirmaInvalida, NoExiste }
         public string Codigo  { get; set; }
-        public estadoQR Estado  { get; set; }
+        public estadoQR TipoEstado  { get; set; }
         public Entrada entrada;
         public CodigoQR(int idEntrada, string codigo)
         {
             IdEntrada = idEntrada;
             Codigo = codigo;
-            Estado = estadoQR.NoExiste;
+            TipoEstado = estadoQR.NoExiste;
         }
         public CodigoQR()
         { 
@@ -37,41 +37,41 @@ namespace SistemaDeBoleteria.Core.Models
 
         public void Validar()
         {
-            //Para test: 
-            // TimeOnly Ahora = TimeOnly.FromDateTime(DateTime.Now.AddHours(14));
+            // //Para test: 
+            // // TimeOnly Ahora = TimeOnly.FromDateTime(DateTime.Now.AddHours(14));
 
-            TimeOnly Ahora = TimeOnly.FromDateTime(DateTime.Now);
-            bool esHoy = entrada.FechaLiquidez.Date == DateTime.Now.Date;
-            bool dentroDelHorario = Ahora >= entrada.orden.sesion.Apertura && Ahora <= entrada.orden.sesion.Cierre;
+            // TimeSpan Ahora = DateTime.Now.TimeOfDay;
+            // bool esHoy = entrada.FechaLiquidez.Date == DateTime.Now.Date;
+            // bool dentroDelHorario = Ahora >= entrada.orden.funcion.Apertura && Ahora <= entrada.orden.funcion.Cierre;
 
-            if (entrada.Anulada == true)
-            {
-                Estado = estadoQR.FirmaInvalida;
-                return;
-            }
+            // if (entrada.Anulada == true)
+            // {
+            //     Estado = estadoQR.FirmaInvalida;
+            //     return;
+            // }
 
-            if (esHoy)
-            {
-                if (dentroDelHorario)
-                {
-                    if (Estado == estadoQR.Ok)
-                    {
-                        Estado = estadoQR.YaUsada;
-                    }
-                    else if (Estado != estadoQR.YaUsada)
-                    {
-                        Estado = estadoQR.Ok;
-                    }
-                }
-                else
-                {
-                    Estado = estadoQR.FirmaInvalida;
-                }
-            }
-            else if (entrada.FechaLiquidez.Date < DateTime.Now.Date)
-            {
-                Estado = estadoQR.Expirada;
-            }
+            // if (esHoy)
+            // {
+            //     if (dentroDelHorario)
+            //     {
+            //         if (Estado == estadoQR.Ok)
+            //         {
+            //             Estado = estadoQR.YaUsada;
+            //         }
+            //         else if (Estado != estadoQR.YaUsada)
+            //         {
+            //             Estado = estadoQR.Ok;
+            //         }
+            //     }
+            //     else
+            //     {
+            //         Estado = estadoQR.FirmaInvalida;
+            //     }
+            // }
+            // else if (entrada.FechaLiquidez.Date < DateTime.Now.Date)
+            // {
+            //     Estado = estadoQR.Expirada;
+            // }
         }
     }
 }

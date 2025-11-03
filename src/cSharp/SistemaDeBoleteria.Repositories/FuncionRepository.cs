@@ -11,46 +11,37 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class FuncionRepository :  DbRepositoryBase, IFuncionRepository
 {
-    public MostrarFuncionDTO InsertFuncion(CrearFuncionDTO funcion)
-    {
-        var sql = "INSERT INTO Funcion (IdEvento, IdSector, IdSesion,  Fecha, Duracion) VALUES (@IdEvento, @IdSector, @IdSesion, @Duracion, @Fecha);";
-        var id = db.ExecuteScalar<int>(sql, funcion);
-        var mostrarFuncion = funcion.Adapt<MostrarFuncionDTO>();
-        mostrarFuncion.IdFuncion = id;
-        return mostrarFuncion;
-    }
+    const string InsSql = @"INSERT INTO Funcion (IdEvento, IdSector, Apertura, Cierre) 
+                            VALUES (@IdEvento, @IdSector, @Apertura, @Cierre);
+                            
+                            SELECT LAST_INSERT_ID()";
+    const string UpdSql = @"UPDATE Funcion 
+                            SET IdSector = @IdSector,
+                                Apertura = @Apertura,
+                                Cierre = @Cierre
+                                WHERE IdFuncion = @ID";
+    const string UpdCancel = @"UPDATE Funcion 
+                               SET Cancelado = true 
+                               WHERE IdFuncion = @ID";
 
-    public IEnumerable<MostrarFuncionDTO> GetFunciones()
+    public IEnumerable<Funcion> SelectAll() => db.Query<Funcion>("SELECT * FROM Funcion");
+    
+    public Funcion? Select(int idFuncion) => db.QueryFirstOrDefault<Funcion>("SELECT * FROM Funcion WHERE IdFuncion = @ID", new { ID = idFuncion });
+    public Funcion Insert(Funcion funcion)
     {
-        var sql = "SELECT * FROM Funcion";
-        return db.Query<MostrarFuncionDTO>(sql);
+        funcion.IdFuncion = db.ExecuteScalar<int>(InsSql, funcion);
+        return Select(funcion.IdFuncion)!;
     }
-
-    public MostrarFuncionDTO? GetFuncionById(int IdFuncion)
+    public Funcion Update(Funcion funcion, int IdFuncion)
     {
-        var sql = "SELECT * FROM Funcion WHERE IdFuncion = @ID";
-        return db.QueryFirstOrDefault<MostrarFuncionDTO>(sql, new { ID = IdFuncion });
-    }
-
-    public MostrarFuncionDTO UpdateFuncion(ActualizarFuncionDTO funcion, int IdFuncion)
-    {
-        var sql = "UPDATE Funcion SET IdSector = @IdSector, IdSesion = @IdSesion, Fecha = @Fecha, Duracion = @Duracion WHERE IdFuncion = @ID";
-        db.Execute(sql, new
+        db.Execute(UpdSql, new
         {
             funcion.IdSector,
-            funcion.IdSesion,
-            funcion.Fecha,
-            funcion.Duracion,
+            funcion.Apertura,
+            funcion.Cierre,
             ID = IdFuncion
         });
-        var funcionActualizada = funcion.Adapt<MostrarFuncionDTO>();
-        funcionActualizada.IdFuncion = IdFuncion;
-        return funcionActualizada;
+        return Select(IdFuncion)!;
     }
-    public void CancelarFuncion(int IdFuncion)
-    {
-        var sql = "UPDATE Funcion SET cancelado = true WHERE IdFuncion = @ID";
-        db.Execute(sql, new { ID = IdFuncion });
-    }
-
+    public void UpdFuncionCancel(int idFuncion) => db.Execute(UpdCancel, new { ID = idFuncion });
 }

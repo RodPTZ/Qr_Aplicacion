@@ -10,22 +10,35 @@ namespace SistemaDeBoleteria.Core.Models
         public int IdEvento { get; set; }
         public int IdLocal { get; set; }
         public string Nombre { get; set; }
-        public enum TipoEvento {Concierto,Convencion,Opera,Teatro,Deportes,Boliches,Musica}
-        public TipoEvento Tipo { get; set; }   
-        public bool publicado { get; set; }
-        public List<Sesion> sesiones;
+        public TipoEvento Tipo { get; set; }
+        public TipoEstado Estado { get; set; }
         public List<Funcion> funciones;
 
         public Evento(string nombre, TipoEvento tipoEvento)
         {
             Nombre = nombre;
             Tipo = tipoEvento;
-            sesiones = new List<Sesion>();
             funciones = new List<Funcion>();
-            publicado = false;
         }
         public Evento()
         {
+        }
+        public enum TipoEvento
+        {
+            Concierto,
+            Convencion,
+            Opera,
+            Teatro,
+            Deportes,
+            Boliches,
+            Música
+        }
+
+        public enum TipoEstado
+        {
+            Publicado,
+            Cancelado,
+            Creado
         }
         // public bool Publicar()
         // {

@@ -16,7 +16,7 @@ namespace SistemaDeBoleteria.Core.DTOs
         public int IdEvento { get; set; }
         public int IdLocal { get; set; }
         public string Nombre { get; set; }
-        public Evento.TipoEvento Tipo { get; set; }
-        public bool Publicado { get; set; }
+        public string Tipo { get; set; }
+        public string Estado { get; set; }
     }
 }

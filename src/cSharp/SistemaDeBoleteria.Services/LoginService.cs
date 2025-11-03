@@ -6,7 +6,7 @@ using SistemaDeBoleteria.Core.Interfaces.IServices;
 
 namespace SistemaDeBoleteria.Services
 {
-    public class LoginService : ILoginService
+    public class LoginService
     {
         
     }

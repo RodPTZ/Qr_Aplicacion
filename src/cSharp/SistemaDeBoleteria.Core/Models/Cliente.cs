@@ -13,9 +13,9 @@ namespace SistemaDeBoleteria.Core.Models
         public string Apellido { get; set; }
         public string Localidad { get; set; }
         public int DNI { get; set; }
-        public int Telefono { get; set; }
-        public int Edad { get; set; }
-        public Cliente(string nombre, string apellido, string localidad, int dni, int telefono, int edad)
+        public string Telefono { get; set; }
+        public byte Edad { get; set; }
+        public Cliente(string nombre, string apellido, string localidad, int dni, string telefono, byte edad)
         {
             Nombre = nombre;
             Apellido = apellido;

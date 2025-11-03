@@ -15,5 +15,12 @@ namespace SistemaDeBoleteria.Core.Inheritance
         {
             db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
         }
+        protected T Exec<T>(Func<IDbConnection, T> func)
+        {
+           
+            using var conn = new MySqlConnection();
+            conn.Open();
+            return func(conn);
+        }
     }
 }

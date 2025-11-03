@@ -3,44 +3,41 @@ using SistemaDeBoleteria.Core.Models;
 using MySqlConnector;
 using Dapper;
 using System.Data;
-using SistemaDeBoleteria.Core.DTOs;
 using Mapster;
 using SistemaDeBoleteria.Core.Inheritance;
+using SistemaDeBoleteria.Core.Interfaces.IRepositories;
+using System.Reflection.Metadata.Ecma335;
 namespace SistemaDeBoleteria.Repositories;
-public class TarifaRepository :  DbRepositoryBase, ITarifaService
+public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
 {
-    public MostrarTarifaDTO InsertTarifa(CrearTarifaDTO tarifa)
+    const string InsSql = @"INSERT INTO Tarifa (IdFuncion, TipoEntrada, Precio, Stock) 
+                            VALUES (@IdFuncion, @TipoEntrada, @Precio, @Stock);
+                            
+                            SELECT LAST_INSERT_ID()";
+    const string UpdSql = @"UPDATE Tarifa 
+                            SET Precio = @Precio, 
+                                Stock = @Stock, 
+                                Estado = @Estado 
+                            WHERE IdTarifa = @ID";
+    public IEnumerable<Tarifa> SelectAllByFuncionId(int idFuncion) => db.Query<Tarifa>("SELECT * FROM Tarifa WHERE IdFuncion = @ID", new { ID = idFuncion });
+
+    public Tarifa? Select(int IdTarifa) => db.QueryFirstOrDefault<Tarifa>("SELECT * FROM Tarifa WHERE IdTarifa = @ID", new { ID = IdTarifa });
+    
+    public Tarifa Insert(Tarifa tarifa)
     {
-        var sql = "INSERT INTO Tarifa (IdFuncion, Precio, Stock) VALUES (@IdFuncion, @Precio, @Stock);";
-        var id = db.ExecuteScalar<int>(sql, tarifa);
-        var mostrarTarifa = tarifa.Adapt<MostrarTarifaDTO>();
-        mostrarTarifa.IdTarifa = id;
-        return mostrarTarifa;
-    }
-        
-    public IEnumerable<MostrarTarifaDTO> GetTarifasByFuncionId(int idFuncion)
+        tarifa.IdTarifa = db.ExecuteScalar<int>(InsSql, tarifa);
+        return Select(tarifa.IdTarifa)!;
+    }   
+    public Tarifa Update(Tarifa tarifa, int IdTarifa)
     {
-        var sql = "SELECT * FROM Tarifa WHERE IdFuncion = @ID";
-        return db.Query<MostrarTarifaDTO>(sql, new { ID = idFuncion });
-    }
-        
-    public MostrarTarifaDTO? GetTarifaById(int id)
-    {
-        var sql = "SELECT * FROM Tarifa WHERE IdTarifa = @ID";
-        return db.QueryFirstOrDefault<MostrarTarifaDTO>(sql, new { ID = id });
-    }
-        
-    public MostrarTarifaDTO UpdateTarifa(ActualizarTarifaDTO tarifa, int IdTarifa)
-    {
-        var sql = "UPDATE Tarifa SET Precio = @Precio, Stock = @Stock, Estado = @Estado WHERE IdTarifa = @ID";
-        db.Execute(sql, new
+        db.Execute(UpdSql, new
         {
-            tarifa.precio,
-            tarifa.stock,
-            tarifa.estado,
+            tarifa.Precio,
+            tarifa.Stock,
+            tarifa.Estado,
             ID = IdTarifa
         });
-        return GetTarifaById(IdTarifa)!;
+        return Select(IdTarifa)!;
     }
         
 }

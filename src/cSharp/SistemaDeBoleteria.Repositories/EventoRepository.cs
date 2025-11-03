@@ -11,8 +11,8 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class EventoRepository :  DbRepositoryBase, IEventoRepository
 {
-    const string InsSql = @"INSERT INTO Evento (IdLocal, Nombre, Tipo, publicado) 
-                            VALUES (@IdLocal, @Nombre, @Tipo, @Publicado); 
+    const string InsSql = @"INSERT INTO Evento (IdLocal, Nombre, Tipo) 
+                            VALUES (@IdLocal, @Nombre, @Tipo); 
                             
                             SELECT LAST_INSERT_ID();";
     const string UpdSql = @"UPDATE Evento 
@@ -33,16 +33,15 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
         {
             evento.IdLocal,
             evento.Nombre,
-            Tipo = evento.Tipo.ToString(),
+            evento.Tipo,
             ID = IdEvento
         });
-        evento.IdEvento = IdEvento;
-        return evento;
+        return Select(IdEvento)!;
     }
-    public (byte secuencia, string? ErrorMessage) UpdEstadoPublic(int IdEvento)
+    public (byte caso, string Message) UpdEstadoPublic(int IdEvento)
     {
         var parameters = new DynamicParameters();
-        parameters.Add("@ID", IdEvento);
+        parameters.Add("@unIdEvento", IdEvento);
         try
         {
             db.Execute("PublicarEvento", parameters);
@@ -55,7 +54,7 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
     }
     public bool UpdEstadoCancel(int IdEvento)
     {
-        var sql = "UPDATE Evento SET publicado = false WHERE IdEvento = @ID";
+        var sql = "UPDATE Evento SET Estado = 'Cancelado' WHERE IdEvento = @ID";
         db.Execute(sql, new { ID = IdEvento });
         return true;
     }

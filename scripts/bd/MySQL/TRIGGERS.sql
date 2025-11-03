@@ -1,3 +1,6 @@
+
+USE 5to_sistemadeboleteria
+
 DELIMITER $$
 DROP TRIGGER IF EXISTS VerificarCompraEntrada $$
 CREATE TRIGGER VerificarCompraEntrada
@@ -10,15 +13,15 @@ BEGIN
     DECLARE vStock INT;
     DECLARE vEstadoEvento ENUM('Creado','Publicado','Cancelado');
     DECLARE vCancelado BOOLEAN;
-    DECLARE vFechaFuncion DATETIME;
+    DECLARE vAperturaFuncion DATETIME;
     DECLARE vEstadoTarifa ENUM('Activa','Inactiva','Agotada','Suspendida');
 
 
     SELECT 
-        O.IdTarifa, F.IdFuncion, F.IdEvento, F.Fecha, F.Cancelado,
+        O.IdTarifa, F.IdFuncion, F.IdEvento, F.Apertura, F.Cancelado,
         E.Estado, T.Stock, T.Estado
     INTO 
-        vIdTarifa, vIdFuncion, vIdEvento, vFechaFuncion, vCancelado,
+        vIdTarifa, vIdFuncion, vIdEvento, vAperturaFuncion, vCancelado,
         vEstadoEvento, vStock, vEstadoTarifa
     FROM Orden O
     JOIN Tarifa T ON O.IdTarifa = T.IdTarifa
@@ -34,7 +37,7 @@ BEGIN
     END IF;
 
 
-    IF vFechaFuncion < NOW() THEN
+    IF vAperturaFuncion < NOW() THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = ' La función ya finalizó. No se puede comprar la entrada.';
     END IF;
@@ -53,18 +56,60 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = ' El evento aún no está publicado. No se puede comprar';
         END IF;
-    END $$
+END $$
 
-CREATE TRIGGER Aft_Upd_Pagado_Orden AFTER UPDATE ON Orden FOR EACH ROW
+-- CREATE TRIGGER trgCancelarOrden
+-- BEFORE UPDATE ON Orden
+-- FOR EACH ROW
+-- BEGIN
+--     IF NEW.Estado = 'Cancelado' AND OLD.Estado <> 'Cancelado' THEN
+--         UPDATE Tarifa
+--         SET Stock = Stock + 1
+--         WHERE IdFuncion = OLD.IdFuncion;
+--     END IF;
+-- END;
+
+CREATE TRIGGER BefInsTarifa BEFORE INSERT ON Tarifa FOR EACH ROW 
 BEGIN
-    IF(old.Estado != 'Cancelado' AND new.Estado = 'Abonado')
+    IF NOT EXISTS(SELECT * FROM Funcion WHERE  IdFuncion = new.IdFuncion)
     THEN
-        INSERT INTO Entrada (IdOrden, Emision, Liquidez)
-        VALUES (old.IdOrden, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY));
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La funcion ingresada no existe';
+    END IF;
 
-        SET @IdEntrada = LAST_INSERT_ID();
-
-        INSERT INTO QR (IdEntrada, Codigo)
-        VALUES (@IdEntrada, CONCAT_WS('-', old.IdOrden, old.IdCliente, old.IdTarifa));
+    IF((SELECT Cancelado FROM Funcion WHERE IdFuncion = new.IdFuncion) = TRUE)
+    THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'La función ingresada se encuentra cancelada.';
     END IF;
 END;
+
+-- ========================= EVENTO =====================================
+CREATE TRIGGER trg_CancelarFuncionesEvento
+AFTER UPDATE ON Evento
+FOR EACH ROW
+BEGIN
+    IF NEW.Estado = 'Cancelado' AND OLD.Estado <> 'Cancelado' THEN
+        UPDATE Funcion
+        SET Cancelado = TRUE
+        WHERE IdEvento = NEW.IdEvento;
+
+        UPDATE Tarifa
+        SET Estado = 'Suspendida'
+        WHERE IdFuncion IN (SELECT IdFuncion FROM Funcion WHERE IdEvento = NEW.IdEvento);
+    END IF;
+END$$
+
+-- =======================================================================
+
+-- ======================= FUNCION ==================================
+
+CREATE TRIGGER BefInsFuncion BEFORE INSERT ON Funcion FOR EACH ROW
+BEGIN
+    IF(SELECT E.Estado FROM Evento E WHERE E.IdEvento = new.IdEvento) = 'Cancelado'
+    THEN
+        SET new.Cancelado = TRUE;
+    END IF;
+END$$
+
+-- ==================================================================

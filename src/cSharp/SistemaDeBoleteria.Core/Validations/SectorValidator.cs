@@ -12,8 +12,6 @@ namespace SistemaDeBoleteria.Core.Validations
         public SectorValidator()
         {
 
-            RuleFor(s => s.IdLocal)
-                .GreaterThan(0).WithMessage("La capacidad debe ser mayor a 0");
             RuleFor(s => (int)s.Capacidad)
                 .GreaterThan(0).WithMessage("La capacidad debe ser mayor a 0");
         }

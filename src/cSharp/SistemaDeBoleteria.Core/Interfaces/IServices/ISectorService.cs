@@ -4,9 +4,9 @@ namespace SistemaDeBoleteria.Core.Interfaces.IServices;
 
 public interface ISectorService
 {
-    IEnumerable<MostrarSectorDTO> GetSectoresByLocalId(int idLocal);
-    MostrarSectorDTO InsertSector(CrearActualizarSectorDTO sector, int idLocal);
-    MostrarSectorDTO UpdateSector(CrearActualizarSectorDTO sector, int idSector);
-    bool DeleteSector(int idSector);
+    IEnumerable<MostrarSectorDTO> GetAllByLocalId(int idLocal);
+    MostrarSectorDTO Post(CrearActualizarSectorDTO sector, int idLocal);
+    MostrarSectorDTO Put(CrearActualizarSectorDTO sector, int idSector);
+    bool Delete(int idSector);
     
 }

@@ -11,7 +11,7 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         Evento? Select(int IdEvento);
         Evento Insert(Evento evento);
         Evento Update(Evento evento, int IdEvento);
-        (byte secuencia, string? ErrorMessage) UpdEstadoPublic(int IdEvento);
+        (byte caso, string Message) UpdEstadoPublic(int IdEvento);
         bool UpdEstadoCancel(int IdEvento);
     }
 }

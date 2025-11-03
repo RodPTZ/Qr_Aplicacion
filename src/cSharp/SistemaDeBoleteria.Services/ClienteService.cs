@@ -33,13 +33,9 @@ namespace SistemaDeBoleteria.Services
             var clienteExiste = clienteRepository.Select(IdCliente);
             if (clienteExiste is null)
                 return null;
-
-            var clienteActualizado = clienteRepository
-                                        .Update(cliente.Adapt<Cliente>(), IdCliente)
-                                        .Adapt<MostrarClienteDTO>();
-            loginRepository.Select(clienteActualizado.IdUsuario).Adapt(clienteActualizado);
-            
-            return clienteActualizado;
+            return clienteRepository
+                            .Update(cliente.Adapt<Cliente>(), IdCliente)
+                            .Adapt<MostrarClienteDTO>();
         }
     }
 }

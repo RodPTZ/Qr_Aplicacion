@@ -34,28 +34,22 @@ INSERT INTO Evento (IdLocal, Nombre, Tipo, Estado) VALUES
 (4, 'Noche Retro', 'Boliches', 'Publicado'),
 (5, 'Boca vs River', 'Deportes', 'Cancelado');
 
-INSERT INTO Sesion (IdEvento, Cupos, Fecha, Apertura, Cierre) VALUES
-(1, 500, '2025-11-05', '19:00:00', '22:00:00'),
-(2, 8000, '2025-12-10', '18:00:00', '23:59:00'),
-(3, 2000, '2025-10-28', '10:00:00', '18:00:00'),
-(4, 700, '2025-10-31', '23:00:00', '05:00:00'),
-(5, 40000, '2025-11-20', '16:00:00', '21:00:00');
+INSERT INTO Funcion (IdEvento, IdSector, Apertura, Cierre, Cancelado) VALUES
+(1, 1, '2025-11-05 19:00:00', '2025-11-05 22:00:00', FALSE),
+(2, 2, '2025-12-10 18:00:00', '2025-12-10 23:59:00', FALSE),
+(3, 5, '2025-10-28 10:00:00', '2025-10-28 18:00:00', FALSE),
+(4, 4, '2025-10-31 23:00:00', '2025-11-01 05:00:00', FALSE),
+(5, 3, '2025-11-20 16:00:00', '2025-11-20 21:00:00', TRUE);
 
-INSERT INTO Funcion (IdEvento, IdSector, IdSesion, Fecha, Duracion, Cancelado) VALUES
-(1, 1, 1, '2025-11-05 20:00:00', '03:00:00', FALSE),
-(2, 2, 2, '2025-12-10 19:30:00', '05:00:00', FALSE),
-(3, 5, 3, '2025-10-28 11:00:00', '07:00:00', FALSE),
-(4, 4, 4, '2025-10-31 23:30:00', '06:00:00', FALSE),
-(5, 3, 5, '2025-11-20 17:00:00', '03:00:00', TRUE);
 
-INSERT INTO Tarifa (IdFuncion, Precio, Stock, Estado) VALUES
-(1, 25000.00, 500, TRUE),
-(2, 18000.00, 8000, TRUE),
-(3, 12000.00, 2000, FALSE),
-(4, 8000.00, 700, TRUE),
-(5, 35000.00, 40000, FALSE);
+INSERT INTO Tarifa (IdFuncion, TipoEntrada, Precio, Stock, Estado) VALUES
+(1, 'VIP',25000.00, 500, 'Activa'),
+(2, 'General',18000.00, 8000, 'Activa'),
+(3, 'PLUS',12000.00, 2000, 'Inactiva'),
+(4, 'General',8000.00, 700, 'Activa'),
+(5, 'VIP',35000.00, 40000, 'Inactiva');
 
-INSERT INTO Orden (IdTarifa, IdSesion, IdCliente, Estado, Emision, Cierre, MedioDePago) VALUES
+INSERT INTO Orden (IdTarifa, IdFuncion, IdCliente, Estado, Emision, Cierre, MedioDePago) VALUES
 (1, 1, 1, 'Abonado', '2025-10-10 15:00:00', '2025-10-10 15:05:00', 'Credito'),
 (2, 2, 2, 'Abonado', '2025-10-12 18:20:00', '2025-10-12 18:25:00', 'Debito'),
 (3, 3, 3, 'Cancelado', '2025-10-14 10:00:00', '2025-10-14 10:10:00', 'Transferencia'),

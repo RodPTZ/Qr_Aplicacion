@@ -2,7 +2,6 @@ using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 using Dapper;
 using MySqlConnector;
 using SistemaDeBoleteria.Core.Models;
-using SistemaDeBoleteria.Core.DTOs;
 using System.Data;
 using Mapster;
 using SistemaDeBoleteria.Core.Inheritance;
@@ -11,37 +10,36 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class SectorRepository :  DbRepositoryBase, ISectorRepository
 {
-    public IEnumerable<MostrarSectorDTO> GetSectoresByLocalId(int idLocal)
+    const string InsSql = @"INSERT INTO Sector (IdLocal, Capacidad) 
+                            VALUES (@IdLocal, @Capacidad); 
+                            
+                            SELECT LAST_INSERT_ID()";
+    const string UpdSql = @"UPDATE Sector 
+                            SET Capacidad = @Capacidad 
+                            WHERE IdSector = @ID";
+    public IEnumerable<Sector> SelectAllByLocalId(int idLocal) => db.Query<Sector>("SELECT * FROM Sector WHERE IdLocal = @ID", new { ID = idLocal });
+    
+    public Sector Insert(Sector sector, int idLocal)
     {
-        var sql = "SELECT * FROM Sector WHERE IdLocal = @ID";
-        return db.Query<MostrarSectorDTO>(sql, new { ID = idLocal });
-    }
-    public MostrarSectorDTO InsertSector(CrearActualizarSectorDTO sector, int idLocal)
-    {
-
-        var sql = "INSERT INTO Sector (IdLocal, Capacidad) VALUES (@IdLocal, @TipoSector); SELECT LAST_INSERT_ID()";
-        var id = db.ExecuteScalar<int>(sql, new
+        sector.IdLocal = idLocal;
+        sector.IdSector = db.ExecuteScalar<int>(InsSql, new
         {
-            idLocal,
+            sector.IdLocal,
             sector.Capacidad
         });
-        var mostrarSector = sector.Adapt<MostrarSectorDTO>();
-        mostrarSector.IdSector = id;
-        return mostrarSector;
+        return sector;
         
     }
-    public MostrarSectorDTO UpdateSector(CrearActualizarSectorDTO sector, int idSector)
+    public Sector Update(Sector sector, int idSector)
     {
-        var sql = "UPDATE Sector SET Capacidad = @Capacidad WHERE IdSector = @ID";
-        db.Execute(sql, new
+        db.Execute(UpdSql, new
         {
             sector.Capacidad,
             ID = idSector
         });
-        var mostrarSector = sector.Adapt<MostrarSectorDTO>();
-        return mostrarSector;
+        return Select(idSector)!;
     }
-    public bool DeleteSector(int id)
+    public bool Delete(int id)
     {
         var consulta = "SELECT COUNT(*) FROM Funcion WHERE IdSector = @ID";
         var cantidadFunciones = db.ExecuteScalar<int>(consulta, new { ID = id });
@@ -53,4 +51,5 @@ public class SectorRepository :  DbRepositoryBase, ISectorRepository
         }
         return false;
     }
+    public Sector? Select(int idSector) => db.QueryFirstOrDefault<Sector>("SELECT * FROM Sector WHERE IdSector = @ID", new { ID = idSector});
 }

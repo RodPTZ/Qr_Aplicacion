@@ -9,6 +9,8 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
     public interface ICodigoQRRepository
     {
         CodigoQR? SelectById(int IdEntrada);
-        string? UpdateEstado(int IdEntrada, string estado);
+        CodigoQR.estadoQR UpdateEstado(int IdEntrada, CodigoQR.estadoQR estado);
+        // dynamic SelectData(int idEntrada);
+        // bool Exists(string codigo);
     }
 }

@@ -9,6 +9,6 @@ public interface IEventoService
     MostrarEventoDTO? GetById(int IdEvento);
     MostrarEventoDTO Post(CrearActualizarEventoDTO evento);
     MostrarEventoDTO? Put(CrearActualizarEventoDTO evento, int IdEvento);
-    (byte secuencia, string ErrorMessage) PublicarEvento(int IdEvento);
+    (byte caso, string Message) PublicarEvento(int IdEvento);
     bool CancelarEvento(int IdEvento);
 }

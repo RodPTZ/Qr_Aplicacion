@@ -4,9 +4,9 @@ namespace SistemaDeBoleteria.Core.Interfaces.IServices;
 
 public interface IOrdenService
 {
-    IEnumerable<MostrarOrdenDTO> GetOrdenes();
-    MostrarOrdenDTO? GetOrdenById(int idOrden);
-    MostrarOrdenDTO InsertOrden(CrearOrdenDTO orden);
+    IEnumerable<MostrarOrdenDTO> GetAll();
+    MostrarOrdenDTO? Get(int idOrden);
+    MostrarOrdenDTO Post(CrearOrdenDTO orden);
     bool PagarOrden(int idOrden);
     bool CancelarOrden(int idOrden);
 }

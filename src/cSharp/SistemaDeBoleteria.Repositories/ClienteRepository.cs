@@ -12,14 +12,13 @@ namespace SistemaDeBoleteria.Repositories;
 public class ClienteRepository : DbRepositoryBase, IClienteRepository
 {
     private readonly LoginRepository loginRepository = new LoginRepository();
-    const string InsSql = @"INSERT INTO Cliente (IdUsuario, Nombre, Apellido, DNI Telefono, Localidad, Edad) 
+    const string InsSql = @"INSERT INTO Cliente (IdUsuario, Nombre, Apellido, DNI, Telefono, Localidad, Edad) 
                             VALUES (@IdUsuario, @Nombre, @Apellido, @DNI, @Telefono, @Localidad, @Edad); 
 
                             SELECT LAST_INSERT_ID();";
     const string UpdSql = @"UPDATE Cliente 
                             SET Nombre = @Nombre, 
                                 Apellido = @Apellido,
-                                Email = @Email, 
                                 Telefono = @Telefono,
                                 Localidad = @Localidad
                             WHERE IdCliente = @IdCliente;";
@@ -38,7 +37,7 @@ public class ClienteRepository : DbRepositoryBase, IClienteRepository
     {
         cliente.IdCliente = idCliente;
         db.Execute(UpdSql, cliente);
-        return cliente;
+        return Select(cliente.IdCliente)!;
     }
 
 }

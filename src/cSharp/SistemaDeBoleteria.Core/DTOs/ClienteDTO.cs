@@ -9,17 +9,17 @@ namespace SistemaDeBoleteria.Core.DTOs
     public class CrearClienteDTO : ActualizarClienteDTO
     {
         public int DNI { get; set; }
-        public int Edad { get; set; }
+        public byte Edad { get; set; }
+        public string Email { get; set; }
         public string Contraseña { get; set; }
+        public string NombreUsuario { get; set; }
     }
     public class ActualizarClienteDTO
     {
-        public string NombreUsuario { get; set; }
         public string Nombre { get; set; }
         public string Apellido { get; set; }
         public string Localidad { get; set; }
-        public int Telefono { get; set; }
-        public string Email { get; set; }
+        public string Telefono { get; set; }
     }
     public class MostrarClienteDTO
     {
@@ -28,10 +28,8 @@ namespace SistemaDeBoleteria.Core.DTOs
         public string Nombre { get; set; }
         public string Apellido { get; set; }
         public string Localidad { get; set; }
-        public int Telefono { get; set; }
+        public string Telefono { get; set; }
         public int DNI { get; set; }
-        public int Edad { get; set; }
-        public string Usuario { get; set; }
-        public string Email { get; set; }
+        public byte Edad { get; set; }
     }
 }

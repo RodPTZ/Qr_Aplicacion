@@ -8,6 +8,12 @@ CREATE TABLE Usuario(
     Contraseña VARCHAR(255),
     CONSTRAINT PK_Usuario PRIMARY KEY (IdUsuario)
 );
+CREATE TABLE Local (
+    IdLocal INT UNSIGNED AUTO_INCREMENT NOT NULL,
+    Nombre VARCHAR(255) NOT NULL,
+    Ubicacion VARCHAR(30) NOT NULL,
+    CONSTRAINT PK_Local PRIMARY KEY (IdLocal)
+);
 
 CREATE TABLE Cliente (
     IdCliente INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -21,13 +27,6 @@ CREATE TABLE Cliente (
     CONSTRAINT PK_Cliente PRIMARY KEY (IdCliente),
     CONSTRAINT UK_Cliente UNIQUE (DNI),
     CONSTRAINT FK_Usuario FOREIGN KEY (IdUsuario) REFERENCES Usuario (IdUsuario)
-);
-
-CREATE TABLE Local (
-    IdLocal INT UNSIGNED AUTO_INCREMENT NOT NULL,
-    Nombre VARCHAR(255) NOT NULL,
-    Ubicacion VARCHAR(30) NOT NULL,
-    CONSTRAINT PK_Local PRIMARY KEY (IdLocal)
 );
 
 CREATE TABLE Sector (
@@ -56,32 +55,17 @@ CREATE TABLE Evento (
     CONSTRAINT FK_Evento_Local FOREIGN KEY (IdLocal) REFERENCES Local (IdLocal)
 );
 
-CREATE TABLE Sesion (
-    IdSesion INT UNSIGNED AUTO_INCREMENT NOT NULL,
-    IdEvento INT UNSIGNED NOT NULL,
-    Cupos SMALLINT UNSIGNED NOT NULL,
-    Fecha DATE NOT NULL,
-    Apertura TIME NOT NULL,
-    Cierre TIME NOT NULL,
-    CONSTRAINT PK_Sesion PRIMARY KEY (IdSesion),
-    CONSTRAINT FK_Sesion_Evento FOREIGN KEY (IdEvento) REFERENCES Evento (IdEvento)
-);
-
-
 CREATE TABLE Funcion (
     IdFuncion INT UNSIGNED AUTO_INCREMENT NOT NULL,
     IdEvento INT UNSIGNED NOT NULL,
     IdSector INT UNSIGNED NOT NULL,
-    IdSesion INT UNSIGNED NOT NULL,
-    Fecha DATETIME NOT NULL,
-    Duracion TIME NOT NULL,
+    Apertura DATETIME NOT NULL,
+    Cierre DATETIME NOT NULL,
     Cancelado BOOLEAN DEFAULT FALSE,
     CONSTRAINT PK_Funcion PRIMARY KEY (IdFuncion),
     CONSTRAINT FK_Funcion_Evento FOREIGN KEY (IdEvento) REFERENCES Evento (IdEvento),
-    CONSTRAINT FK_Funcion_Sector FOREIGN KEY (IdSector) REFERENCES Sector (IdSector),
-    CONSTRAINT FK_Funcion_Sesion FOREIGN KEY (IdSesion) REFERENCES Sesion (IdSesion)
+    CONSTRAINT FK_Funcion_Sector FOREIGN KEY (IdSector) REFERENCES Sector (IdSector)
 );
-
 
 CREATE TABLE Tarifa (
     IdTarifa INT UNSIGNED AUTO_INCREMENT NOT NULL,
@@ -97,14 +81,14 @@ CREATE TABLE Tarifa (
 CREATE TABLE Orden (
     IdOrden INT UNSIGNED AUTO_INCREMENT NOT NULL,
     IdTarifa INT UNSIGNED NOT NULL,
-    IdSesion INT UNSIGNED NOT NULL,
+    IdFuncion INT UNSIGNED NOT NULL,
     IdCliente INT UNSIGNED NOT NULL,
-    Estado ENUM('Abonado','Cancelado', 'En curso') DEFAULT 'En curso',
+    Estado ENUM('Abonado','Cancelado', 'Creado') DEFAULT 'Creado',
     Emision DATETIME NOT NULL,
     Cierre DATETIME NOT NULL,
-    MedioDePago ENUM('Efectivo','Transferencia','Debito','Credito'),
+    MedioDePago ENUM('Efectivo','Transferencia','Debito','Credito') NOT NULL,
     CONSTRAINT PK_Orden PRIMARY KEY (IdOrden),
-    CONSTRAINT FK_Orden_Sesion FOREIGN KEY (IdSesion) REFERENCES Sesion (IdSesion),
+    CONSTRAINT FK_Orden_Funcion FOREIGN KEY (IdFuncion) REFERENCES Funcion (IdFuncion),
     CONSTRAINT FK_Orden_Cliente FOREIGN KEY (IdCliente) REFERENCES Cliente (IdCliente),
     CONSTRAINT FK_Orden_Tarifa FOREIGN KEY (IdTarifa) REFERENCES Tarifa (IdTarifa)
 );
@@ -112,6 +96,7 @@ CREATE TABLE Orden (
 CREATE TABLE Entrada (
     IdEntrada INT UNSIGNED AUTO_INCREMENT NOT NULL,
     IdOrden INT UNSIGNED NOT NULL,
+    TipoEntrada ENUM('General', 'VIP', 'PLUS'),
     Emision DATETIME NOT NULL,
     Liquidez DATETIME NOT NULL,
     Estado ENUM('Anulado', 'Pagado', 'Pendiente') DEFAULT 'Pendiente',
@@ -128,8 +113,10 @@ CREATE TABLE QR (
         'Expirada',
         'FirmaInvalida',
         'NoExiste'
-    ) DEFAULT 'NoExiste',
+    ) DEFAULT 'NoExiste' NOT NULL,
     Codigo VARCHAR(255) NOT NULL,
     CONSTRAINT PK_Qr PRIMARY KEY (IdQR),
     CONSTRAINT FK_Qr_Entrada FOREIGN KEY (IdEntrada) REFERENCES Entrada (IdEntrada)
 );
+
+SELECT 

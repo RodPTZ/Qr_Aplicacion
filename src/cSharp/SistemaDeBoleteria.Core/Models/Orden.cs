@@ -7,18 +7,26 @@ namespace SistemaDeBoleteria.Core.Models
 {
     public class Orden
     {
-        public int IdOrden  { get; set; }
-        public Sesion sesion;
-        public int IdSesion { get; set; }
-        public enum TipoEntrada
+        public int IdOrden { get; set; }
+        public int IdTarifa { get; set; }
+        public int IdCliente { get; set; }
+        public int IdFuncion { get; set; }
+        public TipoEstado Estado { get; set; }
+        public TipoDePago MedioDePago  { get; set; }
+        public DateTime Emision  { get; set; }
+        public DateTime Cierre  { get; set; }
+        public Cliente cliente;
+        public Funcion funcion;
+        public Orden( Cliente cliente)
         {
-            General,
-            VIP,
-            Plus
+            this.cliente = cliente;
+            Emision = DateTime.Now;
+            Cierre = Emision.AddMinutes(15);
         }
-        public TipoEntrada tipoEntrada  { get; set; }
-        public bool Abonado  { get; set; }
-        public bool Cancelado { get; set; }
+        public Orden()
+        {
+        }
+
         public enum TipoDePago
         {
             Efectivo,
@@ -26,37 +34,25 @@ namespace SistemaDeBoleteria.Core.Models
             Debito,
             Credito
         }
-        public TipoDePago MedioDePago  { get; set; }
-        public DateTime Emision  { get; set; }
-        public DateTime Cierre  { get; set; }
-        public Cliente cliente;
-        public int IdCliente { get; set; }
-        public Orden(TipoEntrada tipoEntrada, Cliente cliente, Sesion sesion)
+        public enum TipoEstado
         {
-            this.tipoEntrada = tipoEntrada;
-            this.cliente = cliente;
-            this.sesion = sesion;
-            Emision = DateTime.Now;
-            Cierre = Emision.AddMinutes(15);
-            Abonado = false;
-            Cancelado = false;
+            Abonado,
+            Cancelado,
+            Creado
         }
-        public Orden()
-        {   
-        }
-        public void Abonar()
-        {
-            if (Cierre < DateTime.Now)
-            {
-                Console.WriteLine("No se puede abonar una orden después de su cierre.");
-                return;
-            }
-            Abonado = true;
-            sesion.entradasVendidas.Add(new Entrada(tipoEntrada, sesion.evento, this));
-        }
-        public void Cancelar()
-        {
-            Cancelado = true;
-        }
+        // public void Abonar()
+        // {
+        //     if (Cierre < DateTime.Now)
+        //     {
+        //         Console.WriteLine("No se puede abonar una orden después de su cierre.");
+        //         return;
+        //     }
+        //     Abonado = true;
+        //     sesion.entradasVendidas.Add(new Entrada(tipoEntrada, sesion.evento, this));
+        // }
+        // public void Cancelar()
+        // {
+        //     Cancelado = true;
+        // }
     }
 }

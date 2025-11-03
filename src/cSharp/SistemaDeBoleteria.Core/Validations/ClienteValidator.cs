@@ -28,7 +28,7 @@ namespace SistemaDeBoleteria.Core.Validations
                 .EmailAddress().WithMessage("El email no es válido.");
             RuleFor(c => c.Telefono.ToString())
                 .Length(10).WithMessage("El teléfono debe tener 10 dígitos.");
-            RuleFor(c => c.Edad)
+            RuleFor(c => (int)c.Edad)
                 .LessThan(130).WithMessage("La edad no puede ser mayor a 130 años.");
             RuleFor(c => c.Contraseña)
                 .NotEmpty().WithMessage("La contraseña no puede estar vacía.")
@@ -48,9 +48,6 @@ namespace SistemaDeBoleteria.Core.Validations
             RuleFor(c => c.Localidad)
                 .NotEmpty().WithMessage("La localidad no puede estar vacía.")
                 .MaximumLength(60).WithMessage("La localidad no puede tener más de 60 caracteres.");
-            RuleFor(c => c.Email)
-                .NotEmpty().WithMessage("El email no puede estar vacío.")
-                .EmailAddress().WithMessage("El email no es válido.");
             RuleFor(c => c.Telefono.ToString())
                 .Length(10).WithMessage("El teléfono debe tener 10 dígitos.");
         }

@@ -7,7 +7,6 @@ namespace SistemaDeBoleteria.Core.DTOs
 {
     public class CrearActualizarSectorDTO
     {
-        public int IdLocal { get; set; }
         public short Capacidad { get; set; }
     }
     public class MostrarSectorDTO

@@ -10,9 +10,9 @@ namespace SistemaDeBoleteria.Core.DTOs
     {
         public int IdEntrada { get; set; }
         public int IdOrden { get; set; }
-        public Orden.TipoEntrada Categoria { get; set; }
-        public DateTime FechaLiquidez { get; set; }
-        public DateTime FechaEmisión { get; set; }
-        public bool Anulada { get; set; }
+        public string TipoEntrada { get; set; }
+        public DateTime Emision { get; set; }
+        public DateTime Liquidez { get; set; }
+        public string Estado { get; set; }
     }
 }

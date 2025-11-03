@@ -9,12 +9,14 @@ namespace SistemaDeBoleteria.Core.Models
     public class Sector
     {
         public int IdSector { get; set; }
-        public string TipoSector { get; set; }
-        public Local local;
         public int IdLocal { get; set; }
-        public Sector(string TipoSector, Local local)
+        public short Capacidad { get; set; }
+
+        public Local local;
+
+        public Sector(short capacidad, Local local)
         {
-            this.TipoSector = TipoSector;
+            Capacidad= capacidad;
             this.local = local;
             local.sectores.Add(this);
         }
