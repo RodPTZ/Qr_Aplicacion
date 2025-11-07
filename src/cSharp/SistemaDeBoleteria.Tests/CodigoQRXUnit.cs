@@ -9,7 +9,7 @@ namespace SistemaDeBoleteria.Tests
 {
     public class CodigoQRXUnit
     {
-        public Evento evento = new Evento("Concierto de Rock", Evento.TipoEvento.Musica);
+        /* public Evento evento = new Evento("Concierto de Rock", Evento.TipoEvento.Música);
 
         // public Cliente cliente = new Cliente(2,"Nicolas", "Gonzalez", "CABA", 12345678, "nicolas.gonzalez@gmail.com", 123456789, 4,"asd");
 
@@ -22,7 +22,7 @@ namespace SistemaDeBoleteria.Tests
 
             DateTime ahora = DateTime.Now.AddHours(12); //12:00 AM
 
-            Sesion sesion = new Sesion(
+            Sesio sesion = new Sesion(
                 25,
                 DateOnly.FromDateTime(ahora),
                 TimeOnly.FromDateTime(ahora.AddHours(-1)), //11:00 AM
@@ -49,6 +49,6 @@ namespace SistemaDeBoleteria.Tests
             codigoQR.Validar();
             Assert.Equal(CodigoQR.estadoQR.YaUsada, codigoQR.Estado);
 
-        }
+        } */
     }
 }

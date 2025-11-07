@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SistemaDeBoleteria.Core.Enums;
 
 namespace SistemaDeBoleteria.Core.Models
 {
@@ -11,8 +12,8 @@ namespace SistemaDeBoleteria.Core.Models
         public int IdTarifa { get; set; }
         public int IdCliente { get; set; }
         public int IdFuncion { get; set; }
-        public TipoEstado Estado { get; set; }
-        public TipoDePago MedioDePago  { get; set; }
+        public ETipoEstadoOrden Estado { get; set; }
+        public ETipoDePago MedioDePago  { get; set; }
         public DateTime Emision  { get; set; }
         public DateTime Cierre  { get; set; }
         public Cliente cliente;
@@ -27,19 +28,8 @@ namespace SistemaDeBoleteria.Core.Models
         {
         }
 
-        public enum TipoDePago
-        {
-            Efectivo,
-            Transferencia,
-            Debito,
-            Credito
-        }
-        public enum TipoEstado
-        {
-            Abonado,
-            Cancelado,
-            Creado
-        }
+        
+       
         // public void Abonar()
         // {
         //     if (Cierre < DateTime.Now)

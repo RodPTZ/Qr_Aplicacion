@@ -24,5 +24,6 @@ public class EntradaRepository :  DbRepositoryBase, IEntradaRepository
         // Completar con código de verificación 15:09 
 
         return true; // validar después la salida
+        
     }
 }

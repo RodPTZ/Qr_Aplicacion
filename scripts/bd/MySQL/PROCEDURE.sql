@@ -1,7 +1,8 @@
 
-USE 5to_sistemadeboleteria;
+USE 5to_SistemaDeBoleteria;
 
 DELIMITER $$
+DROP PROCEDURE IF EXISTS ReporteVentas $$
 CREATE PROCEDURE ReporteVentas()
 BEGIN
     START TRANSACTION;
@@ -22,6 +23,7 @@ END$$
 
 --========================== EVENTO =================================================
 
+DROP PROCEDURE IF EXISTS PublicarEvento $$
 CREATE PROCEDURE PublicarEvento(IN unIdEvento INT)
 BEGIN
 START TRANSACTION;
@@ -53,7 +55,7 @@ END$$
 
 -- ====================================== ORDEN ===========================================================
 
-DROP PROCEDURE `AltaOrden`;
+DROP PROCEDURE IF EXISTS `AltaOrden`;
 
 CREATE PROCEDURE AltaOrden(OUT unIdOrden INT, unIdTarifa INT, unIdCliente INT, unIdFuncion INT, unMedioDePago ENUM('Efectivo','Transferencia','Debito','Credito'))
 BEGIN
@@ -76,7 +78,7 @@ BEGIN
     COMMIT;
 END$$
 
-DROP PROCEDURE `PagarOrden`;
+DROP PROCEDURE IF EXISTS `PagarOrden`;
 
 CREATE PROCEDURE PagarOrden (unIdOrden INT)
 BEGIN
@@ -132,6 +134,8 @@ BEGIN
     COMMIT;
 END$$
 
+
+DROP PROCEDURE IF EXISTS CancelarOrden $$
 CREATE PROCEDURE CancelarOrden (unIdOrden INT)
 BEGIN
     DECLARE unIdFuncion INT;
@@ -162,6 +166,9 @@ END$$
 
 
 --====================================== ENTRADA ==========================================================
+
+
+DROP PROCEDURE IF EXISTS CancelarEntrada $$
 CREATE PROCEDURE CancelarEntrada(IN unIdEntrada INT)
 BEGIN
     DECLARE unIdFuncion INT;
@@ -264,4 +271,3 @@ END$$
 -- END$$
 
 --========================================================================================================
-DELIMITER ;

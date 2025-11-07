@@ -13,7 +13,7 @@ namespace SistemaDeBoleteria.Core.Inheritance
         public DbRepositoryBase(IDbConnection dbConnection) => db = dbConnection;
         public DbRepositoryBase()
         {
-            db = new MySqlConnection($"Server=localhost;Database=bd_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
+            db = new MySqlConnection($"Server=localhost;Database=5to_SistemaDeBoleteria;uid=5to_agbd;Password=Trigg3rs!");
         }
         protected T Exec<T>(Func<IDbConnection, T> func)
         {

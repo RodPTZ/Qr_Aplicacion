@@ -1,5 +1,4 @@
-
-USE 5to_sistemadeboleteria
+USE 5to_SistemaDeBoleteria;
 
 DELIMITER $$
 DROP TRIGGER IF EXISTS VerificarCompraEntrada $$
@@ -69,6 +68,7 @@ END $$
 --     END IF;
 -- END;
 
+DROP TRIGGER IF EXISTS BefInsTarifa $$
 CREATE TRIGGER BefInsTarifa BEFORE INSERT ON Tarifa FOR EACH ROW 
 BEGIN
     IF NOT EXISTS(SELECT * FROM Funcion WHERE  IdFuncion = new.IdFuncion)
@@ -85,6 +85,7 @@ BEGIN
 END;
 
 -- ========================= EVENTO =====================================
+DROP TRIGGER IF EXISTS trg_CancelarFuncionesEvento $$
 CREATE TRIGGER trg_CancelarFuncionesEvento
 AFTER UPDATE ON Evento
 FOR EACH ROW
@@ -104,6 +105,7 @@ END$$
 
 -- ======================= FUNCION ==================================
 
+DROP TRIGGER IF EXISTS BefInsFuncion $$
 CREATE TRIGGER BefInsFuncion BEFORE INSERT ON Funcion FOR EACH ROW
 BEGIN
     IF(SELECT E.Estado FROM Evento E WHERE E.IdEvento = new.IdEvento) = 'Cancelado'
