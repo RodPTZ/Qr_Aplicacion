@@ -9,46 +9,46 @@ namespace SistemaDeBoleteria.Tests
 {
     public class CodigoQRXUnit
     {
-        public Evento evento = new Evento("Concierto de Rock", Evento.TipoEvento.Musica);
+        // public Evento evento = new Evento("Concierto de Rock", Evento.TipoEvento.Musica);
 
-        // public Cliente cliente = new Cliente(2,"Nicolas", "Gonzalez", "CABA", 12345678, "nicolas.gonzalez@gmail.com", 123456789, 4,"asd");
+        // // public Cliente cliente = new Cliente(2,"Nicolas", "Gonzalez", "CABA", 12345678, "nicolas.gonzalez@gmail.com", 123456789, 4,"asd");
 
 
 
-        // [Theory]
-        // [InlineData()]
-        public void RepetirValidación_CodigoQR_SoloDa_YaUsada()
-        {
+        // // [Theory]
+        // // [InlineData()]
+        // public void RepetirValidación_CodigoQR_SoloDa_YaUsada()
+        // {
 
-            DateTime ahora = DateTime.Now.AddHours(12); //12:00 AM
+        //     DateTime ahora = DateTime.Now.AddHours(12); //12:00 AM
 
-            Sesion sesion = new Sesion(
-                25,
-                DateOnly.FromDateTime(ahora),
-                TimeOnly.FromDateTime(ahora.AddHours(-1)), //11:00 AM
-                TimeOnly.FromDateTime(ahora.AddHours(3)), //15:00 PM
-                evento
-            );
+        //     Sesion sesion = new Sesion(
+        //         25,
+        //         DateOnly.FromDateTime(ahora),
+        //         TimeOnly.FromDateTime(ahora.AddHours(-1)), //11:00 AM
+        //         TimeOnly.FromDateTime(ahora.AddHours(3)), //15:00 PM
+        //         evento
+        //     );
 
-            // Orden orden = new Orden(Orden.TipoEntrada.General,cliente, "Tarjeta de crédito", sesion);
+        //     // Orden orden = new Orden(Orden.TipoEntrada.General,cliente, "Tarjeta de crédito", sesion);
 
-            // orden.Abonar();
+        //     // orden.Abonar();
 
-            Entrada entrada = sesion.entradasVendidas[0];
+        //     Entrada entrada = sesion.entradasVendidas[0];
 
-            CodigoQR codigoQR = entrada.QR;
+        //     CodigoQR codigoQR = entrada.QR;
 
-            Assert.Equal(CodigoQR.estadoQR.NoExiste, codigoQR.Estado);
+        //     Assert.Equal(CodigoQR.estadoQR.NoExiste, codigoQR.Estado);
 
-            codigoQR.Validar();
-            Assert.Equal(CodigoQR.estadoQR.Ok, codigoQR.Estado);
+        //     codigoQR.Validar();
+        //     Assert.Equal(CodigoQR.estadoQR.Ok, codigoQR.Estado);
 
-            codigoQR.Validar();
-            Assert.Equal(CodigoQR.estadoQR.YaUsada, codigoQR.Estado);
+        //     codigoQR.Validar();
+        //     Assert.Equal(CodigoQR.estadoQR.YaUsada, codigoQR.Estado);
 
-            codigoQR.Validar();
-            Assert.Equal(CodigoQR.estadoQR.YaUsada, codigoQR.Estado);
+        //     codigoQR.Validar();
+        //     Assert.Equal(CodigoQR.estadoQR.YaUsada, codigoQR.Estado);
 
-        }
+        // }
     }
 }

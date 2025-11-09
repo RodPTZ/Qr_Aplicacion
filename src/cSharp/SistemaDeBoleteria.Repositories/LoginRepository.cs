@@ -13,8 +13,8 @@ namespace SistemaDeBoleteria.Repositories
 {
     public class LoginRepository : DbRepositoryBase, ILoginRepository
     {
-        const string InsSql = @"INSERT INTO Usuario (NombreUsuario, Email, Contraseña) 
-                                VALUES (@NombreUsuario, @Email, @Contraseña);
+        const string InsSql = @"INSERT INTO Usuario (NombreUsuario, Email, Contraseña, Rol) 
+                                VALUES (@NombreUsuario, @Email, @Contraseña, @Rol);
 
                                 SELECT LAST_INSERT_ID();";
         public Usuario Insert(Usuario usuario)
@@ -22,7 +22,7 @@ namespace SistemaDeBoleteria.Repositories
             usuario.IdUsuario = db.ExecuteScalar<int>(InsSql, usuario);
             return usuario;
         }
-
+        
         public Usuario? Select(int idUsuario)
         {
             var sql = "SELECT * FROM Usuario WHERE IdUsuario = @ID;";
@@ -44,7 +44,8 @@ namespace SistemaDeBoleteria.Repositories
         }
         public bool UpdateRol(int idUsuario, string rol)
         {
-            // lógica para asignar o cambiar el rol del usuario
+            var sql = "UPDATE Usuario SET Rol = @Rol WHERE IdUsuario = @IdUsuario;";
+            db.Execute(sql, new { Rol = rol, IdUsuario = idUsuario });
             return true;
         }
     }

@@ -20,10 +20,13 @@ namespace SistemaDeBoleteria.Services
         private readonly ClienteRepository clienteRepository = new ClienteRepository();
         public IEnumerable<MostrarClienteDTO> GetAll() => clienteRepository.SelectAll().Adapt<IEnumerable<MostrarClienteDTO>>();
         public MostrarClienteDTO? GetById(int id) => clienteRepository.Select(id).Adapt<MostrarClienteDTO>();
-        public MostrarClienteDTO Post(CrearClienteDTO cliente) 
+        public MostrarClienteDTO Post(CrearClienteDTO cliente)
         {
+            var usuario = cliente.Adapt<Usuario>();
+            usuario.Rol = Usuario.RolUsuario.Cliente;
+            
             var clienteCreated = clienteRepository
-                                        .Insert(cliente.Adapt<Cliente>(), cliente.Adapt<Usuario>())
+                                        .Insert(cliente.Adapt<Cliente>(), usuario)
                                         .Adapt<MostrarClienteDTO>();
             loginRepository.Select(clienteCreated.IdUsuario).Adapt(clienteCreated);
             return clienteCreated; 

@@ -4,7 +4,6 @@ using MySqlConnector;
 using Dapper;
 using System.Data;
 using SistemaDeBoleteria.Core.DTOs;
-using Mapster;
 using SistemaDeBoleteria.Core.Inheritance;
 
 namespace SistemaDeBoleteria.Repositories;

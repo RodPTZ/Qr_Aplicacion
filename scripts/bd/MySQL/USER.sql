@@ -1,6 +1,6 @@
-DROP USER IF 'admin'@'localhost'; 
-CREATE USER 'admin'@'localhost' IDENTIFIED BY 'AdminET12';
-GRANT ALL PRIVILEGES ON 5to_SistemaDeBoleteria.* TO 'admin'@'localhost';
+DROP USER IF 'Admin'@'localhost'; 
+CREATE USER 'Admin'@'localhost' IDENTIFIED BY 'AdminET12';
+GRANT ALL PRIVILEGES ON 5to_SistemaDeBoleteria.* TO 'Admin'@'localhost';
 
 DROP USER IF 'Empleado'@'localhost';
 CREATE USER 'Empleado'@'localhost' IDENTIFIED BY 'EmpleadoET12';

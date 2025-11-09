@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
 using SistemaDeBoleteria.Core.Models;
 using SistemaDeBoleteria.Core.Interfaces.IServices;
 using SistemaDeBoleteria.Core.Validations;
 using SistemaDeBoleteria.Core.DTOs;
 using SistemaDeBoleteria.Services;
 using FluentValidation;
-using Mapster;
-using Microsoft.AspNetCore.Http.HttpResults;
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -21,9 +23,45 @@ var builder = WebApplication.CreateBuilder(args);
 //                   .AllowAnyMethod();
 //         });
 // });
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
 
+builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => 
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 #region Servicios
 
@@ -46,7 +84,11 @@ builder.Services.AddTransient<IValidator<ActualizarClienteDTO>, ActualizarClient
 
 #endregion
 
+
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 // app.UseCors("AllowLocalhost");
@@ -54,7 +96,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.RoutePrefix = "swagger";
+        c.DisplayRequestDuration();
+        c.EnableDeepLinking();
+    });
 }
 
 app.UseHttpsRedirection();
@@ -560,9 +607,9 @@ app.MapPost("/qr/validar", ([FromQuery] int idEntrada, [FromQuery] string Codigo
 
 #region Login
 
-app.MapPost("/register", ([FromBody] Usuario usuario, [FromServices] ILoginService loginService) =>
+app.MapPost("/register", ([FromBody] RegisterRequest register, [FromServices] ILoginService loginService) =>
 {
-    loginService.Register(usuario);
+    var usuario = loginService.Register(register);
     return Results.Created($"/register/{usuario.Email}", usuario);
 }).WithTags("J - Login");
 app.MapPost("/login", () =>

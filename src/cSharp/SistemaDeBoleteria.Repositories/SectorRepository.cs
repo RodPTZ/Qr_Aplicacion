@@ -3,7 +3,6 @@ using Dapper;
 using MySqlConnector;
 using SistemaDeBoleteria.Core.Models;
 using System.Data;
-using Mapster;
 using SistemaDeBoleteria.Core.Inheritance;
 
 namespace SistemaDeBoleteria.Repositories;

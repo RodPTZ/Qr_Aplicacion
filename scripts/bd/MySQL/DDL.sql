@@ -6,6 +6,7 @@ CREATE TABLE Usuario(
     NombreUsuario VARCHAR(60),
     Email VARCHAR(60) NOT NULL,
     Contraseña VARCHAR(255),
+    Rol ENUM('Admin','Empleado','Organizador','Cliente') NOT NULL DEFAULT 'Cliente',
     CONSTRAINT PK_Usuario PRIMARY KEY (IdUsuario)
 );
 CREATE TABLE Local (

@@ -18,7 +18,7 @@ namespace SistemaDeBoleteria.Services
             var codigoQR = codigoQRRepository.SelectById(idEntrada);
             if (codigoQR is null)
                 return null;
-            var url = $"http://IpDeLaMaquina_O_localhost5027/qr/validar?idEntrada={codigoQR.IdEntrada}&codigoQR={codigoQR.Codigo}";
+            var url = $"http://192.168.1.63:5027/qr/validar?idEntrada={codigoQR.IdEntrada}&codigoQR={codigoQR.Codigo}";
             var qrGenerator = new QRCodeGenerator();
             var qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
             var qrCode = new PngByteQRCode(qrCodeData);
@@ -76,7 +76,7 @@ namespace SistemaDeBoleteria.Services
                                 .ToString()!;
                 }
             }
-            else if (DataEntrada.Liquidez.Date < DateTime.Now.Date)
+            else if (DataEntrada.Liquidez.Date > DateTime.Now.Date)
             {
                 return codigoQRRepository
                             .UpdateEstado(IdEntrada, CodigoQR.estadoQR.Expirada)

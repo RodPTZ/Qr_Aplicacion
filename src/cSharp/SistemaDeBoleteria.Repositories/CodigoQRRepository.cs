@@ -8,7 +8,6 @@ using SistemaDeBoleteria.Core.Inheritance;
 using MySqlConnector;
 using Dapper;
 using System.Data;
-using QRCoder;
 using System.Threading.Tasks.Dataflow;
 
 namespace SistemaDeBoleteria.Repositories
@@ -40,7 +39,7 @@ namespace SistemaDeBoleteria.Repositories
             //     throw new InvalidOperationException("No se encontró el código QR para la entrada especificada.");
             // }
             var QR = db.QueryFirstOrDefault<CodigoQR>("SELECT * FROM QR WHERE IdEntrada = @ID", new { ID = IdEntrada });
-             if (QR == null)
+            if (QR == null)
             {
                 throw new InvalidOperationException("Este QR tambien es null ");
             }

@@ -4,7 +4,7 @@ using System.Data;
 using SistemaDeBoleteria.Core.Models;
 using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 using SistemaDeBoleteria.Core.Inheritance;
-using Mapster;
+
 using SistemaDeBoleteria.Core.DTOs;
 
 namespace SistemaDeBoleteria.Repositories;
