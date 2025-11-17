@@ -11,7 +11,7 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class FuncionRepository :  DbRepositoryBase, IFuncionRepository
 {
-    // public FuncionRepository(string connectionString) : base (connectionString){}
+    public FuncionRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Funcion (IdEvento, IdSector, Apertura, Cierre) 
                             VALUES (@IdEvento, @IdSector, @Apertura, @Cierre);
                             

@@ -11,7 +11,7 @@ namespace SistemaDeBoleteria.Repositories
 {
     public class TokenRepository : DbRepositoryBase, ITokenRepository
     {
-        // public TokenRepository(string connectionString) : base (connectionString){}
+        public TokenRepository(string connectionString) : base (connectionString){}
         const string InsTkn = @"INSERT INTO AuthTokens (IdUsuario, Token, Expiracion) 
                                 VALUES (@IdUsuario, @Token, @Expiracion);";
         const string InvTkn = @"UPDATE AuthTokens 

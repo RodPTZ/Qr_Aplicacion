@@ -62,8 +62,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// builder.Services.AddRepositories(builder.Configuration);
-builder.Services.AddRepositories();
+builder.Services.AddRepositories(builder.Configuration);
+// builder.Services.AddRepositories();
 
 builder.Services.AddServices();
 

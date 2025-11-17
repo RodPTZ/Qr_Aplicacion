@@ -14,7 +14,7 @@ namespace SistemaDeBoleteria.Repositories
 {
     public class LoginRepository : DbRepositoryBase, ILoginRepository
     {
-        // public LoginRepository(string connectionString) : base (connectionString){}
+        public LoginRepository(string connectionString) : base (connectionString){}
         const string InsSql = @"INSERT INTO Usuario (NombreUsuario, Email, Contraseña, Rol) 
                                 VALUES (@NombreUsuario, @Email, @Contraseña, @Rol);
 

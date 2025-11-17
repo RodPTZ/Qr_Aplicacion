@@ -14,57 +14,38 @@ namespace SistemaDeBoleteria.API.Extensions
 {
     public static class ServiceExtensions
     {
-        // public static void AddRepositories(this IServiceCollection services, IConfiguration configuration)
-        // {
-        //     services.AddHttpContextAccessor();
+        public static void AddRepositories(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddHttpContextAccessor();
 
-        //     string GetConnectionString(IServiceProvider sp)
-        //     {
-        //         var httpContext = sp.GetRequiredService<IHttpContextAccessor>().HttpContext;
+            string GetConnectionString(IServiceProvider sp)
+            {
+                var httpContext = sp.GetRequiredService<IHttpContextAccessor>().HttpContext;
 
-        //         var rolString = httpContext?.User.FindFirstValue(ClaimTypes.Role);
-        //         if (string.IsNullOrEmpty(rolString))
-        //         {
-        //             return configuration.GetConnectionString("DefaultConnection")!;
-        //         }
+                var rolString = httpContext?.User.FindFirstValue(ClaimTypes.Role);
+                if (string.IsNullOrEmpty(rolString))
+                {
+                    return configuration.GetConnectionString("Cliente")!;
+                }
 
-        //         var connectionString = configuration.GetConnectionString(rolString);
+                var connectionString = configuration.GetConnectionString(rolString);
 
         
-        //         return string.IsNullOrEmpty(connectionString)
-        //             ? configuration.GetConnectionString("DefaultConnection")!
-        //             : connectionString;
-        //     }
-
-        //     var connectionString = configuration.GetConnectionString("DefaultConnection")!;
-        //     services.AddScoped<ILoginRepository>(sp => new LoginRepository(connectionString));
-        //     services.AddScoped<ILocalRepository>(sp => new LocalRepository(GetConnectionString(sp)));
-        //     services.AddScoped<ISectorRepository>(sp => new SectorRepository(GetConnectionString(sp)));
-        //     services.AddScoped<IEventoRepository>(sp => new EventoRepository(GetConnectionString(sp)));
-        //     services.AddScoped<IFuncionRepository>(sp => new FuncionRepository(GetConnectionString(sp)));
-        //     services.AddScoped<ITarifaRepository>(sp => new TarifaRepository(GetConnectionString(sp)));
-        //     services.AddScoped<IClienteRepository>(sp => new ClienteRepository(GetConnectionString(sp)));
-        //     services.AddScoped<IOrdenRepository>(sp => new OrdenRepository(GetConnectionString(sp)));
-        //     services.AddScoped<IEntradaRepository>(sp => new EntradaRepository(GetConnectionString(sp)));
-        //     services.AddScoped<ICodigoQRRepository>(sp => new CodigoQRRepository(GetConnectionString(sp)));
-        //     // services.AddScoped<ILoginRepository>(sp => new LoginRepository(GetConnectionString(sp)));
-        //     services.AddScoped<ITokenRepository>(sp => new TokenRepository(GetConnectionString(sp)));
-        // }
-        public static void AddRepositories(this IServiceCollection services)
-        {
-            services.AddScoped<ILoginRepository, LoginRepository>();
-            services.AddScoped<ILocalRepository, LocalRepository>();
-            services.AddScoped<ISectorRepository, SectorRepository>();
-            services.AddScoped<IEventoRepository, EventoRepository>();
-            services.AddScoped<IFuncionRepository, FuncionRepository>();
-            services.AddScoped<ITarifaRepository, TarifaRepository>();
-            services.AddScoped<IClienteRepository, ClienteRepository>();
-            services.AddScoped<IOrdenRepository, OrdenRepository>();
-            services.AddScoped<IEntradaRepository, EntradaRepository>();
-            services.AddScoped<ICodigoQRRepository, CodigoQRRepository>();
-            services.AddScoped<ILoginRepository, LoginRepository>();
-            services.AddScoped<ITokenRepository,TokenRepository>();
+                return connectionString!;
+            }
+            services.AddScoped<ILocalRepository>(sp => new LocalRepository(GetConnectionString(sp)));
+            services.AddScoped<ISectorRepository>(sp => new SectorRepository(GetConnectionString(sp)));
+            services.AddScoped<IEventoRepository>(sp => new EventoRepository(GetConnectionString(sp)));
+            services.AddScoped<IFuncionRepository>(sp => new FuncionRepository(GetConnectionString(sp)));
+            services.AddScoped<ITarifaRepository>(sp => new TarifaRepository(GetConnectionString(sp)));
+            services.AddScoped<IClienteRepository>(sp => new ClienteRepository(GetConnectionString(sp)));
+            services.AddScoped<IOrdenRepository>(sp => new OrdenRepository(GetConnectionString(sp)));
+            services.AddScoped<IEntradaRepository>(sp => new EntradaRepository(GetConnectionString(sp)));
+            services.AddScoped<ICodigoQRRepository>(sp => new CodigoQRRepository(GetConnectionString(sp)));
+            services.AddScoped<ILoginRepository>(sp => new LoginRepository(GetConnectionString(sp)));
+            services.AddScoped<ITokenRepository>(sp => new TokenRepository(GetConnectionString(sp)));
         }
+
         public static void AddServices(this IServiceCollection services)
         {
             services.AddScoped<IClienteService, ClienteService>();

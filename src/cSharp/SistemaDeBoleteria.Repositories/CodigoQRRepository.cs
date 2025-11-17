@@ -15,7 +15,7 @@ namespace SistemaDeBoleteria.Repositories
 {
     public class CodigoQRRepository :  DbRepositoryBase, ICodigoQRRepository
     {
-        // public CodigoQRRepository(string connectionString) : base (connectionString){}
+        public CodigoQRRepository(string connectionString) : base (connectionString){}
         const string UpdSql = @"UPDATE QR 
                                 SET TipoEstado = @Estado 
                                 WHERE IdEntrada = @ID;";
