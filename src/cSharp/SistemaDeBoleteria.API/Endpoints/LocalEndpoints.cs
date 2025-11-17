@@ -34,7 +34,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var localCreado = localService.Post(local);
                     return Results.Created($"/locales/{localCreado.IdLocal}", localCreado);
                 })
-                .WithTags("A - Locales");
+                .WithTags("A - Locales")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapGet("/locales",
                 ([FromServices] ILocalService localService) =>
@@ -42,7 +43,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var locales = localService.GetAll();
                     return !locales.Any() ? Results.NoContent() : Results.Ok(locales);
                 })
-                .WithTags("A - Locales");
+                .WithTags("A - Locales")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapGet("/locales/{localID}",
                 ([FromRoute] int localID,
@@ -51,7 +53,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var local = localService.Get(localID);
                     return local is null ? Results.NotFound() : Results.Ok(local);
                 })
-                .WithTags("A - Locales");
+                .WithTags("A - Locales")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapPut("/locales/{localID}",
                 ([FromRoute] int localID,
@@ -75,7 +78,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var localActualizado = localService.Put(local, localID);
                     return Results.Ok(localActualizado);
                 })
-                .WithTags("A - Locales");
+                .WithTags("A - Locales")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapDelete("/locales/{localID}",
                 ([FromRoute] int localID,
@@ -84,7 +88,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     localService.Delete(localID);
                     return Results.Ok(new { mensaje = "Local eliminado correctamente." });
                 })
-                .WithTags("A - Locales");
+                .WithTags("A - Locales")
+                .RequireAuthorization("EmpleadoOrganizador");
         }
     }
 }

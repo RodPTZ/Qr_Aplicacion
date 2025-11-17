@@ -25,8 +25,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var estado = codigoQRService.ValidateQR(idEntrada, Codigo);
                     return Results.Ok(new { Estado = estado });
                 })
-                .WithTags("I - CodigoQR")
-                .RequireAuthorization("Empleado");
+                .WithTags("I - CodigoQR");
         }
     }
 }

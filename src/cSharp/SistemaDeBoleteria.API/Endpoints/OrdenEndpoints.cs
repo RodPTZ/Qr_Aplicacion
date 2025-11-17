@@ -36,7 +36,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                         ? Results.BadRequest()
                         : Results.Created($"/ordenes/{ordenCreada.IdOrden}", ordenCreada);
                 })
-                .WithTags("G - Orden");
+                .WithTags("G - Orden")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapGet("/ordenes/tipoDePago", () =>
             {
@@ -44,7 +45,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     .ToDictionary(tp => tp.ToString(), tp => (int)tp);
                 return Results.Ok(tiposDePago);
             })
-            .WithTags("G - Orden");
+            .WithTags("G - Orden")
+            .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapGet("/ordenes",
                 ([FromServices] IOrdenService ordenService) =>
@@ -52,7 +54,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var ordenes = ordenService.GetAll();
                     return !ordenes.Any() ? Results.NoContent() : Results.Ok(ordenes);
                 })
-                .WithTags("G - Orden");
+                .WithTags("G - Orden")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapGet("/ordenes/{ordenID}",
                 ([FromRoute] int ordenID,
@@ -61,7 +64,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var orden = ordenService.Get(ordenID);
                     return orden is null ? Results.NotFound() : Results.Ok(orden);
                 })
-                .WithTags("G - Orden");
+                .WithTags("G - Orden")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapPut("/ordenes/{ordenID}/pagar",
                 ([FromRoute] int ordenID,
@@ -70,7 +74,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     ordenService.PagarOrden(ordenID);
                     return Results.Ok(new { message = "Pagado Exitosamente." });
                 })
-                .WithTags("G - Orden");
+                .WithTags("G - Orden")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapPut("/ordenes/{ordenID}/cancelar",
                 ([FromRoute] int ordenID,
@@ -79,7 +84,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     ordenService.CancelarOrden(ordenID);
                     return Results.Ok(new { message = "Cancelado Exitosamente." });
                 })
-                .WithTags("G - Orden");
+                .WithTags("G - Orden")
+                .RequireAuthorization("EmpleadoOrganizador");
         }
     }
 }

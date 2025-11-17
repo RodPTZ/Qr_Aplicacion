@@ -10,7 +10,7 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class EntradaRepository :  DbRepositoryBase, IEntradaRepository
 {
-    public EntradaRepository(string connectionString) : base (connectionString){}
+    // public EntradaRepository(string connectionString) : base (connectionString){}
     public IEnumerable<Entrada> SelectAll() => UseNewConnection(db => db.Query<Entrada>("SELECT * FROM Entrada"));
     public Entrada? Select(int idEntrada) => UseNewConnection(db => db.QueryFirstOrDefault<Entrada>("SELECT * FROM Entrada WHERE IdEntrada = @ID", new { ID = idEntrada }));
     

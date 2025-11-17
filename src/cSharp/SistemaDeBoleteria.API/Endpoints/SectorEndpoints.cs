@@ -37,7 +37,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                         ? Results.BadRequest()
                         : Results.Created($"/locales/{localID}/sectores/{nuevoSector.IdSector}", nuevoSector);
                 })
-                .WithTags("B - Sector");
+                .WithTags("B - Sector")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapGet("/locales/{localID}/sectores",
                 ([FromRoute] int localID,
@@ -46,7 +47,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var sectores = sectorService.GetAllByLocalId(localID);
                     return !sectores.Any() ? Results.NoContent() : Results.Ok(sectores);
                 })
-                .WithTags("B - Sector");
+                .WithTags("B - Sector")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapPut("/sectores/{sectorID}",
                 ([FromRoute] int sectorID,
@@ -70,7 +72,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var sectorActualizado = sectorService.Put(sector, sectorID);
                     return Results.Ok(sectorActualizado);
                 })
-                .WithTags("B - Sector");
+                .WithTags("B - Sector")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapDelete("/sectores/{sectorID}",
                 ([FromRoute] int sectorID,
@@ -79,7 +82,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     sectorService.Delete(sectorID);
                     return Results.Ok(new { message = "Sector eliminado exitosamente." });
                 })
-                .WithTags("B - Sector");
+                .WithTags("B - Sector")
+                .RequireAuthorization("EmpleadoOrganizador");
         }
     }
 }

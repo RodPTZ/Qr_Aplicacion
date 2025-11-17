@@ -11,7 +11,7 @@ namespace SistemaDeBoleteria.Repositories
 {
     public class TokenRepository : DbRepositoryBase, ITokenRepository
     {
-        public TokenRepository(string connectionString) : base (connectionString){}
+        // public TokenRepository(string connectionString) : base (connectionString){}
         const string InsTkn = @"INSERT INTO AuthTokens (IdUsuario, Token, Expiracion) 
                                 VALUES (@IdUsuario, @Token, @Expiracion);";
         const string InvTkn = @"UPDATE AuthTokens 
@@ -28,7 +28,7 @@ namespace SistemaDeBoleteria.Repositories
                                  FROM AuthTokens 
                                  WHERE Token = @Token;";
         public bool InsertToken(int idUsuario, string refreshToken, DateTime expiracion) 
-        => UseNewConnection(db => db.ExecuteScalar<bool>(InsTkn, new { idUsuario, refreshToken, expiracion }));
+        => UseNewConnection(db => db.ExecuteScalar<bool>(InsTkn, new { idUsuario, Token = refreshToken, expiracion }));
         public bool InvalidateToken(string token) => UseNewConnection(db =>
         {
             var rowsAffected = db.Execute(InvTkn, new { Token = token });

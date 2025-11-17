@@ -34,7 +34,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var mostrarClienteDTO = clienteService.Post(cliente);
                     return Results.Created($"/clientes/{mostrarClienteDTO.IdCliente}", mostrarClienteDTO);
                 })
-                .WithTags("F - Clientes");
+                .WithTags("F - Clientes")
+                .RequireAuthorization("EmpleadoOrganizador");;
 
             app.MapGet("/clientes",
                 (IClienteService clienteService) =>
@@ -45,7 +46,8 @@ namespace SistemaDeBoleteria.API.Endpoints
 
                     return Results.Ok(clientes);
                 })
-                .WithTags("F - Clientes");
+                .WithTags("F - Clientes")
+                .RequireAuthorization("EmpleadoOrganizador");;
 
             app.MapGet("/clientes/{clienteID}",
                 ([FromRoute] int clienteID,
@@ -57,7 +59,8 @@ namespace SistemaDeBoleteria.API.Endpoints
 
                     return Results.Ok(cliente);
                 })
-                .WithTags("F - Clientes");
+                .WithTags("F - Clientes")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapPut("/clientes/{clienteID}",
                 ([FromRoute] int clienteID,
@@ -81,7 +84,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var clienteActualizado = clienteService.Put(cliente, clienteID);
                     return Results.Ok(clienteActualizado);
                 })
-                .WithTags("F - Clientes");
+                .WithTags("F - Clientes")
+                .RequireAuthorization("EmpleadoOrganizador");
         }
     }
 }

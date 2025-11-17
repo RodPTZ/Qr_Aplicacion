@@ -16,7 +16,7 @@ namespace SistemaDeBoleteria.Services
             var codigoQR = codigoQRRepository.SelectById(idEntrada);
             if (codigoQR is null)
                 return null;
-            var url = $"http://192.168.1.63:5027/qr/validar?idEntrada={codigoQR.IdEntrada}&Codigo={codigoQR.Codigo}";
+            var url = $"http://PonerIpDeLaMaquinaAquí:5027/qr/validar?idEntrada={codigoQR.IdEntrada}&Codigo={codigoQR.Codigo}";
             var qrGenerator = new QRCodeGenerator();
             var qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
             var qrCode = new PngByteQRCode(qrCodeData);

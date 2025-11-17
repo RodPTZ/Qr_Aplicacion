@@ -10,7 +10,7 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class EventoRepository :  DbRepositoryBase, IEventoRepository
 {
-    public EventoRepository(string connectionString) : base (connectionString){}
+    // public EventoRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Evento (IdLocal, Nombre, Tipo) 
                             VALUES (@IdLocal, @Nombre, @Tipo); 
                             

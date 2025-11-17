@@ -31,8 +31,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var usuario = loginService.Register(register);
                     return Results.Created($"/register/{usuario.Email}", usuario);
                 })
-                .WithTags("J - Login");
-
+                .WithTags("J - Login")
+                .RequireAuthorization("Admin");
             app.MapPost("/login",
                 ([FromBody] LoginRequest loginRequest,
                  [FromServices] ILoginService loginService,
@@ -61,7 +61,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var newToken = loginService.RefreshToken(refreshToken);
                     return Results.Ok(new { Token = newToken });
                 })
-                .WithTags("J - Login");
+                .WithTags("J - Login")
+                .RequireAuthorization();
 
             app.MapPost("/logout", 
                 ([FromBody] string refreshToken, [FromServices] ILoginService loginService) =>
@@ -71,7 +72,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                         ? Results.Ok(new { message = "Cierre de sesión exitoso." })
                         : Results.BadRequest(new { message = "Error al cerrar sesión. Refresh Token inválido." });
                 })
-                .WithTags("J - Login");
+                .WithTags("J - Login")
+                .RequireAuthorization();
 
             app.MapGet("/me", 
                 (HttpContext httpContext, [FromServices] ILoginService loginService) =>
@@ -80,15 +82,18 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var usuario = loginService.Me(email);
                     return usuario is null ? Results.NotFound() : Results.Ok(usuario);
                 })
-                .WithTags("J - Login");
+                .WithTags("J - Login")
+                .RequireAuthorization();
 
             app.MapGet("/roles", () =>
             {
                 var roles = Enum.GetValues<ERolUsuario>()
                                 .ToDictionary(rol => rol.ToString(), rol => (int)rol);
                 return Results.Ok(roles);
+                
             })
-            .WithTags("J - Login");
+            .WithTags("J - Login")
+            .RequireAuthorization();
 
             app.MapPost("/usuarios/{usuarioID}/roles",
                 ([FromRoute] int usuarioID, [FromBody] ERolUsuario rol, [FromServices] ILoginService loginService) =>
@@ -96,7 +101,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     loginService.ChangeRol(usuarioID, rol.ToString());
                     return Results.Ok();
                 })
-                .WithTags("J - Login");
+                .WithTags("J - Login")
+                .RequireAuthorization("Admin");
         }
     }
 }

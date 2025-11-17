@@ -33,7 +33,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var mostrarTarifa = tarifaService.Post(tarifa);
                     return Results.Created($"/tarifas/{mostrarTarifa.IdTarifa}", mostrarTarifa);
                 })
-                .WithTags("E - Tarifas");
+                .WithTags("E - Tarifas")
+                .RequireAuthorization("EmpleadoOrganizador");;
 
             app.MapGet("/funciones/{funcionID}/tarifas",
                 ([FromRoute] int funcionID,
@@ -42,7 +43,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var tarifas = tarifaService.GetAllByFuncionId(funcionID);
                     return !tarifas.Any() ? Results.NoContent() : Results.Ok(tarifas);
                 })
-                .WithTags("E - Tarifas");
+                .WithTags("E - Tarifas")
+                .RequireAuthorization("EmpleadoOrganizador");;
 
             app.MapPut("/tarifas/{tarifaID}",
                 ([FromRoute] int tarifaID,
@@ -65,7 +67,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var mostrarTarifa = tarifaService.Put(tarifa, tarifaID);
                     return Results.Ok(mostrarTarifa);
                 })
-                .WithTags("E - Tarifas");
+                .WithTags("E - Tarifas")
+                .RequireAuthorization("EmpleadoOrganizador");;
 
             app.MapGet("/tarifas/{tarifaID}",
                 ([FromRoute] int tarifaID,
@@ -74,7 +77,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var tarifa = tarifaService.Get(tarifaID);
                     return tarifa is null ? Results.NotFound() : Results.Ok(tarifa);
                 })
-                .WithTags("E - Tarifas");
+                .WithTags("E - Tarifas")
+                .RequireAuthorization("EmpleadoOrganizador");;
         }
     }
 }

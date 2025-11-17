@@ -9,7 +9,7 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class ClienteRepository : DbRepositoryBase, IClienteRepository
 {
-    public ClienteRepository(string connectionString) : base (connectionString){}
+    // public ClienteRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Cliente (IdUsuario, Nombre, Apellido, DNI, Telefono, Localidad, Edad) 
                             VALUES (@IdUsuario, @Nombre, @Apellido, @DNI, @Telefono, @Localidad, @Edad); 
 

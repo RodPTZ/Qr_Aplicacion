@@ -4,7 +4,6 @@ using Microsoft.OpenApi.Models;
 using SistemaDeBoleteria.API.Endpoints;
 using SistemaDeBoleteria.API.Extensions;
 using SistemaDeBoleteria.API.Middleware;
-using SistemaDeBoleteria.Core.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,13 +23,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Empleado", policy => policy.RequireRole("Empleado"));
-    options.AddPolicy("Organizador", policy => policy.RequireRole("Organizador"));
-    options.AddPolicy("Cliente", policy => policy.RequireRole("Cliente"));
+    options.AddPolicy("Empleado", policy => policy.RequireRole("Empleado", "Admin"));
+    options.AddPolicy("Organizador", policy => policy.RequireRole("Organizador", "Admin"));
+    options.AddPolicy("Cliente", policy => policy.RequireRole("Cliente", "Admin"));
 
-    options.AddPolicy("EmpleadoOrganizador", policy => policy.RequireRole("Empleado", "Organizador"));
-    options.AddPolicy("EmpleadoOrganizadorCliente", policy => policy.RequireRole("Empleado", "Organizador", "Cliente"));
-    options.AddPolicy("ClienteEmpleado", policy => policy.RequireRole("Cliente", "Empleado"));
+    options.AddPolicy("EmpleadoOrganizador", policy => policy.RequireRole("Empleado", "Organizador", "Admin"));
+    options.AddPolicy("EmpleadoOrganizadorCliente", policy => policy.RequireRole("Empleado", "Organizador", "Cliente", "Admin"));
+    options.AddPolicy("ClienteEmpleado", policy => policy.RequireRole("Cliente", "Empleado", "Admin"));
+
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -61,8 +62,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
-builder.Services.AddRepositories(builder.Configuration);
+// builder.Services.AddRepositories(builder.Configuration);
+builder.Services.AddRepositories();
 
 builder.Services.AddServices();
 

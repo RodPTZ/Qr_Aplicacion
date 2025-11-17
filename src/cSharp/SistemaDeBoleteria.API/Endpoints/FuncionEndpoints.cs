@@ -34,7 +34,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var funcionCreada = funcionService.Post(funcion);
                     return Results.Created($"/funciones/{funcionCreada.IdFuncion}", funcionCreada);
                 })
-                .WithTags("D - Funciones");
+                .WithTags("D - Funciones")
+                .RequireAuthorization("EmpleadoOrganizador");;
 
             app.MapGet("/funciones",
                 ([FromServices] IFuncionService funcionService) =>
@@ -42,7 +43,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var funciones = funcionService.GetAll();
                     return !funciones.Any() ? Results.NoContent() : Results.Ok(funciones);
                 })
-                .WithTags("D - Funciones");
+                .WithTags("D - Funciones")
+                .RequireAuthorization("EmpleadoOrganizador");;
 
             app.MapGet("/funciones/{funcionID}",
                 ([FromRoute] int funcionID,
@@ -51,7 +53,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var funcion = funcionService.Get(funcionID);
                     return funcion is null ? Results.NotFound() : Results.Ok(funcion);
                 })
-                .WithTags("D - Funciones");
+                .WithTags("D - Funciones")
+                .RequireAuthorization("EmpleadoOrganizador");;
 
             app.MapPut("/funciones/{funcionID}",
                 ([FromRoute] int funcionID,
@@ -75,7 +78,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var funcionActualizada = funcionService.Put(funcion, funcionID);
                     return Results.Ok(funcionActualizada);
                 })
-                .WithTags("D - Funciones");
+                .WithTags("D - Funciones")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapPost("/funciones/{funcionID}/cancelar",
                 ([FromRoute] int funcionID,
@@ -84,7 +88,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     funcionService.Cancelar(funcionID);
                     return Results.Ok();
                 })
-                .WithTags("D - Funciones");
+                .WithTags("D - Funciones")
+                .RequireAuthorization("EmpleadoOrganizador");
         }
     }
 }

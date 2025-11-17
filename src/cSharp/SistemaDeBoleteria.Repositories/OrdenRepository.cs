@@ -11,7 +11,7 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class OrdenRepository :  DbRepositoryBase, IOrdenRepository
 {
-    public OrdenRepository(string connectionString) : base (connectionString){}
+    // public OrdenRepository(string connectionString) : base (connectionString){}
     public IEnumerable<Orden> SelectAll() => UseNewConnection(db => db.Query<Orden>("SELECT * FROM Orden"));
     public Orden? Select(int idOrden) => UseNewConnection(db => db.QueryFirstOrDefault<Orden>("SELECT * FROM Orden WHERE IdOrden = @ID", new { ID = idOrden }));
     

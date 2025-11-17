@@ -13,7 +13,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var entradas = entradaService.GetAll();
                     return !entradas.Any() ? Results.NoContent() : Results.Ok(entradas);
                 })
-                .WithTags("H - Entradas");
+                .WithTags("H - Entradas")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapGet("/entradas/{entradaID}",
                 ([FromRoute] int entradaID,
@@ -22,7 +23,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var entrada = entradaService.GetById(entradaID);
                     return entrada is null ? Results.NotFound() : Results.Ok(entrada);
                 })
-                .WithTags("H - Entradas");
+                .WithTags("H - Entradas")
+                .RequireAuthorization("EmpleadoOrganizador");
 
             app.MapPost("/entradas/{entradaID}/anular",
                 ([FromRoute] int entradaID,
@@ -31,7 +33,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     entradaService.AnularEntrada(entradaID);
                     return Results.Ok(new { message = "Si funciona" });
                 })
-                .WithTags("H - Entradas");
+                .WithTags("H - Entradas")
+                .RequireAuthorization("EmpleadoOrganizador");
         }
     }
 }

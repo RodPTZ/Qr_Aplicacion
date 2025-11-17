@@ -10,7 +10,7 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class LocalRepository :  DbRepositoryBase, ILocalRepository
 {
-    public LocalRepository(string connectionString) : base (connectionString){}
+    // public LocalRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Local (Nombre, Ubicacion) 
                             VALUES (@Nombre, @Ubicacion);
                             

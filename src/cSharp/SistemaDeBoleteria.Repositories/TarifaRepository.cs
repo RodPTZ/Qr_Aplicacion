@@ -9,7 +9,7 @@ using System.Reflection.Metadata.Ecma335;
 namespace SistemaDeBoleteria.Repositories;
 public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
 {
-    public TarifaRepository(string connectionString) : base (connectionString){}
+    // public TarifaRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Tarifa (IdFuncion, TipoEntrada, Precio, Stock) 
                             VALUES (@IdFuncion, @TipoEntrada, @Precio, @Stock);
                             

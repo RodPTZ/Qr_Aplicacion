@@ -9,7 +9,7 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class SectorRepository :  DbRepositoryBase, ISectorRepository
 {
-    public SectorRepository(string connectionString) : base (connectionString){}
+    // public SectorRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Sector (IdLocal, Capacidad) 
                             VALUES (@IdLocal, @Capacidad); 
                             
