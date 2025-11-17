@@ -1,51 +1,107 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
+using Moq;
+using SistemaDeBoleteria.Core.Enums;
 using SistemaDeBoleteria.Core.Models;
+using SistemaDeBoleteria.Services;
+using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 
 namespace SistemaDeBoleteria.Tests
 {
     public class CodigoQRXUnit
+    {
+        private readonly Mock<ICodigoQRRepository> mockRepo;
+        private readonly CodigoQRService service;
+
+        public CodigoQRXUnit()
         {
-        // public Evento evento = new Evento("Concierto de Rock", Evento.TipoEvento.Música);
-        
-        // // public Cliente cliente = new Cliente(2,"Nicolas", "Gonzalez", "CABA", 12345678, "nicolas.gonzalez@gmail.com", 123456789, 4,"asd");
+            mockRepo = new Mock<ICodigoQRRepository>();
+            service = new CodigoQRService(mockRepo.Object);
+        }
+        [Fact]
+        public void ValidateQR_QRNoExiste_DevuelveNoExiste()
+        {
+            mockRepo.Setup(r => r.Exists(1, "ABC")).Returns(false);
 
-        // // [Theory]
-        // // [InlineData()]
-        // public void RepetirValidación_CodigoQR_SoloDa_YaUsada()
-        // {
+            var resultado = service.ValidateQR(1, "ABC");
 
-        //     DateTime ahora = DateTime.Now.AddHours(12); //12:00 AM
+            Assert.Equal("NoExiste", resultado);
+        }
+        [Fact]
+        public void ValidateQR_DatosIncompletos_DevuelveFirmaInvalida()
+        {
+            mockRepo.Setup(r => r.Exists(1, "ABC")).Returns(true);
+            mockRepo.Setup(r => r.SelectData(1))
+                    .Returns((null!, null!, null!)); // datos incompletos
 
-        //     Sesion sesion = new Sesion(
-        //         25,
-        //         DateOnly.FromDateTime(ahora),
-        //         TimeOnly.FromDateTime(ahora.AddHours(-1)), //11:00 AM
-        //         TimeOnly.FromDateTime(ahora.AddHours(3)), //15:00 PM
-        //         evento
-        //     );
+            var resultado = service.ValidateQR(1, "ABC");
 
-        //     // Orden orden = new Orden(Orden.TipoEntrada.General,cliente, "Tarjeta de crédito", sesion);
+            Assert.Equal("FirmaInvalida", resultado);
+        }
+        [Fact]
+        public void ValidateQR_EntradaAnulada_DevuelveFirmaInvalida()
+        {
+            mockRepo.Setup(r => r.Exists(1, "ABC")).Returns(true);
 
-        //     // orden.Abonar();
+            var entrada = new Entrada { Estado = ETipoEstadoEntrada.Anulado };
+            var funcion = new Funcion { Fecha = DateOnly.FromDateTime(DateTime.Now) };
+            var qr = new CodigoQR { TipoEstado = ETipoEstadoQR.NoExiste };
 
-        //     Entrada entrada = sesion.entradasVendidas[0];
+            mockRepo.Setup(r => r.SelectData(1))
+                    .Returns((entrada, funcion, qr));
 
-        //     CodigoQR codigoQR = entrada.QR;
+            var resultado = service.ValidateQR(1, "ABC");
 
-        //     Assert.Equal(CodigoQR.estadoQR.NoExiste, codigoQR.Estado);
+            Assert.Equal("FirmaInvalida", resultado);
+        }
+        [Fact]
+        public void ValidateQR_PrimeraValidacion_DevuelveOk()
+        {
+            mockRepo.Setup(r => r.Exists(1, "ABC")).Returns(true);
 
-        //     codigoQR.Validar();
-        //     Assert.Equal(CodigoQR.estadoQR.Ok, codigoQR.Estado);
+            var entrada = new Entrada { Estado = ETipoEstadoEntrada.Pagado };
 
-        //     codigoQR.Validar();
-        //     Assert.Equal(CodigoQR.estadoQR.YaUsada, codigoQR.Estado);
+            var funcion = new Funcion
+            {
+                Fecha = DateOnly.FromDateTime(DateTime.Now),
+                AperturaTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(-1)),
+                CierreTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(2))
+            };
 
-        //     codigoQR.Validar();
-        //     Assert.Equal(CodigoQR.estadoQR.YaUsada, codigoQR.Estado);
-        // }
+            var qr = new CodigoQR { TipoEstado = ETipoEstadoQR.NoExiste };
+
+            mockRepo.Setup(r => r.SelectData(1)).Returns((entrada, funcion, qr));
+            mockRepo.Setup(r => r.UpdateEstado(1, ETipoEstadoQR.Ok))
+                    .Returns(ETipoEstadoQR.Ok);
+
+            var resultado = service.ValidateQR(1, "ABC");
+
+            Assert.Equal("Ok", resultado);
+        }
+
+        [Fact]
+        public void ValidateQR_QRYaUsado_DevuelveYaUsada()
+        {
+            mockRepo.Setup(r => r.Exists(1, "ABC")).Returns(true);
+
+            var entrada = new Entrada { Estado = ETipoEstadoEntrada.Pagado };
+
+            var funcion = new Funcion
+            {
+                Fecha = DateOnly.FromDateTime(DateTime.Now),
+                AperturaTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(-1)),
+                CierreTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(2))
+            };
+
+            var qr = new CodigoQR { TipoEstado = ETipoEstadoQR.Ok };
+
+            mockRepo.Setup(r => r.SelectData(1)).Returns((entrada, funcion, qr));
+            mockRepo.Setup(r => r.UpdateEstado(1, ETipoEstadoQR.YaUsada))
+                    .Returns(ETipoEstadoQR.YaUsada);
+
+            var resultado = service.ValidateQR(1, "ABC");
+
+            Assert.Equal("YaUsada", resultado);
+        }
     }
 }

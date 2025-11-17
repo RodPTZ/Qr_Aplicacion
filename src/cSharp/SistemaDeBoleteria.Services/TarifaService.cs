@@ -35,7 +35,6 @@ namespace SistemaDeBoleteria.Services
                     .Insert(tarifa.Adapt<Tarifa>())
                     .Adapt<MostrarTarifaDTO>();
         }
-                    
         public MostrarTarifaDTO Put(ActualizarTarifaDTO tarifa, int IdTarifa)
         {
 			if(!tarifaRepository.Exists(IdTarifa)) 

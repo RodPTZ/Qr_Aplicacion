@@ -18,11 +18,17 @@ namespace SistemaDeBoleteria.Core.Models
         public DateTime Cierre  { get; set; }
         public Cliente cliente;
         public Funcion funcion;
-        public Orden( Cliente cliente)
+        public Orden(int IdTarifa,int IdCliente, int IdFuncion, ETipoEstadoOrden eTipoEstadoOrden, ETipoDePago eTipoDePago, DateTime emision, DateTime cierre)
         {
-            this.cliente = cliente;
-            Emision = DateTime.Now;
-            Cierre = Emision.AddMinutes(15);
+            this.IdTarifa= IdTarifa;
+            this.IdCliente = IdCliente;
+            this.IdFuncion = IdFuncion;
+            Estado=eTipoEstadoOrden;
+            MedioDePago = eTipoDePago;
+            Emision = emision;
+            Cierre = cierre;
+            Emision = emision;
+            Cierre = cierre;
         }
         public Orden()
         {

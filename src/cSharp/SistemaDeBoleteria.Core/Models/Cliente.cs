@@ -15,8 +15,9 @@ namespace SistemaDeBoleteria.Core.Models
         public int DNI { get; set; }
         public string Telefono { get; set; }
         public byte Edad { get; set; }
-        public Cliente(string nombre, string apellido, string localidad, int dni, string telefono, byte edad)
+        public Cliente(int IdCliente, string nombre, string apellido, string localidad, int dni, string telefono, byte edad)
         {
+            this.IdCliente= IdCliente;
             Nombre = nombre;
             Apellido = apellido;
             Localidad = localidad;

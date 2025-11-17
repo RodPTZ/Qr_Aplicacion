@@ -45,14 +45,6 @@ namespace SistemaDeBoleteria.Repositories
                                                  FROM QR 
                                                  WHERE IdEntrada = @ID
                                                  AND Codigo = @unCodigo)";
-        // public (Entrada, Funcion , CodigoQR) SelectData(int idEntrada)
-        // {
-        //     var DataEntrada = db.QueryFirstOrDefault<Entrada>(SeltEntradaSql, new { ID = idEntrada});
-        //     var DataFuncion = db.QueryFirstOrDefault<Funcion>(SeltFuncionSql, new { ID = idEntrada});
-        //     var DataQR = db.QueryFirstOrDefault<CodigoQR>(SeltCodigQRSql, new { ID = idEntrada});
-
-        //     return (DataEntrada, DataFuncion, DataQR)!;
-        // }
         public (Entrada, Funcion , CodigoQR) SelectData(int idEntrada) => UseNewConnection(db =>
         (
             db.QueryFirstOrDefault<Entrada>(SeltEntradaSql, new { ID = idEntrada}),

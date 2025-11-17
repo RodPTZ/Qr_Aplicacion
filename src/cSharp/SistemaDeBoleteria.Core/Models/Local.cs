@@ -11,8 +11,9 @@ namespace SistemaDeBoleteria.Core.Models
         public string Nombre { get; set; }
         public string Ubicacion { get; set; }
         public List<Sector> sectores;
-        public Local(string ubicacion)
+        public Local(int IdLocal, string ubicacion)
         {
+            this.IdLocal=IdLocal;
             Ubicacion = ubicacion;
             sectores = new List<Sector>();
         }
