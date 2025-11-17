@@ -9,10 +9,10 @@ namespace SistemaDeBoleteria.Core.Interfaces.IServices
     public interface ILoginService
     {
         Usuario Register(RegisterRequest registerRequest);
-        LoginResponse Login(LoginRequest loginRequest);
+        LoginResponse? Login(LoginRequest loginRequest);
         string RefreshToken(string token);
         bool Logout(string token);
-        Usuario? Me(string token);
+        ViewMe? Me(string token);
         bool ChangeRol(int idUsuario, string rol);
     }
 }

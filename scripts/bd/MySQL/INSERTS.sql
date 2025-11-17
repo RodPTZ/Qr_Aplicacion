@@ -1,11 +1,11 @@
 
-INSERT INTO Usuario (NombreUsuario, Email, Contraseña) VALUES
-('martinl', 'martinl@example.com', '1234'),
-('sofia_g', 'sofia_g@example.com', 'abcd'),
-('natalia_r', 'natalia_r@example.com', 'qwerty'),
-('agus99', 'agus99@example.com', 'pass123'),
-('tomasv', 'tomasv@example.com', 'clave321');
-
+INSERT INTO Usuario (NombreUsuario, Email, Contraseña, Rol) VALUES
+('admin', 'admin@gmail.com', '123', 'Admin'),
+('martinl', 'martinl@example.com', '1234', 'Organizador'),
+('sofia_g', 'sofia_g@example.com', 'abcd', 'Organizador'),
+('natalia_r', 'natalia_r@example.com', 'qwerty', 'Empleado'),
+('agus99', 'agus99@example.com', 'pass123', 'Empleado'),
+('tomasv', 'tomasv@example.com', 'clave321', 'Empleado');
 INSERT INTO Cliente (IdUsuario, Nombre, Apellido, DNI, Telefono, Localidad, Edad) VALUES
 (1, 'Martín', 'López', 45322111, '1132456789', 'Palermo', 25),
 (2, 'Sofía', 'García', 39876543, '1156677788', 'Recoleta', 28),

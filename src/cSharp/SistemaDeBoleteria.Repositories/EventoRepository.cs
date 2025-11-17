@@ -10,6 +10,7 @@ namespace SistemaDeBoleteria.Repositories;
 
 public class EventoRepository :  DbRepositoryBase, IEventoRepository
 {
+    public EventoRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Evento (IdLocal, Nombre, Tipo) 
                             VALUES (@IdLocal, @Nombre, @Tipo); 
                             
@@ -19,42 +20,53 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
                                 Nombre = @Nombre, 
                                 Tipo = @Tipo 
                             WHERE IdEvento = @ID";
-    public IEnumerable<Evento> SelectAll() => db.Query<Evento>("SELECT * FROM Evento");
-    public Evento? Select(int IdEvento) => db.QueryFirstOrDefault<Evento>("SELECT * FROM Evento WHERE IdEvento = @ID", new { ID = IdEvento });
-    public Evento Insert(Evento evento)
+    public IEnumerable<Evento> SelectAll() => UseNewConnection(db => db.Query<Evento>("SELECT * FROM Evento"));
+    public Evento? Select(int IdEvento) => UseNewConnection(db => db.QueryFirstOrDefault<Evento>("SELECT * FROM Evento WHERE IdEvento = @ID", new { ID = IdEvento }));
+    public Evento Insert(Evento evento) => UseNewConnection(db =>
     {
         evento.IdEvento = db.ExecuteScalar<int>(InsSql, evento);
         return Select(evento.IdEvento)!;
-    }
-    public Evento Update(Evento evento, int IdEvento)
+    });
+    public bool Update(Evento evento, int IdEvento) => UseNewConnection(db=>
     {
-        db.Execute(UpdSql, new
+        return db.Execute(UpdSql, new
         {
             evento.IdLocal,
             evento.Nombre,
             evento.Tipo,
             ID = IdEvento
-        });
-        return Select(IdEvento)!;
-    }
-    public (byte caso, string Message) UpdEstadoPublic(int IdEvento)
+        }) > 0;
+    });
+    public bool UpdEstadoPublic(int IdEvento) => UseNewConnection(db =>
     {
         var parameters = new DynamicParameters();
         parameters.Add("@unIdEvento", IdEvento);
-        try
-        {
-            db.Execute("PublicarEvento", parameters);
-            return (1, "Evento publicado exitosamente.");
-        }
-        catch (MySqlException ex)
-        {
-            return (2, ex.Message);
-        }
-    }
-    public bool UpdEstadoCancel(int IdEvento)
-    {
-        var sql = "UPDATE Evento SET Estado = 'Cancelado' WHERE IdEvento = @ID";
-        db.Execute(sql, new { ID = IdEvento });
+        db.Execute("PublicarEvento", parameters);
         return true;
-    }
+    });
+    public bool UpdEstadoCancel(int IdEvento) => UseNewConnection(db =>
+    {
+        var parameters = new DynamicParameters();
+        parameters.Add(@"unIdEvento", IdEvento);
+        db.Execute("CancelarEvento", parameters);
+        return true;
+    });
+    #region Validación de negocio
+    
+    const string strExists = @"SELECT EXISTS  (SELECT 1 
+                                                FROM Evento WHERE IdEvento = @ID)";
+    const string strHasFunciones = @"SELECT EXISTS(SELECT 1 
+                                                   FROM Funcion 
+                                                   WHERE IdEvento = @ID)";
+    const string strHasTarifasActivas = @"SELECT EXISTS(SELECT 1 
+                                                        FROM Tarifa T 
+                                                        JOIN Funcion F ON F.IdFuncion = T.IdFuncion 
+                                                        WHERE F.IdEvento = @ID 
+                                                        AND T.Estado = 'Activa')";
+    
+    public bool Exists(int IdEvento) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = IdEvento }));
+    public bool HasFunciones(int idEvento) => UseNewConnection(db => db.ExecuteScalar<bool>(strHasFunciones, new { ID = idEvento}));
+    public bool HasTarifasActivas(int idEvento) => UseNewConnection(db => db.ExecuteScalar<bool>(strHasTarifasActivas, new {ID = idEvento}));
+
+    #endregion
 }

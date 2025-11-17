@@ -5,11 +5,13 @@ using Dapper;
 using System.Data;
 using SistemaDeBoleteria.Core.DTOs;
 using SistemaDeBoleteria.Core.Inheritance;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SistemaDeBoleteria.Repositories;
 
 public class FuncionRepository :  DbRepositoryBase, IFuncionRepository
 {
+    public FuncionRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Funcion (IdEvento, IdSector, Apertura, Cierre) 
                             VALUES (@IdEvento, @IdSector, @Apertura, @Cierre);
                             
@@ -19,28 +21,53 @@ public class FuncionRepository :  DbRepositoryBase, IFuncionRepository
                                 Apertura = @Apertura,
                                 Cierre = @Cierre
                                 WHERE IdFuncion = @ID";
-    const string UpdCancel = @"UPDATE Funcion 
-                               SET Cancelado = true 
-                               WHERE IdFuncion = @ID";
 
-    public IEnumerable<Funcion> SelectAll() => db.Query<Funcion>("SELECT * FROM Funcion");
-    
-    public Funcion? Select(int idFuncion) => db.QueryFirstOrDefault<Funcion>("SELECT * FROM Funcion WHERE IdFuncion = @ID", new { ID = idFuncion });
-    public Funcion Insert(Funcion funcion)
+    public IEnumerable<Funcion> SelectAll() => UseNewConnection(db => db.Query<Funcion>("SELECT * FROM Funcion"));
+
+    public Funcion? Select(int idFuncion) => UseNewConnection(db =>
     {
-        funcion.IdFuncion = db.ExecuteScalar<int>(InsSql, funcion);
+        var funcion = db.QueryFirstOrDefault<Funcion>("SELECT * FROM Funcion WHERE IdFuncion = @ID", new { ID = idFuncion });
+        if (funcion is null)
+            return null;
+
+        funcion.Fecha = DateOnly.FromDateTime(funcion.Apertura);
+        funcion.AperturaTime = TimeOnly.FromDateTime(funcion.Apertura);
+        funcion.CierreTime = TimeOnly.FromDateTime(funcion.Cierre);
+        
+        return funcion;
+    });
+    public Funcion Insert(Funcion funcion) => UseNewConnection(db =>
+    {
+        funcion.IdFuncion = db.ExecuteScalar<int>(InsSql, new
+        {
+            funcion.IdEvento,
+            funcion.IdSector,
+            Apertura = funcion.Fecha.ToDateTime(funcion.AperturaTime),
+            Cierre = funcion.Fecha.ToDateTime(funcion.CierreTime)
+        });
         return Select(funcion.IdFuncion)!;
-    }
-    public Funcion Update(Funcion funcion, int IdFuncion)
+    });
+    public bool Update(Funcion funcion, int IdFuncion) => UseNewConnection(db =>
     {
-        db.Execute(UpdSql, new
+        return db.Execute(UpdSql, new
         {
             funcion.IdSector,
-            funcion.Apertura,
-            funcion.Cierre,
+            Apertura = funcion.Fecha.ToDateTime(funcion.AperturaTime),
+            Cierre = funcion.Fecha.ToDateTime(funcion.CierreTime),
             ID = IdFuncion
-        });
-        return Select(IdFuncion)!;
-    }
-    public void UpdFuncionCancel(int idFuncion) => db.Execute(UpdCancel, new { ID = idFuncion });
+        }) > 0;
+    });
+    public bool UpdFuncionCancel(int idFuncion) => UseNewConnection(db =>
+    { 
+        var parameters = new DynamicParameters();
+        parameters.Add(@"unIdFuncion", idFuncion);
+        db.Execute("CancelarFuncion", parameters);
+        return true;
+    });
+
+    const string strExists = @"SELECT EXISTS(SELECT 1 
+                                             FROM Funcion 
+                                             WHERE IdFuncion = @ID)";
+    public bool Exists(int idFuncion) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idFuncion }));
+
 }

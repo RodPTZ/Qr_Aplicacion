@@ -11,6 +11,9 @@ namespace SistemaDeBoleteria.Core.Models
         public int IdFuncion { get; set; }
         public int IdEvento { get; set; }
         public int IdSector { get; set; }
+        public DateOnly Fecha { get; set; }
+        public TimeOnly AperturaTime { get; set; }
+        public TimeOnly CierreTime { get; set; }
         public DateTime Apertura { get; set; }
         public DateTime Cierre { get; set; }
         public bool Cancelado { get; set; }

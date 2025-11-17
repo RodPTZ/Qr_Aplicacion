@@ -2,28 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using SistemaDeBoleteria.Core.Enums;
 namespace SistemaDeBoleteria.Core.Models
 {
     public class Entrada
     {
         public int IdEntrada { get; set; }
         public int IdOrden { get; set; }
-        public Tarifa.TipoDeEntrada TipoEntrada { get; set; }
+        public ETipoEntrada TipoEntrada { get; set; }
         public DateTime Emision { get; set; }
         public DateTime Liquidez { get; set; }
-        public TipoEstado Estado { get; set; }
+        public ETipoEstadoEntrada Estado { get; set; }
         public CodigoQR QR;
         public Entrada()
         {
             
         }
-        public enum TipoEstado
-        {
-            Anulado,
-            Pagado,
-            Pendiente
-        }
+        
         // public Entrada(Orden.TipoEntrada categoria, Evento evento, Orden orden)
         // {
         //     Categoria = categoria;

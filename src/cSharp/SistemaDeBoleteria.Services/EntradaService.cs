@@ -1,29 +1,46 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using SistemaDeBoleteria.Core.Interfaces.IServices;
+using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 using SistemaDeBoleteria.Core.DTOs;
-using System.Security.Cryptography.X509Certificates;
-using SistemaDeBoleteria.Repositories;
+using SistemaDeBoleteria.Core.Enums;
+using SistemaDeBoleteria.Core.Exceptions;
 using Mapster;
-using SistemaDeBoleteria.Core.Models;
-using System.Runtime.CompilerServices;
+using MySqlConnector;
+
 
 namespace SistemaDeBoleteria.Services
 {
     public class EntradaService : IEntradaService
     {
-        private readonly EntradaRepository entradaRepository = new EntradaRepository();
-
-        public IEnumerable<MostrarEntradaDTO> GetAll() => entradaRepository.SelectAll().Adapt<IEnumerable<MostrarEntradaDTO>>();
-        public MostrarEntradaDTO? GetById(int IdEntrada) =>
-        entradaRepository.Select(IdEntrada) is null? null : entradaRepository.Select(IdEntrada).Adapt<MostrarEntradaDTO>();
-        public bool AnularEntrada(int IdEntrada)
+        private readonly IEntradaRepository entradaRepository;
+        public EntradaService(IEntradaRepository entradaRepository)
         {
-            if(entradaRepository.Select(IdEntrada) is null)
-                return false;
-            return entradaRepository.UpdateEstado(IdEntrada);
+            this.entradaRepository = entradaRepository;
+        }
+
+        public IEnumerable<MostrarEntradaDTO> GetAll()
+        => entradaRepository
+                .SelectAll()
+                .Adapt<IEnumerable<MostrarEntradaDTO>>();
+        public MostrarEntradaDTO? GetById(int IdEntrada)
+        => entradaRepository
+                .Select(IdEntrada)
+                .Adapt<MostrarEntradaDTO>();
+        public bool AnularEntrada(int idEntrada)
+        {
+            var entrada = entradaRepository.Select(idEntrada);
+            if(entrada is null)
+                throw new NotFoundException("No se encontró la entrada especificada.");
+            if(entrada.Estado == ETipoEstadoEntrada.Anulado)
+                throw new BusinessException("No se puede anular una entrada que se encuentra anulada.");
+            
+            try
+            {
+                return entradaRepository.UpdateEstado(idEntrada);
+            }
+            catch (MySqlException ex)
+            {
+                throw new DataBaseException(ex.Message);
+            }
             
         }
     }

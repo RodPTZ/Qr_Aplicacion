@@ -5,13 +5,11 @@ using SistemaDeBoleteria.Core.Models;
 using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 using SistemaDeBoleteria.Core.Inheritance;
 
-using SistemaDeBoleteria.Core.DTOs;
-
 namespace SistemaDeBoleteria.Repositories;
 
 public class ClienteRepository : DbRepositoryBase, IClienteRepository
 {
-    private readonly LoginRepository loginRepository = new LoginRepository();
+    public ClienteRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Cliente (IdUsuario, Nombre, Apellido, DNI, Telefono, Localidad, Edad) 
                             VALUES (@IdUsuario, @Nombre, @Apellido, @DNI, @Telefono, @Localidad, @Edad); 
 
@@ -22,22 +20,21 @@ public class ClienteRepository : DbRepositoryBase, IClienteRepository
                                 Telefono = @Telefono,
                                 Localidad = @Localidad
                             WHERE IdCliente = @IdCliente;";
-    public IEnumerable<Cliente> SelectAll() => db.Query<Cliente>("SELECT * FROM Cliente");
-    public Cliente? Select(int id) => db.QueryFirstOrDefault<Cliente>("SELECT * FROM Cliente WHERE IdCliente = @ID", new { ID = id });
-    public Cliente Insert(Cliente cliente, Usuario usuario)
+    public IEnumerable<Cliente> SelectAll() => UseNewConnection(db => db.Query<Cliente>("SELECT * FROM Cliente"));
+    public Cliente? Select(int idCliente) => UseNewConnection(db => db.QueryFirstOrDefault<Cliente>("SELECT * FROM Cliente WHERE IdCliente = @ID", new { ID = idCliente }));
+    public Cliente Insert(Cliente cliente) => UseNewConnection(db =>
     {
-        var usuarioCreado = loginRepository.Insert(usuario);
-
-        cliente.IdUsuario = usuarioCreado.IdUsuario;
         cliente.IdCliente = db.ExecuteScalar<int>(InsSql, cliente);
-
         return Select(cliente.IdCliente)!;
-    }
-    public Cliente Update(Cliente cliente, int idCliente)
+    });
+    public bool Update(Cliente cliente, int idCliente) => UseNewConnection(db =>
     {
         cliente.IdCliente = idCliente;
-        db.Execute(UpdSql, cliente);
-        return Select(cliente.IdCliente)!;
-    }
+        return db.Execute(UpdSql, cliente) > 0;
+    });
+    const string strExists = @"SELECT EXISTS(SELECT 1 
+                                             FROM Cliente 
+                                             WHERE IdCliente = @ID)";
+    public bool Exists(int idCliente) => UseNewConnection(db => db.ExecuteScalar<bool>( strExists, new{ ID = idCliente })); 
 
 }

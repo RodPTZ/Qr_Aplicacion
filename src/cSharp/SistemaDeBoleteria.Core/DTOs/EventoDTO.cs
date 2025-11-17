@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SistemaDeBoleteria.Core.Models;
+using SistemaDeBoleteria.Core.Enums;
+
 namespace SistemaDeBoleteria.Core.DTOs
 {
     public class CrearActualizarEventoDTO
     {
         public int IdLocal { get; set; }
         public string Nombre { get; set; }
-        public Evento.TipoEvento Tipo { get; set; }
+        public ETipoEvento Tipo { get; set; }
     }
     public class MostrarEventoDTO
     {

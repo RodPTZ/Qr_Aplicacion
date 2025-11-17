@@ -7,6 +7,6 @@ public interface ISectorService
     IEnumerable<MostrarSectorDTO> GetAllByLocalId(int idLocal);
     MostrarSectorDTO Post(CrearActualizarSectorDTO sector, int idLocal);
     MostrarSectorDTO Put(CrearActualizarSectorDTO sector, int idSector);
-    bool Delete(int idSector);
+    void Delete(int idSector);
     
 }

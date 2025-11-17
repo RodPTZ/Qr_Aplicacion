@@ -10,7 +10,9 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
     {
         Usuario Insert(Usuario usuario);
         Usuario? Select(int idUsuario);
-        Usuario? SelectMe(string token);
+        Usuario? SelectMe(string email);
         bool UpdateRol(int idUsuario, string rol);
+        Usuario? SelectByEmailAndPass(string Email, string Contraseña);
+        bool Exists(int idUsuario);
     }
 }

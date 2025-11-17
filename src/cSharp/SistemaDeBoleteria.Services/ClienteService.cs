@@ -3,42 +3,55 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SistemaDeBoleteria.Core.Interfaces.IServices;
-using SistemaDeBoleteria.Core.DTOs;
-using SistemaDeBoleteria.Repositories;
-using Mapster;
-using SistemaDeBoleteria.Core.Validations;
-using System.Security.Cryptography.X509Certificates;
 using SistemaDeBoleteria.Core.Interfaces.IRepositories;
+using SistemaDeBoleteria.Core.DTOs;
 using SistemaDeBoleteria.Core.Models;
-using System.Reflection.Metadata;
+using SistemaDeBoleteria.Core.Enums;
+using SistemaDeBoleteria.Core.Exceptions;
+using Mapster;
 
 namespace SistemaDeBoleteria.Services
 {
     public class ClienteService : IClienteService
     {
-        private readonly LoginRepository loginRepository = new LoginRepository();
-        private readonly ClienteRepository clienteRepository = new ClienteRepository();
-        public IEnumerable<MostrarClienteDTO> GetAll() => clienteRepository.SelectAll().Adapt<IEnumerable<MostrarClienteDTO>>();
-        public MostrarClienteDTO? GetById(int id) => clienteRepository.Select(id).Adapt<MostrarClienteDTO>();
+        private readonly IClienteRepository clienteRepository;
+        private readonly ILoginRepository loginRepository;
+        public ClienteService(IClienteRepository clienteRepository, ILoginRepository loginRepository)
+        {
+            this.clienteRepository = clienteRepository;
+            this.loginRepository = loginRepository; 
+        }
+        public IEnumerable<MostrarClienteDTO> GetAll() 
+        => clienteRepository
+                .SelectAll()
+                .Adapt<IEnumerable<MostrarClienteDTO>>();
+        public MostrarClienteDTO? GetById(int idCliente) 
+        => clienteRepository
+                .Select(idCliente)
+                .Adapt<MostrarClienteDTO>();
         public MostrarClienteDTO Post(CrearClienteDTO cliente)
         {
-            var usuario = cliente.Adapt<Usuario>();
-            usuario.Rol = Usuario.RolUsuario.Cliente;
+            var _usuario = cliente.Adapt<Usuario>();
+            var _cliente = cliente.Adapt<Cliente>();
+
+            _usuario.Rol = ERolUsuario.Cliente;
             
-            var clienteCreated = clienteRepository
-                                        .Insert(cliente.Adapt<Cliente>(), usuario)
-                                        .Adapt<MostrarClienteDTO>();
-            loginRepository.Select(clienteCreated.IdUsuario).Adapt(clienteCreated);
-            return clienteCreated; 
-        }
-        public MostrarClienteDTO? Put(ActualizarClienteDTO cliente, int IdCliente)
-        {
-            var clienteExiste = clienteRepository.Select(IdCliente);
-            if (clienteExiste is null)
-                return null;
+            _cliente.IdUsuario = loginRepository.Insert(_usuario).IdUsuario;
+                             
             return clienteRepository
-                            .Update(cliente.Adapt<Cliente>(), IdCliente)
-                            .Adapt<MostrarClienteDTO>();
+                        .Insert(_cliente)
+                        .Adapt<MostrarClienteDTO>();
+        }
+        public MostrarClienteDTO? Put(ActualizarClienteDTO cliente, int idCliente)
+        {
+            if(!clienteRepository.Exists(idCliente))
+                throw new NotFoundException("No se encontró al cliente especificado.");
+            if(!clienteRepository.Update(cliente.Adapt<Cliente>(), idCliente))
+                throw new BusinessException("No se pudo actualizar el cliente especificado.");
+
+            return clienteRepository
+                        .Select(idCliente)
+                        .Adapt<MostrarClienteDTO>();
         }
     }
 }

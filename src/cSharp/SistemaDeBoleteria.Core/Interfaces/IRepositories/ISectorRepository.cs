@@ -8,8 +8,11 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
     public interface ISectorRepository
     {
         IEnumerable<Sector> SelectAllByLocalId(int idLocal);
+        Sector? Select(int idSector);
         Sector Insert(Sector sector, int idLocal);
-        Sector Update(Sector sector, int idSector);
+        bool Update(Sector sector, int idSector);
         bool Delete(int idSector);
+        bool HasFunciones(int idSector);
+        bool Exists(int idSector);
     }
 }

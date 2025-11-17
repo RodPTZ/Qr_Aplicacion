@@ -8,45 +8,39 @@ using MySqlConnector;
 using Dapper;
 using System.Data;
 using SistemaDeBoleteria.Core.Inheritance;
+using System.Security.Cryptography;
 
 namespace SistemaDeBoleteria.Repositories
 {
     public class LoginRepository : DbRepositoryBase, ILoginRepository
     {
+        public LoginRepository(string connectionString) : base (connectionString){}
         const string InsSql = @"INSERT INTO Usuario (NombreUsuario, Email, Contraseña, Rol) 
                                 VALUES (@NombreUsuario, @Email, @Contraseña, @Rol);
 
                                 SELECT LAST_INSERT_ID();";
-        public Usuario Insert(Usuario usuario)
+        const string UpdRol = @"UPDATE Usuario 
+                                SET Rol = @Rol 
+                                WHERE IdUsuario = @IdUsuario;";
+        public Usuario Insert(Usuario usuario) => UseNewConnection(db =>
         {
             usuario.IdUsuario = db.ExecuteScalar<int>(InsSql, usuario);
             return usuario;
-        }
-        
-        public Usuario? Select(int idUsuario)
-        {
-            var sql = "SELECT * FROM Usuario WHERE IdUsuario = @ID;";
-            var usuario = db.QueryFirstOrDefault<Usuario>(sql, new { ID = idUsuario});
-            return usuario;
-        }
+        });
 
-        public Usuario? SelectMe(string token)
-        {
-            // lógica para obtener el usuario actual
-            // var sql = "SELECT * FROM Usuario WHERE Email = @email AND Clave = @clave";
-            // var usuarioEncontrado = db.QueryFirstOrDefault(sql, new
-            // {
-            //     usuario.Email,
-            //     usuario.Clave
-            // });
-            // return usuarioEncontrado!;
-            return null;
-        }
-        public bool UpdateRol(int idUsuario, string rol)
-        {
-            var sql = "UPDATE Usuario SET Rol = @Rol WHERE IdUsuario = @IdUsuario;";
-            db.Execute(sql, new { Rol = rol, IdUsuario = idUsuario });
-            return true;
-        }
+        public Usuario? Select(int idUsuario) => UseNewConnection(db => db.QueryFirstOrDefault<Usuario>("SELECT * FROM Usuario WHERE IdUsuario = @ID;", new { ID = idUsuario }));
+        public Usuario? SelectMe(string email) => UseNewConnection(db => db.QueryFirstOrDefault<Usuario>("SELECT * FROM Usuario WHERE Email = @Email;", new { Email = email }));
+        public bool UpdateRol(int idUsuario, string rol) => UseNewConnection(db => db.ExecuteScalar<bool>(UpdRol, new { Rol = rol, IdUsuario = idUsuario }));
+
+        const string strSBEAP = @"SELECT * 
+                                  FROM Usuario 
+                                  WHERE Email = @Email 
+                                  AND Contraseña = SHA2(@Contraseña, 256)";
+        const string strExists = @"SELECT EXISTS(SELECT 1 
+                                                 FROM Usuario 
+                                                 WHERE IdUsuario = @ID)";
+        public Usuario? SelectByEmailAndPass(string Email, string Contraseña) 
+        => UseNewConnection(db => db.QueryFirstOrDefault<Usuario>(strSBEAP, new { Email, Contraseña }));
+        public bool Exists(int idUsuario) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new { ID = idUsuario}));
     }
 }

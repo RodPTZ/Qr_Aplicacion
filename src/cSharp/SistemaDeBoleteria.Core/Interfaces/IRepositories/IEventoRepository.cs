@@ -10,8 +10,12 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         IEnumerable<Evento> SelectAll();
         Evento? Select(int IdEvento);
         Evento Insert(Evento evento);
-        Evento Update(Evento evento, int IdEvento);
-        (byte caso, string Message) UpdEstadoPublic(int IdEvento);
+        bool Update(Evento evento, int IdEvento);
+        bool UpdEstadoPublic(int IdEvento);
         bool UpdEstadoCancel(int IdEvento);
+        bool Exists(int IdEvento);
+        bool HasFunciones(int idEvento);
+        bool HasTarifasActivas(int idEvento);
+        
     }
 }

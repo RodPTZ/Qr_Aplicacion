@@ -1,111 +1,109 @@
 ::: mermaid
 erDiagram
     Usuario {
-        INT IdUsuario PK
-        VARCHAR NombreUsuario
-        VARCHAR Email
-        VARCHAR Contraseña
-    }
-
-    Cliente {
-        INT IdCliente PK
-        INT IdUsuario FK
-        VARCHAR Nombre
-        VARCHAR Apellido
-        INT DNI
-        VARCHAR Telefono
-        VARCHAR Localidad
-        TINYINT Edad
+        int IdUsuario PK
+        string NombreUsuario
+        string Email
+        string Contraseña
+        enum Rol
     }
 
     Local {
-        INT IdLocal PK
-        VARCHAR Nombre
-        VARCHAR Ubicacion
+        int IdLocal PK
+        string Nombre
+        string Ubicacion
+    }
+
+    Cliente {
+        int IdCliente PK
+        int IdUsuario FK
+        string Nombre
+        string Apellido
+        int DNI
+        string Telefono
+        string Localidad
+        tinyint Edad
     }
 
     Sector {
-        INT IdSector PK
-        INT IdLocal FK
-        SMALLINT Capacidad
+        int IdSector PK
+        int IdLocal FK
+        smallint Capacidad
     }
 
     Evento {
-        INT IdEvento PK
-        INT IdLocal FK
-        VARCHAR Nombre
-        ENUM Tipo
-        ENUM Estado
-    }
-
-    Sesion {
-        INT IdSesion PK
-        INT IdEvento FK
-        SMALLINT Cupos
-        DATE Fecha
-        TIME Apertura
-        TIME Cierre
+        int IdEvento PK
+        int IdLocal FK
+        string Nombre
+        enum Tipo
+        enum Estado
     }
 
     Funcion {
-        INT IdFuncion PK
-        INT IdEvento FK
-        INT IdSector FK
-        INT IdSesion FK
-        DATETIME Fecha
-        TIME Duracion
-        BOOLEAN Cancelado
+        int IdFuncion PK
+        int IdEvento FK
+        int IdSector FK
+        datetime Apertura
+        datetime Cierre
+        boolean Cancelado
     }
 
     Tarifa {
-        INT IdTarifa PK
-        INT IdFuncion FK
-        DECIMAL Precio
-        INT Stock
-        ENUM Estado
+        int IdTarifa PK
+        int IdFuncion FK
+        enum TipoEntrada
+        decimal Precio
+        int Stock
+        enum Estado
     }
 
     Orden {
-        INT IdOrden PK
-        INT IdTarifa FK
-        INT IdSesion FK
-        INT IdCliente FK
-        ENUM Estado
-        DATETIME Emision
-        DATETIME Cierre
-        ENUM MedioDePago
+        int IdOrden PK
+        int IdTarifa FK
+        int IdFuncion FK
+        int IdCliente FK
+        enum Estado
+        datetime Emision
+        datetime Cierre
+        enum MedioDePago
     }
 
     Entrada {
-        INT IdEntrada PK
-        INT IdOrden FK
-        ENUM TipoEntrada
-        DATETIME Emision
-        DATETIME Liquidez
-        ENUM Estado
+        int IdEntrada PK
+        int IdOrden FK
+        enum TipoEntrada
+        datetime Emision
+        datetime Liquidez
+        enum Estado
     }
 
     QR {
-        INT IdQR PK
-        INT IdEntrada FK
-        ENUM TipoEstado
-        VARCHAR Codigo
+        int IdQR PK
+        int IdEntrada FK
+        enum TipoEstado
+        string Codigo
     }
 
-   Usuario ||--o| Cliente : ""
-    Cliente ||--o| Orden : ""
-    Orden ||--o| Entrada : ""
-    Entrada ||--o| QR : ""
-    Tarifa ||--o{ Orden : ""
+    AuthTokens {
+        int IdToken PK
+        int IdUsuario FK
+        string Token
+        datetime Expiracion
+        boolean Revocado
+    }
 
-    Local ||--o{ Sector : ""
-    Local ||--o{ Evento : ""
-    
-    Evento ||--o{ Sesion : ""
-    Evento ||--o{ Funcion : ""
-    
-    Funcion ||--o{ Tarifa : ""
-    Sector ||--o{ Funcion : ""
-    Sesion ||--o{ Funcion : ""
+    %% Relaciones (Uno a muchos según tu esquema)
+    Usuario ||--o{ Cliente : "tiene"
+    Usuario ||--o{ AuthTokens : "tiene"
+    Local ||--o{ Sector : "contiene"
+    Local ||--o{ Evento : "alberga"
+    Evento ||--o{ Funcion : "tiene"
+    Sector ||--o{ Funcion : "contiene"
+    Funcion ||--o{ Tarifa : "define"
+    Cliente ||--o{ Orden : "realiza"
+    Funcion ||--o{ Orden : "asocia"
+    Tarifa ||--o{ Orden : "aplica"
+    Orden ||--o{ Entrada : "genera"
+    Entrada ||--o{ QR : "genera"
 
 :::

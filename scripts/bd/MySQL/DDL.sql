@@ -1,3 +1,6 @@
+
+DROP DATABASE IF EXISTS 5to_SistemaDeBoleteria;
+
 CREATE DATABASE 5to_SistemaDeBoleteria;
 USE 5to_SistemaDeBoleteria;
 
@@ -9,6 +12,7 @@ CREATE TABLE Usuario(
     Rol ENUM('Admin','Empleado','Organizador','Cliente') NOT NULL DEFAULT 'Cliente',
     CONSTRAINT PK_Usuario PRIMARY KEY (IdUsuario)
 );
+
 CREATE TABLE Local (
     IdLocal INT UNSIGNED AUTO_INCREMENT NOT NULL,
     Nombre VARCHAR(255) NOT NULL,
@@ -84,7 +88,7 @@ CREATE TABLE Orden (
     IdTarifa INT UNSIGNED NOT NULL,
     IdFuncion INT UNSIGNED NOT NULL,
     IdCliente INT UNSIGNED NOT NULL,
-    Estado ENUM('Abonado','Cancelado', 'Creado') DEFAULT 'Creado',
+    Estado ENUM('Abonado','Cancelado','Expirado', 'Creado') DEFAULT 'Creado',
     Emision DATETIME NOT NULL,
     Cierre DATETIME NOT NULL,
     MedioDePago ENUM('Efectivo','Transferencia','Debito','Credito') NOT NULL,
@@ -120,4 +124,12 @@ CREATE TABLE QR (
     CONSTRAINT FK_Qr_Entrada FOREIGN KEY (IdEntrada) REFERENCES Entrada (IdEntrada)
 );
 
-SELECT 
+CREATE TABLE AuthTokens (
+    IdToken INT UNSIGNED AUTO_INCREMENT NOT NULL,
+    IdUsuario INT UNSIGNED NOT NULL,
+    Token VARCHAR(500) NOT NULL,
+    Expiracion DATETIME NOT NULL,
+    Revocado BOOLEAN DEFAULT FALSE,
+    CONSTRAINT PK_TokenRevoked PRIMARY KEY (IdToken),
+    CONSTRAINT FK_TokenRevoked_Usuario FOREIGN KEY (IdUsuario) REFERENCES Usuario (IdUsuario)
+);

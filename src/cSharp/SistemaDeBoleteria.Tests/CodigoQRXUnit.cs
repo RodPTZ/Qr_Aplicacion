@@ -8,12 +8,10 @@ using SistemaDeBoleteria.Core.Models;
 namespace SistemaDeBoleteria.Tests
 {
     public class CodigoQRXUnit
-    {
-        // public Evento evento = new Evento("Concierto de Rock", Evento.TipoEvento.Musica);
-
+        {
+        // public Evento evento = new Evento("Concierto de Rock", Evento.TipoEvento.Música);
+        
         // // public Cliente cliente = new Cliente(2,"Nicolas", "Gonzalez", "CABA", 12345678, "nicolas.gonzalez@gmail.com", 123456789, 4,"asd");
-
-
 
         // // [Theory]
         // // [InlineData()]
@@ -48,7 +46,6 @@ namespace SistemaDeBoleteria.Tests
 
         //     codigoQR.Validar();
         //     Assert.Equal(CodigoQR.estadoQR.YaUsada, codigoQR.Estado);
-
         // }
     }
 }

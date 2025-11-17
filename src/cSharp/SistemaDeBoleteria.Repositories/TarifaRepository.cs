@@ -9,6 +9,7 @@ using System.Reflection.Metadata.Ecma335;
 namespace SistemaDeBoleteria.Repositories;
 public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
 {
+    public TarifaRepository(string connectionString) : base (connectionString){}
     const string InsSql = @"INSERT INTO Tarifa (IdFuncion, TipoEntrada, Precio, Stock) 
                             VALUES (@IdFuncion, @TipoEntrada, @Precio, @Stock);
                             
@@ -18,25 +19,29 @@ public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
                                 Stock = @Stock, 
                                 Estado = @Estado 
                             WHERE IdTarifa = @ID";
-    public IEnumerable<Tarifa> SelectAllByFuncionId(int idFuncion) => db.Query<Tarifa>("SELECT * FROM Tarifa WHERE IdFuncion = @ID", new { ID = idFuncion });
+    public IEnumerable<Tarifa> SelectAllByFuncionId(int idFuncion) => UseNewConnection(db => db.Query<Tarifa>("SELECT * FROM Tarifa WHERE IdFuncion = @ID", new { ID = idFuncion }));
 
-    public Tarifa? Select(int IdTarifa) => db.QueryFirstOrDefault<Tarifa>("SELECT * FROM Tarifa WHERE IdTarifa = @ID", new { ID = IdTarifa });
+    public Tarifa? Select(int IdTarifa) => UseNewConnection(db => db.QueryFirstOrDefault<Tarifa>("SELECT * FROM Tarifa WHERE IdTarifa = @ID", new { ID = IdTarifa }));
     
-    public Tarifa Insert(Tarifa tarifa)
+    public Tarifa Insert(Tarifa tarifa) => UseNewConnection(db =>
     {
         tarifa.IdTarifa = db.ExecuteScalar<int>(InsSql, tarifa);
         return Select(tarifa.IdTarifa)!;
-    }   
-    public Tarifa Update(Tarifa tarifa, int IdTarifa)
+    });
+    public bool Update(Tarifa tarifa, int IdTarifa) => UseNewConnection(db =>
     {
-        db.Execute(UpdSql, new
+        return db.Execute(UpdSql, new
         {
             tarifa.Precio,
             tarifa.Stock,
             tarifa.Estado,
             ID = IdTarifa
-        });
-        return Select(IdTarifa)!;
-    }
+        }) > 0;
+    });
+
+    const string strExists = @"SELECT EXISTS(SELECT 1 
+                                             FROM Tarifa 
+                                             WHERE IdTarifa = @ID)";
+    public bool Exists(int idTarifa) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idTarifa }));
         
 }

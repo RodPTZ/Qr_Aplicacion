@@ -4,13 +4,14 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using SistemaDeBoleteria.Core.Models;
+using SistemaDeBoleteria.Core.Enums;
 
 namespace SistemaDeBoleteria.Core.DTOs
 {
     public class CrearTarifaDTO
     {
         public int IdFuncion { get; set; }
-        public Tarifa.TipoDeEntrada TipoEntrada { get; set; }
+        public ETipoEntrada TipoEntrada { get; set; }
         public decimal Precio { get; set; }
         public int Stock { get; set; }
     }
@@ -18,7 +19,7 @@ namespace SistemaDeBoleteria.Core.DTOs
     {
         public decimal Precio { get; set; }
         public int Stock { get; set; }
-        public Tarifa.TipoEstado Estado { get; set; }
+        public ETipoEstadoTarifa Estado { get; set; }
     }
     public class MostrarTarifaDTO
     {

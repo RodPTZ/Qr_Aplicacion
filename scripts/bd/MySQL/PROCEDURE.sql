@@ -1,7 +1,8 @@
 
-USE 5to_sistemadeboleteria;
+USE 5to_SistemaDeBoleteria;
 
 DELIMITER $$
+DROP PROCEDURE IF EXISTS ReporteVentas $$
 CREATE PROCEDURE ReporteVentas()
 BEGIN
     START TRANSACTION;
@@ -19,20 +20,20 @@ BEGIN
     COMMIT;
 
 END$$
+--========================== FUNCION ================================================
+--===================================================================================
 
 --========================== EVENTO =================================================
 
+DROP PROCEDURE IF EXISTS PublicarEvento $$
 CREATE PROCEDURE PublicarEvento(IN unIdEvento INT)
 BEGIN
-START TRANSACTION;
-    IF EXISTS (SELECT 1 FROM Funcion WHERE IdEvento = unIdEvento)
-       AND EXISTS (
-            SELECT 1
-            FROM Tarifa T
-            JOIN Funcion F ON F.IdFuncion = T.IdFuncion
-            WHERE F.IdEvento = unIdEvento AND T.Estado = 'Activa'
-       )
-    THEN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al publicar evento';
+    END;
+    START TRANSACTION;
         UPDATE Evento
         SET Estado = 'Publicado'
         WHERE IdEvento = unIdEvento;
@@ -40,20 +41,46 @@ START TRANSACTION;
         UPDATE Funcion
         SET Cancelado = FALSE
         WHERE IdEvento = unIdEvento;
+    COMMIT;
+END$$
 
-        COMMIT;
-    ELSE
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'El evento no puede publicarse: no tiene funciones o tarifas activas.';
-    END IF;
+DROP PROCEDURE IF EXISTS CancelarEvento $$
+CREATE PROCEDURE CancelarEvento(IN unIdEvento INT) 
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error al cancelar evento';
+    END;
+    START TRANSACTION;
+
+        UPDATE Entrada
+        SET Estado = 'Anulado'
+        WHERE IdOrden = (SELECT IdOrden 
+                         FROM Orden O 
+                         JOIN Funcion F USING (IdFuncion) 
+                         WHERE F.IdEvento = unIdEvento);
+
+        UPDATE Tarifa
+        SET Estado = 'Suspendida'
+        WHERE IdFuncion = (SELECT IdFuncion 
+                           FROM Funcion 
+                           WHERE IdEvento = unIdEvento);
+        UPDATE Funcion
+        SET Cancelado = TRUE
+        WHERE IdEvento = unIdEvento;
+
+        UPDATE Evento
+        SET Estado = 'Cancelado'
+        WHERE IdEvento = unIdEvento;
+    COMMIT;
 END$$
 
 --===================================================================================
 
 -- ====================================== ORDEN ===========================================================
 
-DROP PROCEDURE `AltaOrden`;
+DROP PROCEDURE IF EXISTS `AltaOrden`;
 
 CREATE PROCEDURE AltaOrden(OUT unIdOrden INT, unIdTarifa INT, unIdCliente INT, unIdFuncion INT, unMedioDePago ENUM('Efectivo','Transferencia','Debito','Credito'))
 BEGIN
@@ -76,51 +103,23 @@ BEGIN
     COMMIT;
 END$$
 
-DROP PROCEDURE `PagarOrden`;
+DROP PROCEDURE IF EXISTS `PagarOrden`;
 
-CREATE PROCEDURE PagarOrden (unIdOrden INT)
+CREATE PROCEDURE PagarOrden (IN unIdOrden INT, unTipoEntrada ENUM('General', 'VIP', 'PLUS'))
 BEGIN
-    DECLARE unTipoEntrada ENUM('General', 'VIP', 'PLUS');
     DECLARE unIdEntrada INT;
-    DECLARE EstadoDelOrden VARCHAR(20);
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Ocurrio un problema, la orden no pudo ser abonada. Revertiendo cambios';
+    END;
 
     START TRANSACTION;
-        SELECT T.TipoEntrada, O.Estado INTO unTipoEntrada, EstadoDelOrden
-        FROM Orden O
-        JOIN Tarifa T USING (IdTarifa)
-        WHERE O.IdOrden = unIdOrden;
-
-        IF EstadoDelOrden = 'Cancelado'
-        THEN
-            ROLLBACK;
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'No se puede pagar una orden que se encuentra Cancelada';
-        END IF;
-        
-        IF EstadoDelOrden = 'Abonado'
-        THEN
-            ROLLBACK;
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'No se puede pagar la orden porque ya se encuentra pagada';
-        END IF;
-
-        IF (SELECT Cierre FROM Orden WHERE IdOrden = unIdOrden)< NOW()
-        THEN
-            ROLLBACK;
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Ya pasaron los 15 min habiles para pagar la orden.';
-        END IF;
-
-        IF EstadoDelOrden = 'Creado'
-        THEN
-            UPDATE Orden
-            SET Estado = 'Abonado',
-                Cierre = NOW()
-            WHERE IdOrden = unIdOrden;
-        ELSE
-            ROLLBACK;
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Ocurrio un problema, la orden no pudo ser abonada. Revertiendo cambios';
-        END IF;
+        UPDATE Orden
+        SET Estado = 'Abonado',
+            Cierre = NOW()
+        WHERE IdOrden = unIdOrden;
 
         INSERT INTO Entrada (IdOrden, TipoEntrada, Emision, Liquidez)
         VALUES (unIdOrden, unTipoEntrada, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY));
@@ -132,36 +131,39 @@ BEGIN
     COMMIT;
 END$$
 
+
+DROP PROCEDURE IF EXISTS CancelarOrden $$
 CREATE PROCEDURE CancelarOrden (unIdOrden INT)
 BEGIN
-    DECLARE unIdFuncion INT;
-
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'No se pudo cancelar la orden';
+        SET MESSAGE_TEXT = 'No se pudo cancelar la orden. Revertiendo cambios.';
     END;
     START TRANSACTION;
-        SELECT IdFuncion INTO unIdFuncion
-        FROM Orden
-        WHERE IdOrden = unIdOrden;
-
         UPDATE Orden
         SET Estado = 'Cancelado',
             Cierre = NOW()
         WHERE IdOrden = unIdOrden;
 
-        -- Devuelve la reserva de Stock
+        -- Devuelve la reserva del Stock
         UPDATE Tarifa
         SET Stock = Stock + 1 
-        WHERE IdFuncion = unIdFuncion;
+        WHERE IdFuncion = (SELECT IdFuncion
+                           FROM Orden
+                           WHERE IdOrden = unIdOrden);
     COMMIT;
 END$$
+
+
 --=========================================================================================================
 
 
 --====================================== ENTRADA ==========================================================
+
+
+DROP PROCEDURE IF EXISTS CancelarEntrada $$
 CREATE PROCEDURE CancelarEntrada(IN unIdEntrada INT)
 BEGIN
     DECLARE unIdFuncion INT;
@@ -193,75 +195,4 @@ BEGIN
     COMMIT;
 END$$
 
--- CREATE PROCEDURE ComprarEntradaUno(
---     IN unIdCliente INT,
---     IN unIdFuncion INT,
---     IN tipoEntrada ENUM('General','VIP','PLUS'),
---     IN medioPago ENUM('Efectivo','Transferencia','Debito','Credito')
--- )
--- BEGIN
---     START TRANSACTION
---         DECLARE unIdSesion INT;
---         DECLARE unIdOrden INT;
---         DECLARE unIdEntrada INT;
---         DECLARE precio DECIMAL(10,2);
-        
---         SELECT IdSesion INTO unIdSesion
---         FROM Funcion
---         WHERE IdFuncion = unIdFuncion;
-
-    
---         SELECT Precio INTO precio
---         FROM Tarifa
---         WHERE IdFuncion = unIdFuncion AND Estado = 'Activa'
---         LIMIT 1;
-
---         INSERT INTO Orden (IdTarifa, IdSesion, IdCliente, Estado, Emision, Cierre, MedioDePago)
---         VALUES (
---             (SELECT IdTarifa FROM Tarifa WHERE IdFuncion = unIdFuncion AND Estado = 'Activa' LIMIT 1),
---             unIdSesion,
---             unIdCliente,
---             'Abonado',
---             NOW(),
---             DATE_ADD(NOW(), INTERVAL 1 DAY),
---             medioPago
---         );
-
---         SET unIdOrden = LAST_INSERT_ID();
-
---         INSERT INTO Entrada (IdOrden, TipoEntrada, Emision, Liquidez)
---         VALUES (unIdOrden, tipoEntrada, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY));
-
---         SET unIdEntrada = LAST_INSERT_ID();
-
-    
---         INSERT INTO QR (IdEntrada, TipoEstado, Codigo)
---         VALUES (unIdEntrada, 'Ok', CONCAT('QR-', UUID()));
-
-    
---         UPDATE Tarifa
---         SET Stock = Stock - 1
---         WHERE IdFuncion = unIdFuncion AND Estado = 'Activa';
---     COMMIT;
-
--- END$$
-
--- CREATE PROCEDURE ComprarEntradaDos(IN unIdOrden INT UNSIGNED, IN unTipoEntrada) --BORRADOR 
--- BEGIN
---         INSERT INTO Entrada (IdOrden, TipoEntrada, Emision, Liquidez)
---         VALUES (unIdOrden, unTipoEntrada, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY));
-
---         SET unIdEntrada = LAST_INSERT_ID();
-    
---         INSERT INTO QR (IdEntrada, TipoEstado, Codigo)
---         VALUES (unIdEntrada, 'Ok', CONCAT('QR-', UUID()));
-
---         -- Esto va para la creacion de la orden
---         UPDATE Tarifa
---         SET Stock = Stock - 1
---         WHERE IdFuncion = unIdFuncion AND Estado = 'Activa';
---         --
--- END$$
-
 --========================================================================================================
-DELIMITER ;

@@ -11,7 +11,8 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         Funcion Insert(Funcion funcion);
         IEnumerable<Funcion> SelectAll();
         Funcion? Select(int IdFuncion);
-        Funcion Update(Funcion funcion, int idFuncion);
-        void UpdFuncionCancel(int idFuncion);
+        bool Update(Funcion funcion, int idFuncion);
+        bool UpdFuncionCancel(int idFuncion);
+        bool Exists(int idFuncion);
     }
 }

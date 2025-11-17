@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using SistemaDeBoleteria.Core.Models;
+using SistemaDeBoleteria.Core.Enums;
 
 namespace SistemaDeBoleteria.Core.DTOs
 {
@@ -12,7 +13,7 @@ namespace SistemaDeBoleteria.Core.DTOs
         public int IdTarifa { get; set; }
         public int IdFuncion { get; set; }
         public int IdCliente { get; set; }
-        public Orden.TipoDePago MedioDePago { get; set; }
+        public ETipoDePago MedioDePago { get; set; }
     }
     public class MostrarOrdenDTO
     {

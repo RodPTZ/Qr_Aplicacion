@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SistemaDeBoleteria.Core.Enums;
 
 namespace SistemaDeBoleteria.Core.Models
 {
@@ -10,11 +11,11 @@ namespace SistemaDeBoleteria.Core.Models
         public int IdEvento { get; set; }
         public int IdLocal { get; set; }
         public string Nombre { get; set; }
-        public TipoEvento Tipo { get; set; }
-        public TipoEstado Estado { get; set; }
+        public ETipoEvento Tipo { get; set; }
+        public ETipoEstadoEvento Estado { get; set; }
         public List<Funcion> funciones;
 
-        public Evento(string nombre, TipoEvento tipoEvento)
+        public Evento(string nombre, ETipoEvento tipoEvento)
         {
             Nombre = nombre;
             Tipo = tipoEvento;
@@ -23,23 +24,9 @@ namespace SistemaDeBoleteria.Core.Models
         public Evento()
         {
         }
-        public enum TipoEvento
-        {
-            Concierto,
-            Convencion,
-            Opera,
-            Teatro,
-            Deportes,
-            Boliches,
-            Música
-        }
+        
 
-        public enum TipoEstado
-        {
-            Publicado,
-            Cancelado,
-            Creado
-        }
+        
         // public bool Publicar()
         // {
         //     if (funciones == null || funciones.Count == 0)

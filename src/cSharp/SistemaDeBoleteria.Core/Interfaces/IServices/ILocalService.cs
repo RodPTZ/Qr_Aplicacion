@@ -8,5 +8,5 @@ public interface ILocalService
     MostrarLocalDTO? Get(int id);
     MostrarLocalDTO Post(CrearActualizarLocalDTO local);
     MostrarLocalDTO Put(CrearActualizarLocalDTO local, int IdLocal);
-    bool Delete(int id);
+    void Delete(int id);
 }

@@ -11,6 +11,7 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         IEnumerable<Tarifa> SelectAllByFuncionId(int idFuncion);
         Tarifa? Select(int idFuncion);
         Tarifa Insert(Tarifa tarifa);
-        Tarifa Update(Tarifa tarifa, int IdTarifa);
+        bool Update(Tarifa tarifa, int IdTarifa);
+        bool Exists(int idTarifa);
     }
 }

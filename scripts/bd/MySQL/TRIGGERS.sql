@@ -1,7 +1,19 @@
 
-USE 5to_sistemadeboleteria
+USE 5to_SistemaDeBoleteria;
 
 DELIMITER $$
+
+-- ========================= USUARIO =====================================
+
+DROP TRIGGER IF EXISTS BefInsUsuario $$
+CREATE TRIGGER BefInsUsuario BEFORE INSERT ON Usuario FOR EACH ROW
+BEGIN
+    SET NEW.Contraseña = SHA2(NEW.Contraseña, 256);
+END $$
+
+-- =======================================================================
+
+-- ========================= ENTRADA =====================================
 DROP TRIGGER IF EXISTS VerificarCompraEntrada $$
 CREATE TRIGGER VerificarCompraEntrada
 BEFORE INSERT ON Entrada
@@ -58,52 +70,13 @@ BEGIN
         END IF;
 END $$
 
--- CREATE TRIGGER trgCancelarOrden
--- BEFORE UPDATE ON Orden
--- FOR EACH ROW
--- BEGIN
---     IF NEW.Estado = 'Cancelado' AND OLD.Estado <> 'Cancelado' THEN
---         UPDATE Tarifa
---         SET Stock = Stock + 1
---         WHERE IdFuncion = OLD.IdFuncion;
---     END IF;
--- END;
-
-CREATE TRIGGER BefInsTarifa BEFORE INSERT ON Tarifa FOR EACH ROW 
-BEGIN
-    IF NOT EXISTS(SELECT * FROM Funcion WHERE  IdFuncion = new.IdFuncion)
-    THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La funcion ingresada no existe';
-    END IF;
-
-    IF((SELECT Cancelado FROM Funcion WHERE IdFuncion = new.IdFuncion) = TRUE)
-    THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'La función ingresada se encuentra cancelada.';
-    END IF;
-END;
-
+-- ================================== TARIFA =====================================
 -- ========================= EVENTO =====================================
-CREATE TRIGGER trg_CancelarFuncionesEvento
-AFTER UPDATE ON Evento
-FOR EACH ROW
-BEGIN
-    IF NEW.Estado = 'Cancelado' AND OLD.Estado <> 'Cancelado' THEN
-        UPDATE Funcion
-        SET Cancelado = TRUE
-        WHERE IdEvento = NEW.IdEvento;
-
-        UPDATE Tarifa
-        SET Estado = 'Suspendida'
-        WHERE IdFuncion IN (SELECT IdFuncion FROM Funcion WHERE IdEvento = NEW.IdEvento);
-    END IF;
-END$$
-
 -- =======================================================================
 
 -- ======================= FUNCION ==================================
 
+DROP TRIGGER IF EXISTS BefInsFuncion $$
 CREATE TRIGGER BefInsFuncion BEFORE INSERT ON Funcion FOR EACH ROW
 BEGIN
     IF(SELECT E.Estado FROM Evento E WHERE E.IdEvento = new.IdEvento) = 'Cancelado'

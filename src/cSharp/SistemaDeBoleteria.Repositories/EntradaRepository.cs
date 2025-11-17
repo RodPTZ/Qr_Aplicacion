@@ -3,29 +3,26 @@ using SistemaDeBoleteria.Core.Models;
 using MySqlConnector;
 using Dapper;
 using System.Data;
-using SistemaDeBoleteria.Core.DTOs;
 using SistemaDeBoleteria.Core.Inheritance;
+using System.Data.Common;
 
 namespace SistemaDeBoleteria.Repositories;
 
 public class EntradaRepository :  DbRepositoryBase, IEntradaRepository
 {
-    public IEnumerable<Entrada> SelectAll() => db.Query<Entrada>("SELECT * FROM Entrada");
-    public Entrada? Select(int idEntrada) => db.QueryFirstOrDefault<Entrada>("SELECT * FROM Entrada WHERE IdEntrada = @ID", new { ID = idEntrada });
+    public EntradaRepository(string connectionString) : base (connectionString){}
+    public IEnumerable<Entrada> SelectAll() => UseNewConnection(db => db.Query<Entrada>("SELECT * FROM Entrada"));
+    public Entrada? Select(int idEntrada) => UseNewConnection(db => db.QueryFirstOrDefault<Entrada>("SELECT * FROM Entrada WHERE IdEntrada = @ID", new { ID = idEntrada }));
     
-    public bool UpdateEstado(int idEntrada)
+    public bool UpdateEstado(int idEntrada) => UseNewConnection(db =>
     {
-        // var sql = "UPDATE Entrada SET Anulada = true WHERE IdEntrada = @ID";
-        // db.Execute(sql, new { ID = idEntrada });
-        try
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("@unIdEntrada", idEntrada);
-            db.Execute("CancelarEntrada", parameters);
-            return true;
-        }catch(MySqlException ex)
-        {
-            throw new ConstraintException(ex.Message);
-        }
-    }
+        var parameters = new DynamicParameters();
+        parameters.Add("@unIdEntrada", idEntrada);
+        db.Execute("CancelarEntrada", parameters);
+        return true;
+    });
+    const string strExists = @"SELECT EXITS(SELECT 1 
+                                            FROM Entrada 
+                                            WHERE IdEntrada = @ID)";
+    public bool Exists(int idEntrada) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new { ID = idEntrada}));
 }

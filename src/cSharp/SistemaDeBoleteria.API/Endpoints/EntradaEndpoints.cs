@@ -1,0 +1,37 @@
+using SistemaDeBoleteria.Core.Interfaces.IServices;
+using Microsoft.AspNetCore.Mvc;
+
+namespace SistemaDeBoleteria.API.Endpoints
+{
+    public static class EntradaEndpoints
+    {
+        public static void MapEntradaEndpoints(this WebApplication app)
+        {
+            app.MapGet("/entradas",
+                ([FromServices] IEntradaService entradaService) =>
+                {
+                    var entradas = entradaService.GetAll();
+                    return !entradas.Any() ? Results.NoContent() : Results.Ok(entradas);
+                })
+                .WithTags("H - Entradas");
+
+            app.MapGet("/entradas/{entradaID}",
+                ([FromRoute] int entradaID,
+                 [FromServices] IEntradaService entradaService) =>
+                {
+                    var entrada = entradaService.GetById(entradaID);
+                    return entrada is null ? Results.NotFound() : Results.Ok(entrada);
+                })
+                .WithTags("H - Entradas");
+
+            app.MapPost("/entradas/{entradaID}/anular",
+                ([FromRoute] int entradaID,
+                 [FromServices] IEntradaService entradaService) =>
+                {
+                    entradaService.AnularEntrada(entradaID);
+                    return Results.Ok(new { message = "Si funciona" });
+                })
+                .WithTags("H - Entradas");
+        }
+    }
+}

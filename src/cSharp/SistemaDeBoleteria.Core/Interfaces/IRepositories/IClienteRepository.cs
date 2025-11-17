@@ -9,7 +9,8 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
     {
         IEnumerable<Cliente> SelectAll();
         Cliente? Select(int id);
-        Cliente Insert(Cliente cliente, Usuario usuario);
-        Cliente Update(Cliente cliente, int idCliente);
+        Cliente Insert(Cliente cliente);
+        bool Update(Cliente cliente, int idCliente);
+        bool Exists(int idCliente);
     }
 }
