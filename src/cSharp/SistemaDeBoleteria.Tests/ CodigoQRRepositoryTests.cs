@@ -39,6 +39,10 @@ public class CodigoQRRepositoryTests
 
         repoMock.Verify(r => r.SelectById(idEntrada), Times.Once);
     }
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     [Fact]
     public void CuandoGetQRByEntradaIdYNoExiste_DebeRetornarNull()
     {
