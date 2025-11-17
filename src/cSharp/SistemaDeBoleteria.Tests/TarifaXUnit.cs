@@ -112,7 +112,6 @@ public void Put_ActualizaTarifaCorrectamente()
                 Estado = ETipoEstadoTarifa.Activa 
             };
 
-            // Lo que queremos que devuelva el servicio al final
             var tarifaActualizada = new Tarifa 
             {
                 IdTarifa = 1,
@@ -124,13 +123,11 @@ public void Put_ActualizaTarifaCorrectamente()
             tarifaRepoMoq.Setup(r => r.Exists(It.IsAny<int>())).Returns(true);
             tarifaRepoMoq.Setup(r => r.Update(It.IsAny<Tarifa>(), It.IsAny<int>())).Returns(true);
 
-            // 👉 Lo importante: SELECT devuelve una tarifa actualizada
             tarifaRepoMoq.Setup(r => r.Select(1)).Returns(tarifaActualizada);
 
-            // Act
             var result = tarifaService.Put(actualizarTarifaDto, 1);
 
-            // Assert
+
             Assert.NotNull(result);
             Assert.Equal(120m, result.Precio);
             Assert.Equal(60, result.Stock);
@@ -140,7 +137,7 @@ public void Put_ActualizaTarifaCorrectamente()
         [Fact]
         public void Put_NoPuedeActualizarTarifa_SiNoExiste()
         {
-            // Arrange
+
             var tarifaRepoMoq = new Mock<ITarifaRepository>();
             var funcionRepoMoq = new Mock<IFuncionRepository>();
             var tarifaService = new TarifaService(tarifaRepoMoq.Object, funcionRepoMoq.Object);
@@ -148,7 +145,6 @@ public void Put_ActualizaTarifaCorrectamente()
             var actualizarTarifaDto = new ActualizarTarifaDTO { Precio = 120m, Stock = 60, Estado = ETipoEstadoTarifa.Activa };
             tarifaRepoMoq.Setup(repo => repo.Exists(It.IsAny<int>())).Returns(false);
 
-            // Act & Assert
             Assert.Throws<NotFoundException>(() => tarifaService.Put(actualizarTarifaDto, 999));
         }
     }

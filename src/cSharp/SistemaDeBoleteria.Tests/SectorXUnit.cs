@@ -108,7 +108,6 @@ namespace SistemaDeBoleteria.Tests
             var localRepoMoq = new Mock<ILocalRepository>();
             var sectorService = new SectorService(sectorRepoMoq.Object, localRepoMoq.Object);
 
-            // Simulamos que el sector existe pero tiene funciones asociadas
             sectorRepoMoq.Setup(repo => repo.Exists(It.IsAny<int>())).Returns(true);
             sectorRepoMoq.Setup(repo => repo.HasFunciones(It.IsAny<int>())).Returns(true);
 
@@ -125,7 +124,6 @@ namespace SistemaDeBoleteria.Tests
             var sectorService = new SectorService(sectorRepoMoq.Object, localRepoMoq.Object);
             var crearSectorDto = new CrearActualizarSectorDTO { Capacidad = 200 };
 
-            // Simulamos que el local no existe
             localRepoMoq.Setup(repo => repo.Exists(It.IsAny<int>())).Returns(false);
 
             // Act & Assert

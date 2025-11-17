@@ -19,7 +19,6 @@ public void Login_Correcto_DevuelveRespuesta()
     var tokenRepo = new Mock<ITokenRepository>();
     var loginRepo = new Mock<ILoginRepository>();
 
-    // Configuración en memoria para JWT
     var config = new ConfigurationBuilder()
         .AddInMemoryCollection(new Dictionary<string, string?>
         {
@@ -58,7 +57,6 @@ public void Login_Correcto_DevuelveRespuesta()
     Assert.NotNull(result);
     Assert.Equal("a@mail.com", result.Email);
 
-    // La propiedad correcta según tu clase
     Assert.NotNull(result.AccessToken);
     Assert.True(result.AccessToken.Length > 20);
 }
