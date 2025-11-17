@@ -29,11 +29,10 @@ public class OrdenRepository :  DbRepositoryBase, IOrdenRepository
 
         return Select(orden.IdOrden)!;
     });
-    public bool UpdEstadoPagado(int idOrden, ETipoEntrada tipoEntrada) => UseNewConnection(db =>
+    public bool UpdEstadoPagado(int idOrden) => UseNewConnection(db =>
     {
         var parameters = new DynamicParameters();
         parameters.Add("@unIdOrden", idOrden);
-        parameters.Add("@unTipoEntrada", tipoEntrada);
         db.Execute("PagarOrden", parameters);
         return true;
     });
@@ -51,13 +50,12 @@ public class OrdenRepository :  DbRepositoryBase, IOrdenRepository
     const string strExists = @"SELECT EXISTS(SELECT 1 
                                              FROM Orden
                                              WHERE IdOrden = @ID)";
-    const string strData = @"SELECT T.TipoEntrada, O.Estado, O.Cierre 
+    const string strData = @"SELECT O.Estado, O.Cierre 
                              FROM Orden O
-                             JOIN Tarifa T USING (IdTarifa)
                              WHERE O.IdOrden = @ID";
     public bool Exists(int idOrden) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idOrden}));
-    public (ETipoEntrada, ETipoEstadoOrden, DateTime) Data(int unIdOrden) => UseNewConnection(db =>
+    public ( ETipoEstadoOrden, DateTime) Data(int unIdOrden) => UseNewConnection(db =>
     {
-        return db.ExecuteScalar<(ETipoEntrada, ETipoEstadoOrden, DateTime)>(strData, new { ID = unIdOrden});
+        return db.QueryFirst<(ETipoEstadoOrden, DateTime)>(strData, new { ID = unIdOrden});
     });
 }

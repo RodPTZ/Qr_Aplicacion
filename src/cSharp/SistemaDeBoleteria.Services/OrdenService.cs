@@ -52,7 +52,7 @@ namespace SistemaDeBoleteria.Services
         }
         public bool PagarOrden(int idOrden)
         {
-            var (TipoEntrada, EstadoOrden, CierreOrden) = ordenRepository.Data(idOrden);
+            var (EstadoOrden, CierreOrden) = ordenRepository.Data(idOrden);
             
             if(!ordenRepository.Exists(idOrden))
                 throw new NotFoundException("No se encontró la orden especificada.");
@@ -69,7 +69,7 @@ namespace SistemaDeBoleteria.Services
 
             try
             {
-                return ordenRepository.UpdEstadoPagado(idOrden, TipoEntrada);
+                return ordenRepository.UpdEstadoPagado(idOrden);
             }
             catch(MySqlException ex)
             {
@@ -78,7 +78,7 @@ namespace SistemaDeBoleteria.Services
         }
         public bool CancelarOrden(int idOrden)
         {
-            var (_, estadoOrden, _) = ordenRepository.Data(idOrden);
+            var (estadoOrden, _) = ordenRepository.Data(idOrden);
             
             if(!ordenRepository.Exists(idOrden))
                 throw new NotFoundException("No se encontró la orden especificada.");

@@ -105,8 +105,9 @@ END$$
 
 DROP PROCEDURE IF EXISTS `PagarOrden`;
 
-CREATE PROCEDURE PagarOrden (IN unIdOrden INT, unTipoEntrada ENUM('General', 'VIP', 'PLUS'))
+CREATE PROCEDURE PagarOrden (IN unIdOrden INT)
 BEGIN
+    DECLARE unTipoEntrada VARCHAR(60);
     DECLARE unIdEntrada INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -116,6 +117,11 @@ BEGIN
     END;
 
     START TRANSACTION;
+        SELECT TipoEntrada INTO unTipoEntrada
+        FROM Tarifa
+        JOIN Orden USING (IdTarifa)
+        WHERE IdOrden = unIdOrden;
+
         UPDATE Orden
         SET Estado = 'Abonado',
             Cierre = NOW()
