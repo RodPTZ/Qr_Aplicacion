@@ -44,37 +44,37 @@ END$$
 --     COMMIT;
 -- END$$
 
-DROP PROCEDURE IF EXISTS CancelarEvento $$
-CREATE PROCEDURE CancelarEvento(IN unIdEvento INT) 
-BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al cancelar evento';
-    END;
-    START TRANSACTION;
+-- DROP PROCEDURE IF EXISTS CancelarEvento $$
+-- CREATE PROCEDURE CancelarEvento(IN unIdEvento INT) 
+-- BEGIN
+--     DECLARE EXIT HANDLER FOR SQLEXCEPTION
+--     BEGIN
+--         SIGNAL SQLSTATE '45000'
+--         SET MESSAGE_TEXT = 'Error al cancelar evento';
+--     END;
+--     START TRANSACTION;
 
-        UPDATE Entrada
-        SET Estado = 'Anulado'
-        WHERE IdOrden IN (SELECT IdOrden 
-                         FROM Orden O 
-                         JOIN Funcion F USING (IdFuncion) 
-                         WHERE F.IdEvento = unIdEvento);
+--         UPDATE Entrada
+--         SET Estado = 'Anulado'
+--         WHERE IdOrden IN (SELECT IdOrden 
+--                          FROM Orden O 
+--                          JOIN Funcion F USING (IdFuncion) 
+--                          WHERE F.IdEvento = unIdEvento);
 
-        UPDATE Tarifa
-        SET Estado = 'Suspendida'
-        WHERE IdFuncion IN (SELECT IdFuncion 
-                           FROM Funcion 
-                           WHERE IdEvento = unIdEvento);
-        UPDATE Funcion
-        SET Cancelado = TRUE
-        WHERE IdEvento = unIdEvento;
+--         UPDATE Tarifa
+--         SET Estado = 'Suspendida'
+--         WHERE IdFuncion IN (SELECT IdFuncion 
+--                            FROM Funcion 
+--                            WHERE IdEvento = unIdEvento);
+--         UPDATE Funcion
+--         SET Cancelado = TRUE
+--         WHERE IdEvento = unIdEvento;
 
-        UPDATE Evento
-        SET Estado = 'Cancelado'
-        WHERE IdEvento = unIdEvento;
-    COMMIT;
-END$$
+--         UPDATE Evento
+--         SET Estado = 'Cancelado'
+--         WHERE IdEvento = unIdEvento;
+--     COMMIT;
+-- END$$
 
 --===================================================================================
 

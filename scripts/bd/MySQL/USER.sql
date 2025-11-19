@@ -1,7 +1,8 @@
 
 DROP USER IF EXISTS 'Admin'@'localhost'; 
 CREATE USER 'Admin'@'localhost' IDENTIFIED BY 'AdminET12';
-GRANT ALL PRIVILEGES ON 5to_SistemaDeBoleteria.* TO 'Admin'@'localhost';
+-- GRANT ALL PRIVILEGES ON 5to_SistemaDeBoleteria.* TO 'Admin'@'localhost';
+GRANT INSERT,SELECT,UPDATE,DELETE ON 5to_SistemaDeBoleteria.* TO 'Admin'@'localhost';
 
 DROP USER IF EXISTS 'Empleado'@'localhost';
 CREATE USER 'Empleado'@'localhost' IDENTIFIED BY 'EmpleadoET12';
