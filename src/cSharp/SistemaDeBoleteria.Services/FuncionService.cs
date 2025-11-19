@@ -54,15 +54,9 @@ namespace SistemaDeBoleteria.Services
         { 
             if(!funcionRepository.Exists(idFuncion))
                 throw new NotFoundException("No se encontró la función especificada");
-            
-            try
-            {
-                funcionRepository.UpdFuncionCancel(idFuncion);
-            }
-            catch (MySqlException ex)
-            {   
-                throw new DataBaseException(ex.Message);
-            }
+            if(!funcionRepository.UpdFuncionCancel(idFuncion))
+                throw new DataBaseException("No se pudo cancelar la función especificada");
+                
         }
     }
 }

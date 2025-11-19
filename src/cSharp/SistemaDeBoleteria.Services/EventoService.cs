@@ -5,6 +5,7 @@ using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 using SistemaDeBoleteria.Core.Interfaces.IServices;
 using SistemaDeBoleteria.Core.Exceptions;
 using MySqlConnector;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SistemaDeBoleteria.Services
 {
@@ -12,10 +13,16 @@ namespace SistemaDeBoleteria.Services
     {
         private readonly IEventoRepository eventoRepository;
         private readonly ILocalRepository localRepository;
-        public EventoService(IEventoRepository eventoRepository, ILocalRepository localRepository)
+        private readonly IFuncionRepository funcionRepository;
+        private readonly IEntradaRepository entradaRepository;
+        private readonly ITarifaRepository tarifaRepository;
+        public EventoService(IEventoRepository eventoRepository, ILocalRepository localRepository, IFuncionRepository funcionRepository, IEntradaRepository entradaRepository, ITarifaRepository tarifaRepository)
         {
             this.eventoRepository = eventoRepository;
             this.localRepository = localRepository;
+            this.funcionRepository = funcionRepository;
+            this.entradaRepository = entradaRepository;
+            this.tarifaRepository = tarifaRepository;
         }
         public IEnumerable<MostrarEventoDTO> GetAll()
         => eventoRepository
@@ -53,33 +60,46 @@ namespace SistemaDeBoleteria.Services
             if(!eventoRepository.Exists(IdEvento))
                 throw new NotFoundException("No se encontró el evento especificado.");
             if(!eventoRepository.HasFunciones(IdEvento))
-                throw new NoContentException("El evento no puede publicarse: no tiene funciones");
+                throw new BusinessException("El evento no puede publicarse: no tiene funciones");
             if(!eventoRepository.HasTarifasActivas(IdEvento))
-                throw new NoContentException("El evento no puede publicarse: no tiene tarifas activas.");
+                throw new BusinessException("El evento no puede publicarse: no tiene tarifas activas.");
 
-            try
-            {
-                eventoRepository.UpdEstadoPublic(IdEvento);
-            }
-            catch (MySqlException ex)
-            {
-                throw new DataBaseException(ex.Message);
-            }
+            // debería ser atómico
+            if(!eventoRepository.UpdPublicado(IdEvento))
+                throw new DataBaseException("No se pudo publicar el evento.");
+            if(!funcionRepository.UpdPublicado(IdEvento))
+                throw new DataBaseException("No se pudo publicar la función");
+            
+            // try
+            // {
+            //     eventoRepository.UpdEstadoPublic(IdEvento);
+            // }
+            // catch (MySqlException ex)
+            // {
+            //     throw new DataBaseException(ex.Message);
+            // }
         }
         
         public void CancelarEvento(int IdEvento)
         { 
             if(!eventoRepository.Exists(IdEvento))
                 throw new NotFoundException("No se encontró el evento especificado");
-
-            try
-            {
-                eventoRepository.UpdEstadoCancel(IdEvento);
-            }
-            catch(MySqlException ex)
-            {
-                throw new DataBaseException(ex.Message);
-            }
+            if(!entradaRepository.UpdAnularEntradasDeEventoID(IdEvento))
+                throw new DataBaseException("No se pudieron anular las entradas relacionadas al evento");
+            if(!tarifaRepository.SuspenderTarifasPorIdEvento(IdEvento))
+                throw new DataBaseException("No se pudieron suspender las tarifas relacionadas al evento");
+            if(!funcionRepository.UpdCancelarFuncionesDeIdEvento(IdEvento))
+                throw new DataBaseException("No se pudieron cancelar las funciones relacionadas al evento");
+            if(!eventoRepository.UpdCancelar(IdEvento))
+                throw new DataBaseException("No se pudo cancelar el evento");
+            // try
+            // {
+            //     eventoRepository.UpdEstadoCancel(IdEvento);
+            // }
+            // catch(MySqlException ex)
+            // {
+            //     throw new DataBaseException(ex.Message);
+            // }
         }
     }
 }

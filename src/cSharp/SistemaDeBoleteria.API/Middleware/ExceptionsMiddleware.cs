@@ -40,7 +40,7 @@ private static async Task HandleExceptionAsync(HttpContext httpContext, Exceptio
     {
         NotFoundException => HttpStatusCode.NotFound,
         BusinessException => HttpStatusCode.BadRequest,
-        NoContentException => HttpStatusCode.NoContent,
+        NoContentException => HttpStatusCode.BadRequest,
         DataBaseException => HttpStatusCode.InternalServerError,
         _ => HttpStatusCode.InternalServerError
     };

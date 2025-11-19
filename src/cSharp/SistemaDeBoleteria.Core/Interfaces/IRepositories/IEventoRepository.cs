@@ -11,11 +11,11 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         Evento? Select(int IdEvento);
         Evento Insert(Evento evento);
         bool Update(Evento evento, int IdEvento);
-        bool UpdEstadoPublic(int IdEvento);
         bool UpdEstadoCancel(int IdEvento);
         bool Exists(int IdEvento);
         bool HasFunciones(int idEvento);
         bool HasTarifasActivas(int idEvento);
-        
+        bool UpdPublicado(int idEvento);
+        bool UpdCancelar(int idEvento);
     }
 }

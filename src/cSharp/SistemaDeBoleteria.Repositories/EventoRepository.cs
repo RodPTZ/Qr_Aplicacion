@@ -37,13 +37,6 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
             ID = IdEvento
         }) > 0;
     });
-    public bool UpdEstadoPublic(int IdEvento) => UseNewConnection(db =>
-    {
-        var parameters = new DynamicParameters();
-        parameters.Add("@unIdEvento", IdEvento);
-        db.Execute("PublicarEvento", parameters);
-        return true;
-    });
     public bool UpdEstadoCancel(int IdEvento) => UseNewConnection(db =>
     {
         var parameters = new DynamicParameters();
@@ -63,10 +56,17 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
                                                         JOIN Funcion F ON F.IdFuncion = T.IdFuncion 
                                                         WHERE F.IdEvento = @ID 
                                                         AND T.Estado = 'Activa')";
+    const string srtUpdPublicado = @"UPDATE Evento
+                                     SET Estado = 'Publicado'
+                                     WHERE IdEvento = @ID;";
     
+    const string strUpdCancelado = @"UPDATE Evento
+                                     SET Estado = 'Cancelado'
+                                     WHERE IdEvento = @ID;";
     public bool Exists(int IdEvento) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = IdEvento }));
     public bool HasFunciones(int idEvento) => UseNewConnection(db => db.ExecuteScalar<bool>(strHasFunciones, new { ID = idEvento}));
     public bool HasTarifasActivas(int idEvento) => UseNewConnection(db => db.ExecuteScalar<bool>(strHasTarifasActivas, new {ID = idEvento}));
-
+    public bool UpdPublicado(int idEvento) => UseNewConnection( db => db.Execute(srtUpdPublicado, new { ID = idEvento}) > 0);
+    public bool UpdCancelar(int idEvento) => UseNewConnection(db => db.Execute(strUpdCancelado, new { ID = idEvento }) > 0 );
     #endregion
 }

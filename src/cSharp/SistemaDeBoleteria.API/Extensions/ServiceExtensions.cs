@@ -1,14 +1,10 @@
 using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
 using SistemaDeBoleteria.Core.DTOs;
 using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 using SistemaDeBoleteria.Core.Interfaces.IServices;
-using SistemaDeBoleteria.Core.Inheritance;
 using SistemaDeBoleteria.Repositories;
 using SistemaDeBoleteria.Services;
 using SistemaDeBoleteria.Core.Validations;
-using Microsoft.AspNetCore.Identity;
-using SistemaDeBoleteria.Core.Enums;
 using System.Security.Claims;
 namespace SistemaDeBoleteria.API.Extensions
 {

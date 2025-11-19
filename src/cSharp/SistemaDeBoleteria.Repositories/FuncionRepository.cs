@@ -21,8 +21,19 @@ public class FuncionRepository :  DbRepositoryBase, IFuncionRepository
                                 Apertura = @Apertura,
                                 Cierre = @Cierre
                                 WHERE IdFuncion = @ID";
+    const string UpdCancel = @"UPDATE Funcion
+                               SET Cancelado = TRUE
+                               WHERE IdFuncion = @ID";
+    public IEnumerable<Funcion> SelectAll() => UseNewConnection(db => {
 
-    public IEnumerable<Funcion> SelectAll() => UseNewConnection(db => db.Query<Funcion>("SELECT * FROM Funcion"));
+        return db.Query<Funcion>("SELECT * FROM Funcion").Select(funcion =>
+        {
+            funcion.Fecha = DateOnly.FromDateTime(funcion.Apertura);
+            funcion.AperturaTime = TimeOnly.FromDateTime(funcion.Apertura);
+            funcion.CierreTime = TimeOnly.FromDateTime(funcion.Cierre);
+            return funcion;
+        });
+    });
 
     public Funcion? Select(int idFuncion) => UseNewConnection(db =>
     {
@@ -57,17 +68,22 @@ public class FuncionRepository :  DbRepositoryBase, IFuncionRepository
             ID = IdFuncion
         }) > 0;
     });
-    public bool UpdFuncionCancel(int idFuncion) => UseNewConnection(db =>
-    { 
-        var parameters = new DynamicParameters();
-        parameters.Add(@"unIdFuncion", idFuncion);
-        db.Execute("CancelarFuncion", parameters);
-        return true;
-    });
+    public bool UpdFuncionCancel(int idFuncion) => UseNewConnection(db => db.Execute(UpdCancel, new { ID = idFuncion}) > 0 );
 
+    #region Validación de negocio
     const string strExists = @"SELECT EXISTS(SELECT 1 
                                              FROM Funcion 
                                              WHERE IdFuncion = @ID)";
+    const string strUpdNoCancel = @"UPDATE Funcion F
+                                    JOIN Evento E USING (IdEvento)
+                                    SET F.Cancelado = FALSE
+                                    WHERE F.IdEvento = @ID
+                                    AND E.Estado = 'Publicado'";
     public bool Exists(int idFuncion) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idFuncion }));
-
+    public bool UpdPublicado(int idEvento) => UseNewConnection(db => db.Execute(strUpdNoCancel, new { ID = idEvento})) > 0;
+    const string strUpdCancelarFunciones = @"UPDATE Funcion
+                                             SET Cancelado = TRUE
+                                             WHERE IdEvento = @ID;"; 
+    public bool UpdCancelarFuncionesDeIdEvento(int idEvento) => UseNewConnection(db => db.Execute(strUpdCancelarFunciones, new { ID = idEvento}) > 0);
+    #endregion
 }

@@ -11,7 +11,9 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
     {
         CodigoQR? SelectById(int IdEntrada);
         ETipoEstadoQR UpdateEstado(int IdEntrada, ETipoEstadoQR estado);
+        bool UpdAYaUsada(int idEntrada);
         (Entrada, Funcion, CodigoQR) SelectData(int idEntrada);
         bool Exists(int idEntrada, string codigo);
+        bool Insert(int idEntrada);
     }
 }

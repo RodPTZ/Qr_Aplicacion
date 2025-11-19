@@ -1,6 +1,10 @@
 
 INSERT INTO Usuario (NombreUsuario, Email, Contraseña, Rol) VALUES
 ('admin', 'admin@gmail.com', '123', 'Admin'),
+('empleado','empleado@gmail.com','qwe','Empleado'),
+('Organizador','organizador@gmail.com','asd','Organizador');
+
+INSERT INTO Usuario (NombreUsuario, Email, Contraseña, Rol) VALUES
 ('martinl', 'martinl@example.com', '1234', 'Organizador'),
 ('sofia_g', 'sofia_g@example.com', 'abcd', 'Organizador'),
 ('natalia_r', 'natalia_r@example.com', 'qwerty', 'Empleado'),

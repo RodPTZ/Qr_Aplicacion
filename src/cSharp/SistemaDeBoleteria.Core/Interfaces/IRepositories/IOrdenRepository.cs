@@ -15,7 +15,9 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         bool UpdEstadoPagado(int idOrden);
         bool UpdEstadoCancelado(int idOrden);
         bool UpdEstadoExpirado(int idOrden);
+        bool UpdAbonado(int idOrden);
+        bool UpdCancelado(int idOrden);
         bool Exists(int idOrden);
-        (ETipoEstadoOrden, DateTime) Data(int unIdOrden);
+        (ETipoEntrada, ETipoEstadoOrden, DateTime) Data(int unIdOrden);
     }
 }

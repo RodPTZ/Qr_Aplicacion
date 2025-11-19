@@ -48,12 +48,6 @@ BEGIN
         SET MESSAGE_TEXT = ' La función fue cancelada. No se puede comprar la entrada.';
     END IF;
 
-
-    IF vAperturaFuncion < NOW() THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = ' La función ya finalizó. No se puede comprar la entrada.';
-    END IF;
-
     IF vStock <= 0 THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = ' No hay más stock disponible para esta tarifa.';

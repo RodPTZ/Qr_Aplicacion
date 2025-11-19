@@ -51,7 +51,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                  [FromServices] IFuncionService funcionService) =>
                 {
                     var funcion = funcionService.Get(funcionID);
-                    return funcion is null ? Results.NotFound() : Results.Ok(funcion);
+                    return funcion is null ? Results.NotFound("No se encontró la función especificada") : Results.Ok(funcion);
                 })
                 .WithTags("D - Funciones")
                 .RequireAuthorization("EmpleadoOrganizador");;
