@@ -37,13 +37,6 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
             ID = IdEvento
         }) > 0;
     });
-    public bool UpdEstadoCancel(int IdEvento) => UseNewConnection(db =>
-    {
-        var parameters = new DynamicParameters();
-        parameters.Add(@"unIdEvento", IdEvento);
-        db.Execute("CancelarEvento", parameters);
-        return true;
-    });
     #region Validación de negocio
     
     const string strExists = @"SELECT EXISTS  (SELECT 1 
@@ -68,5 +61,6 @@ public class EventoRepository :  DbRepositoryBase, IEventoRepository
     public bool HasTarifasActivas(int idEvento) => UseNewConnection(db => db.ExecuteScalar<bool>(strHasTarifasActivas, new {ID = idEvento}));
     public bool UpdPublicado(int idEvento) => UseNewConnection( db => db.Execute(srtUpdPublicado, new { ID = idEvento}) > 0);
     public bool UpdCancelar(int idEvento) => UseNewConnection(db => db.Execute(strUpdCancelado, new { ID = idEvento }) > 0 );
+    
     #endregion
 }

@@ -12,12 +12,10 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         IEnumerable<Orden> SelectAll();
         Orden? Select(int idOrden);
         Orden Insert(Orden orden);
-        bool UpdEstadoPagado(int idOrden);
-        bool UpdEstadoCancelado(int idOrden);
         bool UpdEstadoExpirado(int idOrden);
         bool UpdAbonado(int idOrden);
         bool UpdCancelado(int idOrden);
         bool Exists(int idOrden);
-        (ETipoEntrada, ETipoEstadoOrden, DateTime) Data(int unIdOrden);
+        (ETipoEntrada, ETipoEstadoOrden, DateTime, bool, int, ETipoEstadoTarifa, ETipoEstadoEvento) Data(int unIdOrden);
     }
 }

@@ -4,8 +4,7 @@ using SistemaDeBoleteria.Core.DTOs;
 using SistemaDeBoleteria.Core.Models;
 using SistemaDeBoleteria.Core.Exceptions;
 using Mapster;
-
-using MySqlConnector;
+using SistemaDeBoleteria.Repositories;
 
 namespace SistemaDeBoleteria.Services
 {
@@ -14,11 +13,15 @@ namespace SistemaDeBoleteria.Services
         private readonly IFuncionRepository funcionRepository;
         private readonly IEventoRepository eventoRepository;
         private readonly ISectorRepository sectorRepository;
-        public FuncionService(IFuncionRepository funcionRepository, IEventoRepository eventoRepository, ISectorRepository sectorRepository)
+        private readonly IEntradaRepository entradaRepository;
+        private readonly ITarifaRepository tarifaRepository;
+        public FuncionService(IFuncionRepository funcionRepository, IEventoRepository eventoRepository, ISectorRepository sectorRepository, IEntradaRepository entradaRepository, ITarifaRepository tarifaRepository)
         {
             this.funcionRepository = funcionRepository;
             this.eventoRepository = eventoRepository;
             this.sectorRepository = sectorRepository;
+            this.entradaRepository = entradaRepository;
+            this.tarifaRepository = tarifaRepository;
         }
 
         public IEnumerable<MostrarFuncionDTO> GetAll() 
@@ -54,6 +57,10 @@ namespace SistemaDeBoleteria.Services
         { 
             if(!funcionRepository.Exists(idFuncion))
                 throw new NotFoundException("No se encontró la función especificada");
+            if(!entradaRepository.UpdAnularEntradasDeFuncionID(idFuncion))
+                throw new DataBaseException("No se pudieron anular las entradas relacionadas a la función especificada.");
+            if(!tarifaRepository.SuspenderTarifasPorIdFuncion(idFuncion))
+                throw new DataBaseException("No se pudieron suspender y devolver stock a las tarifas relacionadas a la función especificada.");
             if(!funcionRepository.UpdFuncionCancel(idFuncion))
                 throw new DataBaseException("No se pudo cancelar la función especificada");
                 

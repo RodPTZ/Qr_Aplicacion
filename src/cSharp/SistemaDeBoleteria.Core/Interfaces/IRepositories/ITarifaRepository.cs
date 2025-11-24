@@ -13,8 +13,9 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         Tarifa Insert(Tarifa tarifa);
         bool Update(Tarifa tarifa, int IdTarifa);
         bool Exists(int idTarifa);
-        bool ReducirStock(int idFuncion, int idTarifa);
+        bool ReducirStock( int idTarifa);
         bool DevolverStock(int idOrden);
         bool SuspenderTarifasPorIdEvento(int idEvento);
+        bool SuspenderTarifasPorIdFuncion(int idFuncion);
     }
 }

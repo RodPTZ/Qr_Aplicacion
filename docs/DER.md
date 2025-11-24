@@ -92,7 +92,6 @@ erDiagram
         boolean Revocado
     }
 
-    %% Relaciones (Uno a muchos según tu esquema)
     Usuario ||--o{ Cliente : "tiene"
     Usuario ||--o{ AuthTokens : "tiene"
     Local ||--o{ Sector : "contiene"

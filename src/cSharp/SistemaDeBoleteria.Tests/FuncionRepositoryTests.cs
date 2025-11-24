@@ -16,6 +16,8 @@ public class FuncionRepositoryTests
         var funcionRepo = new Mock<IFuncionRepository>();
         var eventoRepo = new Mock<IEventoRepository>();
         var sectorRepo = new Mock<ISectorRepository>();
+        var entradaRepo = new Mock<IEntradaRepository>();
+        var tarifaRepo = new Mock<ITarifaRepository>();
 
         var dto = new CrearFuncionDTO
         {
@@ -40,7 +42,7 @@ public class FuncionRepositoryTests
         sectorRepo.Setup(r => r.Exists(dto.IdSector)).Returns(true);
         funcionRepo.Setup(r => r.Insert(It.IsAny<Funcion>())).Returns(funcionInsertada);
 
-        var service = new FuncionService(funcionRepo.Object, eventoRepo.Object, sectorRepo.Object);
+        var service = new FuncionService(funcionRepo.Object, eventoRepo.Object, sectorRepo.Object, entradaRepo.Object, tarifaRepo.Object);
 
         // Act
         var result = service.Post(dto);
@@ -65,7 +67,8 @@ public class FuncionRepositoryTests
         var funcionRepo = new Mock<IFuncionRepository>();
         var eventoRepo = new Mock<IEventoRepository>();
         var sectorRepo = new Mock<ISectorRepository>();
-
+        var entradaRepo = new Mock<IEntradaRepository>();
+        var tarifaRepo = new Mock<ITarifaRepository>();
         var dto = new CrearFuncionDTO
         {
             IdEvento = 99,
@@ -77,7 +80,7 @@ public class FuncionRepositoryTests
 
         eventoRepo.Setup(r => r.Exists(dto.IdEvento)).Returns(false);
 
-        var service = new FuncionService(funcionRepo.Object, eventoRepo.Object, sectorRepo.Object);
+        var service = new FuncionService(funcionRepo.Object, eventoRepo.Object, sectorRepo.Object, entradaRepo.Object, tarifaRepo.Object);
 
         // Act & Assert
         Assert.Throws<NotFoundException>(() => service.Post(dto));
@@ -92,7 +95,8 @@ public class FuncionRepositoryTests
         var funcionRepo = new Mock<IFuncionRepository>();
         var eventoRepo = new Mock<IEventoRepository>();
         var sectorRepo = new Mock<ISectorRepository>();
-
+        var entradaRepo = new Mock<IEntradaRepository>();
+        var tarifaRepo = new Mock<ITarifaRepository>();
         int idFuncion = 10;
 
         var dto = new ActualizarFuncionDTO
@@ -117,7 +121,7 @@ public class FuncionRepositoryTests
         funcionRepo.Setup(r => r.Update(It.IsAny<Funcion>(), idFuncion)).Returns(true);
         funcionRepo.Setup(r => r.Select(idFuncion)).Returns(funcion);
 
-        var service = new FuncionService(funcionRepo.Object, eventoRepo.Object, sectorRepo.Object);
+        var service = new FuncionService(funcionRepo.Object, eventoRepo.Object, sectorRepo.Object, entradaRepo.Object, tarifaRepo.Object);
 
         // Act
         var result = service.Put(dto, idFuncion);
@@ -140,13 +144,16 @@ public class FuncionRepositoryTests
         var funcionRepo = new Mock<IFuncionRepository>();
         var eventoRepo = new Mock<IEventoRepository>();
         var sectorRepo = new Mock<ISectorRepository>();
-
+        var entradaRepo = new Mock<IEntradaRepository>();
+        var tarifaRepo = new Mock<ITarifaRepository>();
         int idFuncion = 7;
 
         funcionRepo.Setup(r => r.Exists(idFuncion)).Returns(true);
+        entradaRepo.Setup(r => r.UpdAnularEntradasDeFuncionID(idFuncion)).Returns(true);
+        tarifaRepo.Setup(r => r.SuspenderTarifasPorIdFuncion(idFuncion)).Returns(true);
         funcionRepo.Setup(r => r.UpdFuncionCancel(idFuncion)).Returns(true);
 
-        var service = new FuncionService(funcionRepo.Object, eventoRepo.Object, sectorRepo.Object);
+        var service = new FuncionService(funcionRepo.Object, eventoRepo.Object, sectorRepo.Object, entradaRepo.Object, tarifaRepo.Object);
 
         // Act
         service.Cancelar(idFuncion);

@@ -29,32 +29,33 @@ public class EntradaRepository :  DbRepositoryBase, IEntradaRepository
         return Exists(idEntrada) ? idEntrada : 0 ;
 }   );
 
-    public bool UpdateEstado(int idEntrada) => UseNewConnection(db =>
-    {
-        var parameters = new DynamicParameters();
-        parameters.Add("@unIdEntrada", idEntrada);
-        db.Execute("CancelarEntrada", parameters);
-        return true;
-    });
     public bool UpdAnular(int idEntrada) => UseNewConnection(db => db.Execute(UpdCancel, new{ ID = idEntrada}) > 0);
     
     const string strExists = @"SELECT EXISTS(SELECT 1 
                                              FROM Entrada 
                                              WHERE IdEntrada = @ID)";
-    public bool Exists(int idEntrada) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new { ID = idEntrada}));
     const string strObtenerFuncion = @"SELECT F.IdFuncion
                                        FROM Funcion F
                                        JOIN Orden O ON F.IdSesion = O.IdSesion
                                        JOIN Entrada E ON E.IdOrden = O.IdOrden
                                        WHERE E.IdEntrada = @ID;";
-    public int ObtenerFuncion(int idEntrada) => UseNewConnection(db => db.QueryFirstOrDefault<int>(strObtenerFuncion, new { ID = idEntrada}));
-
-    const string strAnularEntradas = @"UPDATE Entrada
-                                       SET Estado = 'Anulado'
+    const string strAnularEntradasEvento = @"UPDATE Entrada
+                                       SET Anulado = TRUE
                                        WHERE IdOrden IN (SELECT IdOrden 
                                                         FROM Orden O 
-                                                        JOIN Funcion F USING (IdFuncion) 
+                                                        JOIN Tarifa T USING (IdTarifa)
+                                                        JOIN Funcion F USING (IdFuncion)
                                                         WHERE F.IdEvento = @ID);";
-    public bool UpdAnularEntradasDeEventoID(int idEvento) => UseNewConnection( db => db.Execute(strAnularEntradas, new { ID = idEvento}) > 0);
+    const string strAnularEntradasFuncion = @"UPDATE Entrada
+                                       SET Anulado = TRUE
+                                       WHERE IdOrden IN (SELECT IdOrden 
+                                                        FROM Orden O 
+                                                        JOIN Tarifa T USING (IdTarifa) 
+                                                        WHERE T.IdFuncion = @ID);";
+    public bool Exists(int idEntrada) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new { ID = idEntrada}));
+    public int ObtenerFuncion(int idEntrada) => UseNewConnection(db => db.QueryFirstOrDefault<int>(strObtenerFuncion, new { ID = idEntrada}));
+
+    public bool UpdAnularEntradasDeEventoID(int idEvento) => UseNewConnection( db => db.Execute(strAnularEntradasEvento, new { ID = idEvento}) > 0);
+    public bool UpdAnularEntradasDeFuncionID(int idFuncion) => UseNewConnection( db => db.Execute(strAnularEntradasFuncion, new { ID = idFuncion}) > 0);
 
 }

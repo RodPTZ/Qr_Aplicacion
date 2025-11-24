@@ -86,7 +86,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                  [FromServices] IFuncionService funcionService) =>
                 {
                     funcionService.Cancelar(funcionID);
-                    return Results.Ok();
+                    return Results.Ok("Función cancelada exitosamente.");
                 })
                 .WithTags("D - Funciones")
                 .RequireAuthorization("EmpleadoOrganizador");

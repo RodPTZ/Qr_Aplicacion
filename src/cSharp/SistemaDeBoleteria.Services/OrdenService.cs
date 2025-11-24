@@ -14,15 +14,13 @@ namespace SistemaDeBoleteria.Services
     {
         private readonly IOrdenRepository ordenRepository;
         private readonly ITarifaRepository tarifaRepository;
-        private readonly IFuncionRepository funcionRepository;
         private readonly IClienteRepository clienteRepository;
         private readonly IEntradaRepository entradaRepository;
         private readonly ICodigoQRRepository codigoQRRepository;
-        public OrdenService(IOrdenRepository ordenRepository, ITarifaRepository tarifaRepository, IFuncionRepository funcionRepository, IClienteRepository clienteRepository, IEntradaRepository entradaRepository, ICodigoQRRepository codigoQRRepository)
+        public OrdenService(IOrdenRepository ordenRepository, ITarifaRepository tarifaRepository, IClienteRepository clienteRepository, IEntradaRepository entradaRepository, ICodigoQRRepository codigoQRRepository)
         {
             this.ordenRepository = ordenRepository;
             this.tarifaRepository = tarifaRepository;
-            this.funcionRepository = funcionRepository;
             this.clienteRepository = clienteRepository;
             this.entradaRepository = entradaRepository;
             this.codigoQRRepository = codigoQRRepository;
@@ -39,8 +37,6 @@ namespace SistemaDeBoleteria.Services
         {
             if(!tarifaRepository.Exists(orden.IdTarifa))
                 throw new NotFoundException("No se encontró la tarifa especificada.");
-            if(!funcionRepository.Exists(orden.IdFuncion))
-                throw new NotFoundException("No se encontró la función especificada.");
             if(!clienteRepository.Exists(orden.IdCliente))
                 throw new NotFoundException("No se encontró el cliente especificado.");
 
@@ -48,43 +44,40 @@ namespace SistemaDeBoleteria.Services
             var newOrden = ordenRepository.Insert(orden.Adapt<Orden>());
             if(newOrden is null)
                 throw new DataBaseException("No se pudo instanciar la orden");
-            if(!tarifaRepository.ReducirStock(newOrden.IdFuncion, newOrden.IdTarifa))
-                throw new DataBaseException("No se pudo reducir el stock");
+            if(!tarifaRepository.ReducirStock( newOrden.IdTarifa ))
+                throw new DataBaseException("No se pudo reducir el stock.");
 
-            return ordenRepository.Select(newOrden.IdOrden).Adapt<MostrarOrdenDTO>();
-            //
-            
-            // Orden _orden;
-            // try
-            // {
-            //     _orden = ordenRepository.Insert(orden.Adapt<Orden>());
-            // }
-            // catch(MySqlException ex)
-            // {
-            //     throw new DataBaseException(ex.Message);
-            // }
-            // return _orden.Adapt<MostrarOrdenDTO>();
+            return newOrden.Adapt<MostrarOrdenDTO>();
         }
         public bool PagarOrden(int idOrden)
         {
-            var (TipoEntrada, EstadoOrden, CierreOrden) = ordenRepository.Data(idOrden);
-            
             if(!ordenRepository.Exists(idOrden))
                 throw new NotFoundException("No se encontró la orden especificada.");
+            
+            var (TipoEntrada, EstadoOrden, CierreOrden, Cancelado, Stock, EstadoTarifa, EstadoEvento) = ordenRepository.Data(idOrden);
+
             if(EstadoOrden == ETipoEstadoOrden.Cancelado)
                 throw new BusinessException("No se puede pagar una orden que se encuentra Cancelada.");
             if(EstadoOrden == ETipoEstadoOrden.Abonado)
                 throw new BusinessException("No se puede pagar una orden que se encuentra pagada.");
+            if(Cancelado is true)
+                throw new BusinessException("La función fue cancelada. No se puede comprar la entrada.");
+            if(Stock <= 0)
+                throw new BusinessException("No hay más stock disponible para esta tarifa.");
+            if(EstadoTarifa != ETipoEstadoTarifa.Activa)
+                throw new BusinessException("La tarifa no está activa. No se puede comprar la entrada.");
+            if(EstadoEvento != ETipoEstadoEvento.Publicado)
+                throw new BusinessException("El evento aún no está publicado. No se puede comprar");
             if(CierreOrden < DateTime.Now.ToLocalTime())
             {   
                 if(!ordenRepository.UpdEstadoExpirado(idOrden))
                     throw new DataBaseException("No se pudo actualizar la orden especificada.");
                 throw new BusinessException($"Ya pasaron los 15 min hábiles para pagar la orden.");
             }
-            Console.WriteLine(DateTime.Now.ToLocalTime());
+
             if(!ordenRepository.UpdAbonado(idOrden))
                 throw new DataBaseException("No se pudo abonar la orden");
-            
+
             var idEntrada = entradaRepository.Insert(idOrden, TipoEntrada);
             if(idEntrada == 0)
                 throw new DataBaseException("No se pudo instanciar la entrada");
@@ -92,18 +85,10 @@ namespace SistemaDeBoleteria.Services
             if(!codigoQRRepository.Insert(idEntrada))
                 throw new DataBaseException("No se pudo instanciar el código QR");
             return true;
-            // try
-            // {
-            //     return ordenRepository.UpdEstadoPagado(idOrden);
-            // }
-            // catch(MySqlException ex)
-            // {
-            //     throw new DataBaseException(ex.Message);
-            // }
         }
         public bool CancelarOrden(int idOrden)
         {
-            var (_, estadoOrden, _) = ordenRepository.Data(idOrden);
+            var (_, estadoOrden, _, _ , _, _, _) = ordenRepository.Data(idOrden);
             
             if(!ordenRepository.Exists(idOrden))
                 throw new NotFoundException("No se encontró la orden especificada.");

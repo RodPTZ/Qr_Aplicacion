@@ -14,8 +14,6 @@ namespace SistemaDeBoleteria.Core.Validations
         {
             RuleFor(o => o.IdTarifa)
                 .GreaterThan(0).WithMessage("El IdCliente debe ser mayor a 0");
-            RuleFor(o => o.IdFuncion)
-                .GreaterThan(0).WithMessage("El IdCliente debe ser mayor a 0");
             RuleFor(o => o.IdCliente)
                 .GreaterThan(0).WithMessage("El IdSesion debe ser mayor a 0");
             RuleFor(o => o.MedioDePago)

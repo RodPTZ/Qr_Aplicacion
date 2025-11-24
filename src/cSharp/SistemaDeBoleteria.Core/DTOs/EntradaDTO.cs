@@ -13,6 +13,6 @@ namespace SistemaDeBoleteria.Core.DTOs
         public string TipoEntrada { get; set; }
         public DateTime Emision { get; set; }
         public DateTime Liquidez { get; set; }
-        public string Estado { get; set; }
+        public string Anulado { get; set; }
     }
 }

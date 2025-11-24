@@ -86,14 +86,12 @@ CREATE TABLE Tarifa (
 CREATE TABLE Orden (
     IdOrden INT UNSIGNED AUTO_INCREMENT NOT NULL,
     IdTarifa INT UNSIGNED NOT NULL,
-    IdFuncion INT UNSIGNED NOT NULL,
     IdCliente INT UNSIGNED NOT NULL,
     Estado ENUM('Abonado','Cancelado','Expirado', 'Creado') DEFAULT 'Creado',
     Emision DATETIME NOT NULL,
     Cierre DATETIME NOT NULL,
     MedioDePago ENUM('Efectivo','Transferencia','Debito','Credito') NOT NULL,
     CONSTRAINT PK_Orden PRIMARY KEY (IdOrden),
-    CONSTRAINT FK_Orden_Funcion FOREIGN KEY (IdFuncion) REFERENCES Funcion (IdFuncion),
     CONSTRAINT FK_Orden_Cliente FOREIGN KEY (IdCliente) REFERENCES Cliente (IdCliente),
     CONSTRAINT FK_Orden_Tarifa FOREIGN KEY (IdTarifa) REFERENCES Tarifa (IdTarifa)
 );
@@ -104,7 +102,7 @@ CREATE TABLE Entrada (
     TipoEntrada ENUM('General', 'VIP', 'PLUS'),
     Emision DATETIME NOT NULL,
     Liquidez DATETIME NOT NULL,
-    Estado ENUM('Anulado', 'Pagado', 'Pendiente') DEFAULT 'Pendiente',
+    Anulado BOOLEAN DEFAULT FALSE,
     CONSTRAINT PK_Entrada PRIMARY KEY (IdEntrada),
     CONSTRAINT FK_Entrada_Orden FOREIGN KEY (IdOrden) REFERENCES Orden (IdOrden)
 );

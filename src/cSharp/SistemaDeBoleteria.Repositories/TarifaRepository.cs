@@ -40,32 +40,51 @@ public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
         }) > 0;
     });
 
+    const string strExists = @"SELECT EXISTS(SELECT 1 
+                                             FROM Tarifa 
+                                             WHERE IdTarifa = @ID)";
     const string strUpdReducirStock = @"UPDATE Tarifa
                                         SET Stock = Stock - 1
-                                        WHERE IdFuncion = @unIdFuncion 
-                                        AND Estado = 'Activa' 
-                                        AND IdTarifa = @unIdTarifa;";
+                                        WHERE IdTarifa = @unIdTarifa;";
     const string strDevolverReservaStock = @"UPDATE Tarifa
                                              SET Stock = Stock + 1 
                                              WHERE IdFuncion = (SELECT IdFuncion
                                                                 FROM Orden
                                                                 WHERE IdOrden = @ID);";
-    const string strExists = @"SELECT EXISTS(SELECT 1 
-                                             FROM Tarifa 
-                                             WHERE IdTarifa = @ID)";
     public bool Exists(int idTarifa) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idTarifa }));
     public bool DevolverStock(int idOrden) 
     => UseNewConnection(db =>
                 db.Execute(strDevolverReservaStock, new { ID = idOrden}) > 0
         );
-    public bool ReducirStock(int idFuncion, int idTarifa) 
+    public bool ReducirStock(int idTarifa) 
     => UseNewConnection(db =>
-                db.Execute(strUpdReducirStock, new { unIdFuncion = idFuncion, unIdTarifa = idTarifa}) > 0
+                db.Execute(strUpdReducirStock, new { unIdTarifa = idTarifa}) > 0
         );
-    const string strSuspenderTarifas = @"UPDATE Tarifa
-                                         SET Estado = 'Suspendida'
-                                         WHERE IdFuncion IN (SELECT IdFuncion 
-                                                            FROM Funcion 
-                                                            WHERE IdEvento = @ID);";
-    public bool SuspenderTarifasPorIdEvento(int idEvento) => UseNewConnection(db => db.Execute(strSuspenderTarifas, new { ID = idEvento})> 0);
+    const string strSuspenderTarifasEvento = @"UPDATE Tarifa
+                                               SET Estado = 'Suspendida'
+                                               WHERE IdFuncion IN (SELECT IdFuncion 
+                                                                   FROM Funcion 
+                                                                   WHERE IdEvento = @ID);
+                                               UPDATE Tarifa
+                                               SET Stock = Stock + (SELECT COUNT(*)
+                                                                    FROM Entrada E
+                                                                    JOIN Orden O USING (IdOrden)
+                                                                    WHERE E.Anulado = TRUE
+                                                                    AND O.IdTarifa = Tarifa.IdTarifa)
+                                               WHERE IdFuncion IN (SELECT IdFuncion 
+                                                                   FROM Funcion 
+                                                                   WHERE IdEvento = @ID);";
+    const string strSuspenderTarifasFuncion = @"UPDATE Tarifa
+                                                SET Estado = 'Suspendida'
+                                                WHERE IdFuncion = @ID;
+
+                                                UPDATE Tarifa
+                                                SET Stock = Stock + (SELECT COUNT(*) 
+                                                                     FROM Entrada E
+                                                                     JOIN Orden O USING (IdOrden)
+                                                                     WHERE E.Anulado = TRUE
+                                                                     AND O.IdTarifa = Tarifa.IdTarifa)
+                                                WHERE IdFuncion = @ID";                                                        
+    public bool SuspenderTarifasPorIdEvento(int idEvento) => UseNewConnection(db => db.Execute(strSuspenderTarifasEvento, new { ID = idEvento})> 0);
+    public bool SuspenderTarifasPorIdFuncion(int idFuncion) => UseNewConnection(db => db.Execute(strSuspenderTarifasFuncion, new { ID = idFuncion})> 0);
 }

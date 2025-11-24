@@ -79,11 +79,11 @@ public class FuncionRepository :  DbRepositoryBase, IFuncionRepository
                                     SET F.Cancelado = FALSE
                                     WHERE F.IdEvento = @ID
                                     AND E.Estado = 'Publicado'";
-    public bool Exists(int idFuncion) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idFuncion }));
-    public bool UpdPublicado(int idEvento) => UseNewConnection(db => db.Execute(strUpdNoCancel, new { ID = idEvento})) > 0;
     const string strUpdCancelarFunciones = @"UPDATE Funcion
                                              SET Cancelado = TRUE
-                                             WHERE IdEvento = @ID;"; 
+                                             WHERE IdEvento = @ID;";
+    public bool Exists(int idFuncion) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idFuncion }));
+    public bool UpdPublicado(int idEvento) => UseNewConnection(db => db.Execute(strUpdNoCancel, new { ID = idEvento})) > 0; 
     public bool UpdCancelarFuncionesDeIdEvento(int idEvento) => UseNewConnection(db => db.Execute(strUpdCancelarFunciones, new { ID = idEvento}) > 0);
     #endregion
 }

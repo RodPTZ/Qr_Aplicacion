@@ -84,10 +84,11 @@ namespace SistemaDeBoleteria.Services
         { 
             if(!eventoRepository.Exists(IdEvento))
                 throw new NotFoundException("No se encontró el evento especificado");
+
             if(!entradaRepository.UpdAnularEntradasDeEventoID(IdEvento))
                 throw new DataBaseException("No se pudieron anular las entradas relacionadas al evento");
             if(!tarifaRepository.SuspenderTarifasPorIdEvento(IdEvento))
-                throw new DataBaseException("No se pudieron suspender las tarifas relacionadas al evento");
+                throw new DataBaseException("No se pudieron suspender y devolver stock a las tarifas relacionadas al evento.");
             if(!funcionRepository.UpdCancelarFuncionesDeIdEvento(IdEvento))
                 throw new DataBaseException("No se pudieron cancelar las funciones relacionadas al evento");
             if(!eventoRepository.UpdCancelar(IdEvento))

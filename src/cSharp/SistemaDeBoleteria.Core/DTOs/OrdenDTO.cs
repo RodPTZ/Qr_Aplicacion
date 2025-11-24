@@ -11,7 +11,6 @@ namespace SistemaDeBoleteria.Core.DTOs
     public class CrearOrdenDTO
     {
         public int IdTarifa { get; set; }
-        public int IdFuncion { get; set; }
         public int IdCliente { get; set; }
         public ETipoDePago MedioDePago { get; set; }
     }
@@ -19,7 +18,6 @@ namespace SistemaDeBoleteria.Core.DTOs
     {
         public int IdOrden { get; set; }
         public int IdTarifa { get; set; }
-        public int IdFuncion { get; set; }
         public int IdCliente { get; set; }
         public string Estado { get; set; }
         public string MedioDePago { get; set; }
