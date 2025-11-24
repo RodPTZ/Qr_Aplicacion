@@ -1,4 +1,4 @@
-::: mermaid
+``` mermaid
 erDiagram
     Usuario {
         int IdUsuario PK
@@ -105,4 +105,4 @@ erDiagram
     Orden ||--o{ Entrada : "genera"
     Entrada ||--o{ QR : "genera"
 
-:::
+```
