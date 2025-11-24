@@ -41,10 +41,10 @@ public class EventoRepositoryTests
     public void UpdEstadoPublic_ReturnsMessage()
     {
         var mock = new Mock<IEventoRepository>();
-        mock.Setup(r => r.UpdEstadoPublic(1))
+        mock.Setup(r => r.UpdPublicado(1))
             .Returns(true);
 
-        var code = mock.Object.UpdEstadoPublic(1);
+        var code = mock.Object.UpdPublicado(1);
 
         Assert.True(code);
     }

@@ -8,6 +8,7 @@ using SistemaDeBoleteria.Core.Models;
 using SistemaDeBoleteria.Core.Enums;
 using SistemaDeBoleteria.Core.Exceptions;
 using Mapster;
+using System.Data.Common;
 
 public class EntradaRepositoryTests
 {
@@ -16,6 +17,7 @@ public class EntradaRepositoryTests
     {
         // Arrange
         var repoMock = new Mock<IEntradaRepository>();
+        var codigoMock = new Mock<ICodigoQRRepository>();
         var entradas = new List<Entrada>
         {
             new Entrada
@@ -33,7 +35,7 @@ public class EntradaRepositoryTests
             .Setup(r => r.SelectAll())
             .Returns(entradas);
 
-        var service = new EntradaService(repoMock.Object);
+        var service = new EntradaService(repoMock.Object, codigoMock.Object);
 
         // Act
         var result = service.GetAll();
@@ -48,6 +50,7 @@ public class EntradaRepositoryTests
     {
         // Arrange
         var repoMock = new Mock<IEntradaRepository>();
+        var codigoMock = new Mock<ICodigoQRRepository>();
         var entrada = new Entrada
         {
             IdEntrada = 5,
@@ -64,7 +67,7 @@ public class EntradaRepositoryTests
             .Setup(r => r.Select(idEntrada))
             .Returns(entrada);
 
-        var service = new EntradaService(repoMock.Object);
+        var service = new EntradaService(repoMock.Object, codigoMock.Object);
 
         // Act
         var result = service.GetById(idEntrada);
@@ -82,6 +85,7 @@ public class EntradaRepositoryTests
     {
         // Arrange
         var repoMock = new Mock<IEntradaRepository>();
+        var codigoMock = new Mock<ICodigoQRRepository>();
         var entrada = new Entrada
         {
             IdEntrada = 7,
@@ -97,19 +101,20 @@ public class EntradaRepositoryTests
         repoMock
             .Setup(r => r.Select(idEntrada))
             .Returns(entrada);
-
         repoMock
-            .Setup(r => r.UpdateEstado(idEntrada))
+            .Setup(r => r.UpdAnular(idEntrada))
             .Returns(true);
-
-        var service = new EntradaService(repoMock.Object);
+        codigoMock
+            .Setup(c => c.UpdAYaUsada(idEntrada))
+            .Returns(true);
+        var service = new EntradaService(repoMock.Object, codigoMock.Object);
 
         // Act
         var result = service.AnularEntrada(idEntrada);
 
         // Assert
         Assert.True(result);
-        repoMock.Verify(r => r.UpdateEstado(idEntrada), Times.Once);
+        repoMock.Verify(r => r.UpdAnular(idEntrada), Times.Once);
     }
 
     [Fact]
@@ -117,13 +122,14 @@ public class EntradaRepositoryTests
     {
         // Arrange
         var repoMock = new Mock<IEntradaRepository>();
+        var codigoMock = new Mock<ICodigoQRRepository>();
         var idEntrada = 44;
 
         repoMock
             .Setup(r => r.Select(idEntrada))
             .Returns((Entrada)null);
 
-        var service = new EntradaService(repoMock.Object);
+        var service = new EntradaService(repoMock.Object, codigoMock.Object);
 
         // Act y Assert
         Assert.Throws<NotFoundException>(() => service.AnularEntrada(idEntrada));
@@ -134,6 +140,7 @@ public class EntradaRepositoryTests
     {
         // Arrange
         var repoMock = new Mock<IEntradaRepository>();
+        var codigoMock = new Mock<ICodigoQRRepository>();
         var entrada = new Entrada
         {
             IdEntrada = 9,
@@ -146,7 +153,7 @@ public class EntradaRepositoryTests
             .Setup(r => r.Select(idEntrada))
             .Returns(entrada);
 
-        var service = new EntradaService(repoMock.Object);
+        var service = new EntradaService(repoMock.Object, codigoMock.Object);
 
         // Act y Assert
         Assert.Throws<BusinessException>(() => service.AnularEntrada(idEntrada));

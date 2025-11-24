@@ -5,6 +5,7 @@ using SistemaDeBoleteria.Core.Enums;
 using SistemaDeBoleteria.Core.Exceptions;
 using Mapster;
 using MySqlConnector;
+using System.Data.Common;
 
 
 namespace SistemaDeBoleteria.Services
@@ -12,9 +13,11 @@ namespace SistemaDeBoleteria.Services
     public class EntradaService : IEntradaService
     {
         private readonly IEntradaRepository entradaRepository;
-        public EntradaService(IEntradaRepository entradaRepository)
+        private readonly ICodigoQRRepository codigoQRRepository;
+        public EntradaService(IEntradaRepository entradaRepository, ICodigoQRRepository codigoQRRepository)
         {
             this.entradaRepository = entradaRepository;
+            this.codigoQRRepository = codigoQRRepository;
         }
 
         public IEnumerable<MostrarEntradaDTO> GetAll()
@@ -33,14 +36,21 @@ namespace SistemaDeBoleteria.Services
             if(entrada.Estado == ETipoEstadoEntrada.Anulado)
                 throw new BusinessException("No se puede anular una entrada que se encuentra anulada.");
             
-            try
-            {
-                return entradaRepository.UpdateEstado(idEntrada);
-            }
-            catch (MySqlException ex)
-            {
-                throw new DataBaseException(ex.Message);
-            }
+            //deberia ir en trycatch
+            if(!entradaRepository.UpdAnular(idEntrada))
+                throw new DataBaseException("No se pudo anular la entrada.");
+            if(!codigoQRRepository.UpdAYaUsada(idEntrada))
+                throw new DataBaseException("No se pudo marcar como ya usada, tras la cancelación de la entrada.");
+            return true;
+            //
+            // try
+            // {
+            //     return entradaRepository.UpdateEstado(idEntrada);
+            // }
+            // catch (MySqlException ex)
+            // {
+            //     throw new DataBaseException(ex.Message);
+            // }
             
         }
     }

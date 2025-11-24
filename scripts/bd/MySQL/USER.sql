@@ -1,7 +1,8 @@
 
 DROP USER IF EXISTS 'Admin'@'localhost'; 
 CREATE USER 'Admin'@'localhost' IDENTIFIED BY 'AdminET12';
-GRANT ALL PRIVILEGES ON 5to_SistemaDeBoleteria.* TO 'Admin'@'localhost';
+-- GRANT ALL PRIVILEGES ON 5to_SistemaDeBoleteria.* TO 'Admin'@'localhost';
+GRANT INSERT,SELECT,UPDATE,DELETE ON 5to_SistemaDeBoleteria.* TO 'Admin'@'localhost';
 
 DROP USER IF EXISTS 'Empleado'@'localhost';
 CREATE USER 'Empleado'@'localhost' IDENTIFIED BY 'EmpleadoET12';
@@ -14,7 +15,16 @@ DROP USER IF EXISTS 'Organizador'@'localhost';
 CREATE USER 'Organizador'@'localhost' IDENTIFIED BY 'OrganizadorET12';
 GRANT SELECT ON 5to_SistemaDeBoleteria.* TO 'Organizador'@'localhost';
 
+----------
 DROP USER IF EXISTS 'Cliente'@'%';
 CREATE USER 'Cliente'@'%' IDENTIFIED BY 'ClienteET12';
 GRANT SELECT ON Usuario TO 'Cliente'@'%';
 GRANT INSERT ON AuthTokens TO 'Cliente'@'%';
+-- para insert en cliente
+
+-- para ver QR
+GRANT SELECT ON QR TO 'Cliente'@'%';
+GRANT SELECT ON Entrada to 'Cliente'@'%';
+GRANT SELECT ON Orden TO 'Cliente'@'%';
+GRANT SELECT ON Funcion TO 'Cliente'@'%';
+--

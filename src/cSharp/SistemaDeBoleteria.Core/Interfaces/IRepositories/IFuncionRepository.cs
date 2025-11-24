@@ -14,5 +14,7 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         bool Update(Funcion funcion, int idFuncion);
         bool UpdFuncionCancel(int idFuncion);
         bool Exists(int idFuncion);
+        bool UpdPublicado(int idEvento);
+        bool UpdCancelarFuncionesDeIdEvento(int idEvento);
     }
 }

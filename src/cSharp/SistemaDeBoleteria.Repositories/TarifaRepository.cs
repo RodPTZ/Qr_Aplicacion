@@ -6,6 +6,7 @@ using System.Data;
 using SistemaDeBoleteria.Core.Inheritance;
 using SistemaDeBoleteria.Core.Interfaces.IRepositories;
 using System.Reflection.Metadata.Ecma335;
+using System.Data.Common;
 namespace SistemaDeBoleteria.Repositories;
 public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
 {
@@ -39,9 +40,32 @@ public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
         }) > 0;
     });
 
+    const string strUpdReducirStock = @"UPDATE Tarifa
+                                        SET Stock = Stock - 1
+                                        WHERE IdFuncion = @unIdFuncion 
+                                        AND Estado = 'Activa' 
+                                        AND IdTarifa = @unIdTarifa;";
+    const string strDevolverReservaStock = @"UPDATE Tarifa
+                                             SET Stock = Stock + 1 
+                                             WHERE IdFuncion = (SELECT IdFuncion
+                                                                FROM Orden
+                                                                WHERE IdOrden = @ID);";
     const string strExists = @"SELECT EXISTS(SELECT 1 
                                              FROM Tarifa 
                                              WHERE IdTarifa = @ID)";
     public bool Exists(int idTarifa) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idTarifa }));
-        
+    public bool DevolverStock(int idOrden) 
+    => UseNewConnection(db =>
+                db.Execute(strDevolverReservaStock, new { ID = idOrden}) > 0
+        );
+    public bool ReducirStock(int idFuncion, int idTarifa) 
+    => UseNewConnection(db =>
+                db.Execute(strUpdReducirStock, new { unIdFuncion = idFuncion, unIdTarifa = idTarifa}) > 0
+        );
+    const string strSuspenderTarifas = @"UPDATE Tarifa
+                                         SET Estado = 'Suspendida'
+                                         WHERE IdFuncion IN (SELECT IdFuncion 
+                                                            FROM Funcion 
+                                                            WHERE IdEvento = @ID);";
+    public bool SuspenderTarifasPorIdEvento(int idEvento) => UseNewConnection(db => db.Execute(strSuspenderTarifas, new { ID = idEvento})> 0);
 }

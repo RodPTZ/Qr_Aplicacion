@@ -4,5 +4,6 @@ namespace SistemaDeBoleteria.Core.Enums;
     {
         Abonado,
         Cancelado,
+        Expirado,
         Creado
     }
