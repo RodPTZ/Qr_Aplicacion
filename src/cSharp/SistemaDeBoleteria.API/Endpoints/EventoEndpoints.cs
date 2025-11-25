@@ -36,7 +36,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Created($"/eventos/{eventoCreado.IdEvento}", eventoCreado);
                 })
                 .WithTags("C - Eventos")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
 
             app.MapGet("/eventos/tipos",
                 () =>
@@ -47,7 +47,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok(tiposDeEvento);
                 })
                 .WithTags("C - Eventos")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
 
             app.MapGet("/eventos",
                 ([FromServices] IEventoService eventoService) =>
@@ -56,7 +56,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return !eventos.Any() ? Results.NoContent() : Results.Ok(eventos);
                 })
                 .WithTags("C - Eventos")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("ClienteOrganizador");
 
             app.MapGet("/eventos/{eventoID}",
                 ([FromRoute] int eventoID,
@@ -66,7 +66,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return evento is null ? Results.NotFound() : Results.Ok(evento);
                 })
                 .WithTags("C - Eventos")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("ClienteOrganizador");
 
             app.MapPut("/eventos/{eventoID}",
                 ([FromRoute] int eventoID,
@@ -91,7 +91,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok(eventoActualizado);
                 })
                 .WithTags("C - Eventos")
-                .RequireAuthorization("EmpleadoOrganizador");;
+                .RequireAuthorization("Organizador");;
 
             app.MapPost("/eventos/{eventoID}/publicar",
                 ([FromRoute] int eventoID,
@@ -101,7 +101,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok("Evento publicado exitosamente.");
                 })
                 .WithTags("C - Eventos")
-                .RequireAuthorization("EmpleadoOrganizador");;
+                .RequireAuthorization("Organizador");;
 
             app.MapPost("/eventos/{eventoID}/cancelar",
                 ([FromRoute] int eventoID,
@@ -111,7 +111,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok("Evento cancelado exitosamente");
                 })
                 .WithTags("C - Eventos")
-                .RequireAuthorization("EmpleadoOrganizador");;
+                .RequireAuthorization("Organizador");;
         }
     }
 }

@@ -18,7 +18,7 @@ public class EntradaRepository :  DbRepositoryBase, IEntradaRepository
 
                             SELECT LAST_INSERT_ID();";
     const string UpdCancel = @"UPDATE Entrada
-                               SET Estado = 'Anulado'
+                               SET Anulado = TRUE
                                WHERE IdEntrada = @ID;";
     public IEnumerable<Entrada> SelectAll() => UseNewConnection(db => db.Query<Entrada>("SELECT * FROM Entrada"));
     public Entrada? Select(int idEntrada) => UseNewConnection(db => db.QueryFirstOrDefault<Entrada>("SELECT * FROM Entrada WHERE IdEntrada = @ID", new { ID = idEntrada }));
@@ -31,6 +31,7 @@ public class EntradaRepository :  DbRepositoryBase, IEntradaRepository
 
     public bool UpdAnular(int idEntrada) => UseNewConnection(db => db.Execute(UpdCancel, new{ ID = idEntrada}) > 0);
     
+    #region Validación de negocio
     const string strExists = @"SELECT EXISTS(SELECT 1 
                                              FROM Entrada 
                                              WHERE IdEntrada = @ID)";
@@ -57,5 +58,5 @@ public class EntradaRepository :  DbRepositoryBase, IEntradaRepository
 
     public bool UpdAnularEntradasDeEventoID(int idEvento) => UseNewConnection( db => db.Execute(strAnularEntradasEvento, new { ID = idEvento}) > 0);
     public bool UpdAnularEntradasDeFuncionID(int idFuncion) => UseNewConnection( db => db.Execute(strAnularEntradasFuncion, new { ID = idFuncion}) > 0);
-
+    #endregion
 }

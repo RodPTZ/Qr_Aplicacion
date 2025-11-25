@@ -40,14 +40,10 @@ namespace SistemaDeBoleteria.Services
             TimeOnly ahora = TimeOnly.FromDateTime(DateTime.Now.ToLocalTime());
 
             bool esHoy = DataFuncion.Apertura.Date == DateTime.Now.ToLocalTime().Date;
-
-            Console.WriteLine(DataFuncion.Apertura.Date);
-            Console.WriteLine(DateTime.Now.Date);
-            Console.WriteLine(DataFuncion.Apertura.Date == DateTime.Now.ToLocalTime().Date);
             
             bool dentroDelHorario = ahora >= DataFuncion.AperturaTime && ahora <= DataFuncion.CierreTime;
 
-            if (DataEntrada.Estado == ETipoEstadoEntrada.Anulado)
+            if (DataEntrada.Anulado is true)
             {
                 return $"{ETipoEstadoQR.FirmaInvalida.ToString()}: caso 3";
             }

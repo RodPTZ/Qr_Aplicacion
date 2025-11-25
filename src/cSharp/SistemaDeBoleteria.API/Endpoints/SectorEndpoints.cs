@@ -38,7 +38,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                         : Results.Created($"/locales/{localID}/sectores/{nuevoSector.IdSector}", nuevoSector);
                 })
                 .WithTags("B - Sector")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
 
             app.MapGet("/locales/{localID}/sectores",
                 ([FromRoute] int localID,
@@ -48,7 +48,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return !sectores.Any() ? Results.NoContent() : Results.Ok(sectores);
                 })
                 .WithTags("B - Sector")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
 
             app.MapPut("/sectores/{sectorID}",
                 ([FromRoute] int sectorID,
@@ -73,7 +73,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok(sectorActualizado);
                 })
                 .WithTags("B - Sector")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
 
             app.MapDelete("/sectores/{sectorID}",
                 ([FromRoute] int sectorID,
@@ -83,7 +83,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok(new { message = "Sector eliminado exitosamente." });
                 })
                 .WithTags("B - Sector")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
         }
     }
 }

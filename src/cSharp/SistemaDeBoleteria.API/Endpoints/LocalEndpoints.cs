@@ -35,7 +35,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Created($"/locales/{localCreado.IdLocal}", localCreado);
                 })
                 .WithTags("A - Locales")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
 
             app.MapGet("/locales",
                 ([FromServices] ILocalService localService) =>
@@ -44,7 +44,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return !locales.Any() ? Results.NoContent() : Results.Ok(locales);
                 })
                 .WithTags("A - Locales")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
 
             app.MapGet("/locales/{localID}",
                 ([FromRoute] int localID,
@@ -54,7 +54,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return local is null ? Results.NotFound() : Results.Ok(local);
                 })
                 .WithTags("A - Locales")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
 
             app.MapPut("/locales/{localID}",
                 ([FromRoute] int localID,
@@ -79,7 +79,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok(localActualizado);
                 })
                 .WithTags("A - Locales")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
 
             app.MapDelete("/locales/{localID}",
                 ([FromRoute] int localID,
@@ -89,7 +89,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok(new { mensaje = "Local eliminado correctamente." });
                 })
                 .WithTags("A - Locales")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Organizador");
         }
     }
 }

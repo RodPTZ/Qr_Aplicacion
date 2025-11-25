@@ -12,7 +12,7 @@ namespace SistemaDeBoleteria.Core.Models
         public ETipoEntrada TipoEntrada { get; set; }
         public DateTime Emision { get; set; }
         public DateTime Liquidez { get; set; }
-        public ETipoEstadoEntrada Estado { get; set; }
+        public bool Anulado { get; set; }
         public CodigoQR QR;
         public Entrada()
         {

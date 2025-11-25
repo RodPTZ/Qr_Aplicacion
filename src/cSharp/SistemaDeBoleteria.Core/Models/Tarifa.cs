@@ -13,6 +13,7 @@ namespace SistemaDeBoleteria.Core.Models
         public decimal Precio { get; set; }
         public int Stock { get; set; }
         public ETipoEstadoTarifa Estado { get; set; }
+        public Funcion Funcion {get; set;}
         public Tarifa()
         {
         }

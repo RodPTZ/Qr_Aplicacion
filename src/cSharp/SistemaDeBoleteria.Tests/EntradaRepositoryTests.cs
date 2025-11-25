@@ -27,7 +27,7 @@ public class EntradaRepositoryTests
                 TipoEntrada = ETipoEntrada.General,
                 Emision = DateTime.Now,
                 Liquidez = DateTime.Now.AddDays(1),
-                Estado = ETipoEstadoEntrada.Pagado
+                Anulado = false
             }
         };
 
@@ -58,7 +58,7 @@ public class EntradaRepositoryTests
             TipoEntrada = ETipoEntrada.VIP,
             Emision = DateTime.Now,
             Liquidez = DateTime.Now.AddDays(3),
-            Estado = ETipoEstadoEntrada.Pagado
+            Anulado = false
         };
 
         var idEntrada = entrada.IdEntrada;
@@ -90,7 +90,7 @@ public class EntradaRepositoryTests
         {
             IdEntrada = 7,
             IdOrden = 99,
-            Estado = ETipoEstadoEntrada.Pagado,
+            Anulado = false,
             Emision = DateTime.Now,
             Liquidez = DateTime.Now.AddDays(5),
             TipoEntrada = ETipoEntrada.General
@@ -144,7 +144,7 @@ public class EntradaRepositoryTests
         var entrada = new Entrada
         {
             IdEntrada = 9,
-            Estado = ETipoEstadoEntrada.Anulado
+            Anulado = true
         };
 
         var idEntrada = entrada.IdEntrada;

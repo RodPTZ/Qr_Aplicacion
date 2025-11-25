@@ -14,7 +14,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return !entradas.Any() ? Results.NoContent() : Results.Ok(entradas);
                 })
                 .WithTags("H - Entradas")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Empleado");
 
             app.MapGet("/entradas/{entradaID}",
                 ([FromRoute] int entradaID,
@@ -24,17 +24,17 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return entrada is null ? Results.NotFound() : Results.Ok(entrada);
                 })
                 .WithTags("H - Entradas")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Empleado");
 
             app.MapPost("/entradas/{entradaID}/anular",
                 ([FromRoute] int entradaID,
                  [FromServices] IEntradaService entradaService) =>
                 {
                     entradaService.AnularEntrada(entradaID);
-                    return Results.Ok(new { message = "Si funciona" });
+                    return Results.Ok(new { message = "Cancelación de entrada exitosa." });
                 })
                 .WithTags("H - Entradas")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Cliente");
         }
     }
 }

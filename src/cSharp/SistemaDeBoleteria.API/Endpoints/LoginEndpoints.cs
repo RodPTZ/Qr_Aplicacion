@@ -93,13 +93,13 @@ namespace SistemaDeBoleteria.API.Endpoints
                 
             })
             .WithTags("J - Login")
-            .RequireAuthorization();
+            .RequireAuthorization("Admin");
 
             app.MapPost("/usuarios/{usuarioID}/roles",
                 ([FromRoute] int usuarioID, [FromBody] ERolUsuario rol, [FromServices] ILoginService loginService) =>
                 {
                     loginService.ChangeRol(usuarioID, rol.ToString());
-                    return Results.Ok();
+                    return Results.Ok("Cambio de rol exitoso.");
                 })
                 .WithTags("J - Login")
                 .RequireAuthorization("Admin");

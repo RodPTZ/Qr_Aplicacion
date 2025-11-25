@@ -27,12 +27,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Empleado", policy => policy.RequireRole("Empleado", "Admin"));
     options.AddPolicy("Organizador", policy => policy.RequireRole("Organizador", "Admin"));
     options.AddPolicy("Cliente", policy => policy.RequireRole("Cliente", "Admin"));
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 
     options.AddPolicy("EmpleadoOrganizador", policy => policy.RequireRole("Empleado", "Organizador", "Admin"));
-    options.AddPolicy("EmpleadoOrganizadorCliente", policy => policy.RequireRole("Empleado", "Organizador", "Cliente", "Admin"));
-    options.AddPolicy("ClienteEmpleado", policy => policy.RequireRole("Cliente", "Empleado", "Admin"));
+    options.AddPolicy("ClienteOrganizador", policy => policy.RequireRole("Cliente", "Organizador", "Admin"));
 
-    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
 });
 
 builder.Services.AddEndpointsApiExplorer();

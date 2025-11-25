@@ -38,10 +38,14 @@ namespace SistemaDeBoleteria.Repositories
         public bool UpdAYaUsada(int idEntrada) => UseNewConnection(db => db.Execute(strUpdTrasEntradaAnulada, new { ID = idEntrada}) > 0);
 
         public bool Insert(int idEntrada) => UseNewConnection(db => db.Execute(InsSql, new{ ID = idEntrada}) > 0 ); 
-        const string SeltEntradaSql = @"SELECT Liquidez, Estado 
-                                        FROM Entrada WHERE IdEntrada = @ID";
+
+        #region Validación de negocio
+        const string SeltEntradaSql = @"SELECT Liquidez, Anulado 
+                                        FROM Entrada 
+                                        WHERE IdEntrada = @ID";
         const string SeltFuncionSql = @"SELECT F.Apertura, F.Cierre 
                                         FROM Orden O 
+                                        JOIN Tarifa T USING (IdTarifa)
                                         JOIN Funcion F USING (IdFuncion) 
                                         WHERE O.IdOrden =  (SELECT IdOrden 
                                                             FROM Entrada 
@@ -60,5 +64,6 @@ namespace SistemaDeBoleteria.Repositories
             db.QueryFirstOrDefault<CodigoQR>(SeltCodigQRSql, new { ID = idEntrada})
         ))!;
         public bool Exists(int idEntrada, string codigo) => UseNewConnection(db => db.ExecuteScalar<bool>( strExists, new { ID = idEntrada, unCodigo = codigo}));
+        #endregion
     }
 }

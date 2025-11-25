@@ -16,7 +16,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return QrPng is null ? Results.NotFound() : Results.File(QrPng, "image/png");
                 })
                 .WithTags("I - CodigoQR")
-                .RequireAuthorization("EmpleadoOrganizador");
+                .RequireAuthorization("Empleado");
 
             app.MapGet("/qr/validar",
                 ([FromQuery] int idEntrada,
@@ -26,8 +26,8 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var estado = codigoQRService.ValidateQR(idEntrada, Codigo);
                     return Results.Ok(new { Estado = estado });
                 })
-                .WithTags("I - CodigoQR");
-                // .RequireAuthorization("EmpleadoOrganizador");
+                .WithTags("I - CodigoQR")
+                .RequireAuthorization("Empleado");
         }
     }
 }

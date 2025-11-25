@@ -11,18 +11,15 @@ namespace SistemaDeBoleteria.Core.Models
         public int IdOrden { get; set; }
         public int IdTarifa { get; set; }
         public int IdCliente { get; set; }
-        public int IdFuncion { get; set; }
         public ETipoEstadoOrden Estado { get; set; }
         public ETipoDePago MedioDePago  { get; set; }
         public DateTime Emision  { get; set; }
         public DateTime Cierre  { get; set; }
         public Cliente cliente;
-        public Funcion funcion;
-        public Orden(int IdTarifa,int IdCliente, int IdFuncion, ETipoEstadoOrden eTipoEstadoOrden, ETipoDePago eTipoDePago, DateTime emision, DateTime cierre)
+        public Orden(int IdTarifa,int IdCliente, ETipoEstadoOrden eTipoEstadoOrden, ETipoDePago eTipoDePago, DateTime emision, DateTime cierre)
         {
             this.IdTarifa= IdTarifa;
             this.IdCliente = IdCliente;
-            this.IdFuncion = IdFuncion;
             Estado=eTipoEstadoOrden;
             MedioDePago = eTipoDePago;
             Emision = emision;

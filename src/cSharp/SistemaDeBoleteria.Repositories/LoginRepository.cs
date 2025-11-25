@@ -16,7 +16,7 @@ namespace SistemaDeBoleteria.Repositories
     {
         public LoginRepository(string connectionString) : base (connectionString){}
         const string InsSql = @"INSERT INTO Usuario (NombreUsuario, Email, Contraseña, Rol) 
-                                VALUES (@NombreUsuario, @Email, @Contraseña, @Rol);
+                                VALUES (@NombreUsuario, @Email, SHA2(@Contraseña, 256), @Rol);
 
                                 SELECT LAST_INSERT_ID();";
         const string UpdRol = @"UPDATE Usuario 
@@ -32,6 +32,7 @@ namespace SistemaDeBoleteria.Repositories
         public Usuario? SelectMe(string email) => UseNewConnection(db => db.QueryFirstOrDefault<Usuario>("SELECT * FROM Usuario WHERE Email = @Email;", new { Email = email }));
         public bool UpdateRol(int idUsuario, string rol) => UseNewConnection(db => db.ExecuteScalar<bool>(UpdRol, new { Rol = rol, IdUsuario = idUsuario }));
 
+        #region Validación de negocio
         const string strSBEAP = @"SELECT * 
                                   FROM Usuario 
                                   WHERE Email = @Email 
@@ -42,5 +43,6 @@ namespace SistemaDeBoleteria.Repositories
         public Usuario? SelectByEmailAndPass(string Email, string Contraseña) 
         => UseNewConnection(db => db.QueryFirstOrDefault<Usuario>(strSBEAP, new { Email, Contraseña }));
         public bool Exists(int idUsuario) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new { ID = idUsuario}));
+        #endregion
     }
 }

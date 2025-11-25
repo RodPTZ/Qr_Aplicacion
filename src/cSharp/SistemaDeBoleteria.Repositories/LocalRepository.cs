@@ -30,8 +30,6 @@ public class LocalRepository :  DbRepositoryBase, ILocalRepository
     public bool Update(Local local, int IdLocal) => UseNewConnection(db => db.Execute(UpdSql, new{ local.Nombre, local.Ubicacion, ID = IdLocal}) > 0);
     
     public bool Delete(int IdLocal) => UseNewConnection(db => db.Execute("DELETE FROM Local WHERE IdLocal = @ID", new { ID = IdLocal }) > 0);
-    
-    // Para lógica de negocio
 
     #region  Validación de negocio
     

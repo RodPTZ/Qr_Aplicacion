@@ -12,7 +12,6 @@ namespace SistemaDeBoleteria.Core.Models
         public string Email { get; set; }
         public string Contraseña { get; set; }
         public ERolUsuario Rol { get; set; }
-        public string Token { get; set; }
 
         public Usuario(string nombreUsuario, string email, string contraseña, ERolUsuario rol)
         {

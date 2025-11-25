@@ -40,6 +40,7 @@ public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
         }) > 0;
     });
 
+    #region Validación de negocio
     const string strExists = @"SELECT EXISTS(SELECT 1 
                                              FROM Tarifa 
                                              WHERE IdTarifa = @ID)";
@@ -48,18 +49,9 @@ public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
                                         WHERE IdTarifa = @unIdTarifa;";
     const string strDevolverReservaStock = @"UPDATE Tarifa
                                              SET Stock = Stock + 1 
-                                             WHERE IdFuncion = (SELECT IdFuncion
+                                             WHERE IdTarifa = (SELECT IdTarifa
                                                                 FROM Orden
                                                                 WHERE IdOrden = @ID);";
-    public bool Exists(int idTarifa) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idTarifa }));
-    public bool DevolverStock(int idOrden) 
-    => UseNewConnection(db =>
-                db.Execute(strDevolverReservaStock, new { ID = idOrden}) > 0
-        );
-    public bool ReducirStock(int idTarifa) 
-    => UseNewConnection(db =>
-                db.Execute(strUpdReducirStock, new { unIdTarifa = idTarifa}) > 0
-        );
     const string strSuspenderTarifasEvento = @"UPDATE Tarifa
                                                SET Estado = 'Suspendida'
                                                WHERE IdFuncion IN (SELECT IdFuncion 
@@ -84,7 +76,17 @@ public class TarifaRepository :  DbRepositoryBase, ITarifaRepository
                                                                      JOIN Orden O USING (IdOrden)
                                                                      WHERE E.Anulado = TRUE
                                                                      AND O.IdTarifa = Tarifa.IdTarifa)
-                                                WHERE IdFuncion = @ID";                                                        
+                                                WHERE IdFuncion = @ID";
+    public bool Exists(int idTarifa) => UseNewConnection(db => db.ExecuteScalar<bool>(strExists, new{ ID = idTarifa }));
+    public bool DevolverStock(int idOrden) 
+    => UseNewConnection(db =>
+                db.Execute(strDevolverReservaStock, new { ID = idOrden}) > 0
+        );
+    public bool ReducirStock(int idTarifa) 
+    => UseNewConnection(db =>
+                db.Execute(strUpdReducirStock, new { unIdTarifa = idTarifa}) > 0
+        );                                                        
     public bool SuspenderTarifasPorIdEvento(int idEvento) => UseNewConnection(db => db.Execute(strSuspenderTarifasEvento, new { ID = idEvento})> 0);
     public bool SuspenderTarifasPorIdFuncion(int idFuncion) => UseNewConnection(db => db.Execute(strSuspenderTarifasFuncion, new { ID = idFuncion})> 0);
+    #endregion
 }

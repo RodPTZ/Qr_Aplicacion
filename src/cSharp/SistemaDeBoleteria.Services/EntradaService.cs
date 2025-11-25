@@ -33,14 +33,14 @@ namespace SistemaDeBoleteria.Services
             var entrada = entradaRepository.Select(idEntrada);
             if(entrada is null)
                 throw new NotFoundException("No se encontró la entrada especificada.");
-            if(entrada.Estado == ETipoEstadoEntrada.Anulado)
+            if(entrada.Anulado is true)
                 throw new BusinessException("No se puede anular una entrada que se encuentra anulada.");
             
             //deberia ir en trycatch
             if(!entradaRepository.UpdAnular(idEntrada))
                 throw new DataBaseException("No se pudo anular la entrada.");
             if(!codigoQRRepository.UpdAYaUsada(idEntrada))
-                throw new DataBaseException("No se pudo marcar como ya usada, tras la cancelación de la entrada.");
+                throw new DataBaseException("No se pudo marcar el QR como ya usada, tras la cancelación de la entrada.");
             return true;
             //
             // try

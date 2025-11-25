@@ -32,6 +32,7 @@ public class ClienteRepository : DbRepositoryBase, IClienteRepository
         cliente.IdCliente = idCliente;
         return db.Execute(UpdSql, cliente) > 0;
     });
+    
     const string strExists = @"SELECT EXISTS(SELECT 1 
                                              FROM Cliente 
                                              WHERE IdCliente = @ID)";

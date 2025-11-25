@@ -11,7 +11,6 @@ namespace SistemaDeBoleteria.Core.Models
         public int IdSector { get; set; }
         public int IdLocal { get; set; }
         public short Capacidad { get; set; }
-
         public Local local;
 
         public Sector(short capacidad, Local local)
