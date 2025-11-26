@@ -15,7 +15,7 @@ GRANT SELECT, INSERT, UPDATE ON 5to_SistemaDeBoleteria.Usuario TO 'usuario'@'loc
 GRANT SELECT ON 5to_SistemaDeBoleteria.Evento TO 'usuario'@'localhost';
 GRANT SELECT ON 5to_SistemaDeBoleteria.Funcion TO 'usuario'@'localhost';
 GRANT SELECT, UPDATE ON 5to_SistemaDeBoleteria.Tarifa TO 'usuario'@'localhost';
-GRANT SELECT ON 5to_SistemaDeBoleteria.Cliente TO 'usuario'@'localhost';
+GRANT SELECT, UPDATE ON 5to_SistemaDeBoleteria.Cliente TO 'usuario'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON 5to_SistemaDeBoleteria.Orden TO 'usuario'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON 5to_SistemaDeBoleteria.Entrada TO 'usuario'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON 5to_SistemaDeBoleteria.QR TO 'usuario'@'localhost';
