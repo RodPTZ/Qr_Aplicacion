@@ -37,35 +37,35 @@
 ---
 # 📦 Paquetes Utilizados en el Proyecto
 
-##🔐 Autenticación y Seguridad
+## 🔐 Autenticación y Seguridad
 
 * Microsoft.AspNetCore.Authentication.JwtBearer (8.0.21)
 * Microsoft.IdentityModel.Tokens (8.14.0)
 * System.IdentityModel.Tokens.Jwt (8.14.0)
 
-##🗄️ Acceso a Datos
+## 🗄️ Acceso a Datos
 
 * MySqlConnector (2.4.0)
 * Dapper (2.1.66)
 
-##🧭 Mapeo y Transformación de Objetos
+## 🧭 Mapeo y Transformación de Objetos
 
 * Mapster (7.4.0)
 
-##✔️ Validación
+## ✔️ Validación
 
 * FluentValidation (12.0.0)
 
-##🧩 Configuración
+## 🧩 Configuración
 
 * Microsoft.Extensions.Configuration (8.0.0)
 
-##🧪 Testing
+## 🧪 Testing
 
 * Moq (4.20.72)
 * xUnit (2.4.2)
 
-##🪪 Generación de QR
+## 🪪 Generación de QR
 
 * QRCoder (1.7.0)
 
