@@ -85,7 +85,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok(clienteActualizado);
                 })
                 .WithTags("F - Clientes")
-                .RequireAuthorization("Admin");
+                .RequireAuthorization("Cliente");
         }
     }
 }
