@@ -11,6 +11,6 @@ namespace SistemaDeBoleteria.Core.Interfaces.IRepositories
         bool InsertToken(int idUsuario, string token, DateTime expiracion);
         bool InvalidateToken(string token);
         (bool Revocado, DateTime Expiración) IsRevoced(string token);
-        Usuario? SelectUserByToken(string token);
+        Usuario? SelectUserByToken(string refreshToken);
     }
 }

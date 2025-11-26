@@ -11,7 +11,6 @@ namespace SistemaDeBoleteria.Core.Models
         public int IdEntrada { get; set; }
         public string Codigo  { get; set; }
         public ETipoEstadoQR TipoEstado  { get; set; }
-        public Entrada entrada;
         public CodigoQR(int idEntrada, string codigo)
         {
             IdEntrada = idEntrada;

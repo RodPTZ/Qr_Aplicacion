@@ -1,4 +1,6 @@
 
+USE 5to_SistemaDeBoleteria;
+
 INSERT INTO Usuario (NombreUsuario, Email, Contraseña, Rol) VALUES
 ('admin', 'admin@gmail.com', SHA2('123', 256), 'Admin'),
 ('empleado','empleado@gmail.com',SHA2('qwe', 256),'Empleado'),

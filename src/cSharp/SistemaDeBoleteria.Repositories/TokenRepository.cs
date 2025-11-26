@@ -24,7 +24,7 @@ namespace SistemaDeBoleteria.Repositories
                                 WHERE T.Token = @Token 
                                 AND T.Expiracion > NOW() 
                                 AND T.Revocado = FALSE;";
-        const string SlcData = @"SELECT Revocado, Expirado 
+        const string SlcData = @"SELECT Revocado, Expiracion 
                                  FROM AuthTokens 
                                  WHERE Token = @Token;";
         public bool InsertToken(int idUsuario, string refreshToken, DateTime expiracion) 
@@ -37,6 +37,6 @@ namespace SistemaDeBoleteria.Repositories
         public (bool Revocado, DateTime Expiración) IsRevoced(string token)
         => UseNewConnection(db => db.QueryFirstOrDefault<(bool, DateTime)>(SlcData, new { Token = token }));
 
-        public Usuario? SelectUserByToken(string token) => UseNewConnection(db => db.QueryFirstOrDefault<Usuario>(SlcUsr, new { Token = token }));
+        public Usuario? SelectUserByToken(string refreshToken) => UseNewConnection(db => db.QueryFirstOrDefault<Usuario>(SlcUsr, new { Token = refreshToken }));
     }
 }

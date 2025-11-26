@@ -1,4 +1,6 @@
 
+USE 5to_SistemaDeBoleteria;
+
 DROP USER IF EXISTS 'usuario'@'localhost';
 DROP USER IF EXISTS 'organizador'@'localhost';
 DROP USER IF EXISTS 'administrador'@'localhost';
