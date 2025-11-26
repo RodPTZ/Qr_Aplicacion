@@ -16,7 +16,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return QrPng is null ? Results.NotFound() : Results.File(QrPng, "image/png");
                 })
                 .WithTags("I - CodigoQR")
-                .RequireAuthorization("Empleado");
+                .RequireAuthorization("Cliente");
 
             app.MapGet("/qr/validar",
                 ([FromQuery] int idEntrada,
