@@ -34,8 +34,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     var mostrarClienteDTO = clienteService.Post(cliente);
                     return Results.Created($"/clientes/{mostrarClienteDTO.IdCliente}", mostrarClienteDTO);
                 })
-                .WithTags("F - Clientes")
-                .RequireAuthorization("Admin");
+                .WithTags("F - Clientes");
 
             app.MapGet("/clientes",
                 (IClienteService clienteService) =>
