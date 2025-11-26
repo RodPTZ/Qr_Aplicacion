@@ -16,10 +16,11 @@
 # Documentación del proyecto
   
 ## Diagrama de Entidad-Relación (DER)
-- [Diagrama Entidad-Relación (DER)](docs/DER.md)
+![Diagrama Entidad-Relación](docs/DER.png)
   
 ## Lenguaje Unificado de Modelado (UML)
 ![Diagrama UML](docs/UML.drawio.svg)
+
 ## Casos de Uso 
 ![Casos de Uso](docs/CasosdeUso.drawio.svg)
 
