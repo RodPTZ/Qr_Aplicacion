@@ -35,7 +35,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Created($"/clientes/{mostrarClienteDTO.IdCliente}", mostrarClienteDTO);
                 })
                 .WithTags("F - Clientes")
-                .RequireAuthorization("Admin");;
+                .RequireAuthorization("Admin");
 
             app.MapGet("/clientes",
                 (IClienteService clienteService) =>
@@ -47,7 +47,7 @@ namespace SistemaDeBoleteria.API.Endpoints
                     return Results.Ok(clientes);
                 })
                 .WithTags("F - Clientes")
-                .RequireAuthorization("Admin");;
+                .RequireAuthorization("Admin");
 
             app.MapGet("/clientes/{clienteID}",
                 ([FromRoute] int clienteID,
